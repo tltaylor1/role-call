@@ -16,3 +16,12 @@ repos:
         entry: vale
         language: system
         types_or: [markdown, python, shell]
+      # The standards ban deferred-work stubs; this makes the ban a mechanism.
+      # AGENTS.md states the rule so it names the markers, and this file
+      # names them to match them, so both are excluded.
+      - id: no-deferred-work-markers
+        name: forbid deferred-work markers
+        entry: '\b(TODO|FIXME|HACK|XXX)\b'
+        language: pygrep
+        types: [text]
+        exclude: '^(AGENTS\.md|\.pre-commit-config\.yaml)$'
