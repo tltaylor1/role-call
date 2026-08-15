@@ -31,6 +31,33 @@ Four operations, and nothing else:
   attestations, in role-call only; nothing is written to the cloud
   account.
 
+## Where it is going
+
+Version one is the floor, not the product. The roadmap builds toward, in
+order:
+
+- **Deeper context.** Creator attribution and usage baselines beyond the
+  provider's 90 day event window, once the log infrastructure exists to
+  hold them, plus expected-profile checks: a known vendor integration
+  holding exactly its documented permissions is furniture, and the same
+  integration holding more is a finding.
+- **Report-only governance.** A quarantine that observes before it ever
+  enforces: mark an identity pending, watch its usage through a review
+  window, and let the owner decide with evidence. A what-if view answers
+  "had this been revoked a month ago, what would have broken."
+- **Human-triggered remediation, never automation.** Deactivate and
+  restore, each behind a fresh proof of identity, each shown as a policy
+  diff before it happens, each verified against the provider afterward,
+  because clicked is not revoked until the provider says so.
+- **Temporary approved re-elevation.** An owner asks for a quarantined
+  identity back for a window, someone else approves, and the clock does
+  the offboarding. Just-in-time access, applied to non-human identities.
+- **More providers behind one identity model.** Okta and Entra after AWS,
+  as adapters over the same append-only ingestion, not as rewrites.
+
+The full sequence, with what each phase proves, is in
+[ROADMAP.md](ROADMAP.md).
+
 ## Where to start
 
 - [ROADMAP.md](ROADMAP.md) is the phase plan, the confirmed scope, and
