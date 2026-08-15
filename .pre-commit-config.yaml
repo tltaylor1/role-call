@@ -24,4 +24,4 @@ repos:
         entry: '\b(TODO|FIXME|HACK|XXX)\b'
         language: pygrep
         types: [text]
-        exclude: '^(AGENTS\.md|\.pre-commit-config\.yaml)$'
+        exclude: '^(AGENTS\.md|\.pre-commit-config\.yaml|\.github/workflows/ci\.yml)$'

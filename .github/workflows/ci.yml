@@ -1,0 +1,39 @@
+# Continuous integration gates. Third-party actions are pinned by full
+# commit hash, and tools are downloaded directly from their canonical
+# releases and checksum-verified before they run, so the pipeline's own
+# supply chain meets the same bar as the application's.
+name: checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: install trufflehog, verified
+        run: |
+          curl -sSfL -o th.tar.gz https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.0/trufflehog_3.97.0_linux_amd64.tar.gz
+          echo "62224de2f9dd7cd418800feb953760a302ed2f82a7c547fe1146a4874fb179e4  th.tar.gz" | sha256sum -c -
+          tar -xzf th.tar.gz trufflehog
+      - name: scan the full history with verification on
+        run: ./trufflehog git file://. --fail
+
+  writing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: install vale, verified
+        run: |
+          curl -sSfL -o vale.tar.gz https://github.com/errata-ai/vale/releases/download/v3.17.0/vale_3.17.0_Linux_64-bit.tar.gz
+          echo "a903f1f60c3293fac643e0137f599a462881cc691ee19d6120dcfc786f1be86d  vale.tar.gz" | sha256sum -c -
+          tar -xzf vale.tar.gz vale
+      - name: writing rules
+        run: ./vale $(git ls-files '*.md')
+      - name: forbid deferred-work markers
+        run: |
+          ! grep -rnE "\b(TODO|FIXME|HACK|XXX)\b" --exclude-dir=.git --exclude-dir=.github --exclude=AGENTS.md --exclude=.pre-commit-config.yaml .
