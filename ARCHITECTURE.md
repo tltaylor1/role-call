@@ -102,8 +102,9 @@ formula escaping applied to every cell that could carry one.
 
 ## Diagrams to draw
 
-Working sketches exist above; these are the finished diagrams, drawn by
-hand, added to a diagrams directory as they complete.
+Working sketches exist above and as sketch-suffixed files in the diagrams
+directory; these are the finished diagrams, drawn by hand, replacing the
+sketches as they complete.
 
 1. **System context.** Operator, application, database, imported files,
    exports out. The one-glance picture.

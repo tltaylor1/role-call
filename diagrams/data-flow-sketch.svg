@@ -1,0 +1,77 @@
+<svg viewBox="0 0 920 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="role-call data flow working sketch">
+  <!-- Working sketch under the diagram doctrine. Self-contained: system fonts, no external references. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#57606a"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#b04f2e"/>
+    </marker>
+  </defs>
+
+  <rect width="920" height="520" fill="#f6f5f2"/>
+
+  <text x="40" y="36" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.5" fill="#57606a">ROLE-CALL DATA FLOW, WORKING SKETCH</text>
+
+  <!-- trust boundary -->
+  <rect x="250" y="60" width="400" height="400" rx="8" fill="none" stroke="#b04f2e" stroke-opacity="0.5" stroke-dasharray="4 4"/>
+  <text x="270" y="84" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" fill="#b04f2e" fill-opacity="0.8">APPLICATION, TRUST BOUNDARY</text>
+
+  <!-- nodes -->
+  <rect x="40" y="225" width="140" height="70" rx="6" fill="rgba(87,96,106,0.08)" stroke="#8a939e"/>
+  <text x="110" y="255" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Operator browser</text>
+  <text x="110" y="271" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">token in memory</text>
+
+  <rect x="300" y="100" width="180" height="58" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="390" y="124" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Snapshot ingestion</text>
+  <text x="390" y="140" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">bounded, append only</text>
+
+  <rect x="300" y="230" width="180" height="60" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="390" y="255" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Routes</text>
+  <text x="390" y="271" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">auth, three roles, every request</text>
+
+  <rect x="300" y="360" width="180" height="58" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="390" y="384" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Governance records</text>
+  <text x="390" y="400" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">owner, flag, attestation</text>
+
+  <!-- focal node: the engine computes and never stores -->
+  <rect x="460" y="136" width="170" height="58" rx="6" fill="rgba(176,79,46,0.06)" stroke="#b04f2e"/>
+  <text x="545" y="160" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Derivation engine</text>
+  <text x="545" y="176" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">computes, never stores</text>
+
+  <rect x="460" y="300" width="170" height="58" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="545" y="324" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Report builder</text>
+  <text x="545" y="340" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">self-contained, escaped</text>
+
+  <rect x="720" y="150" width="160" height="60" rx="6" fill="rgba(36,41,46,0.05)" stroke="#57606a"/>
+  <text x="800" y="176" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">PostgreSQL</text>
+  <text x="800" y="192" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">observations, audit</text>
+
+  <!-- connectors -->
+  <path d="M180,250 H294" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="200" y="242" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">session token</text>
+
+  <path d="M300,272 H186" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="200" y="286" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">derived views</text>
+
+  <path d="M390,230 V164" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="398" y="200" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">import</text>
+
+  <path d="M480,129 H652 Q660,129 660,137 V164 Q660,172 668,172 H714" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="500" y="121" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">observations, append only</text>
+
+  <path d="M720,196 H680 Q672,196 672,188 V173 Q672,165 664,165 H636" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="676" y="212" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">history</text>
+
+  <path d="M460,165 H420 Q412,165 412,173 V224" fill="none" stroke="#b04f2e" stroke-width="1.5" marker-end="url(#arrow-accent)"/>
+  <text x="330" y="205" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#b04f2e">derived state</text>
+
+  <path d="M390,290 V354" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="398" y="326" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">actions</text>
+
+  <path d="M480,389 H772 Q780,389 780,381 V216" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="590" y="381" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">action plus audit, one transaction</text>
+
+  <path d="M545,194 V294" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="553" y="250" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">risk ordering</text>
+</svg>
