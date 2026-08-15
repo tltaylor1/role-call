@@ -160,3 +160,20 @@ Each endpoint is one operation with one explicit authorization check, so
 the authorization surface stays countable and testable. GraphQL was
 rejected because it spreads authorization across a query graph, which is
 where authorization mistakes hide.
+
+## D-015: Version one scope is four operations, files in, reports out
+
+Confirmed scope: an operator authenticates; a snapshot file is imported,
+append-only; the enriched inventory is viewed and can produce a
+self-contained risk report plus escaped CSV and JSON exports; governance
+(owner, flag, attestation) is recorded in role-call only.
+
+Two sub-decisions carry the reasoning. Ingestion is file import only in
+version one, because the fresh-clone demo must run with Docker alone and
+nothing else, and everything runs locally before it runs in the cloud; the
+live read-only pull joins in the cloud phases as an adapter behind the
+same ingestion. The report ships in version one rather than later because
+a self-contained risk artifact is how this class of findings actually
+travels between people, a pattern proven publicly by Cloudsplaining, and
+the fields it needs already exist in the inventory view. A live pull in
+version one was rejected; a view-only version one was rejected.
