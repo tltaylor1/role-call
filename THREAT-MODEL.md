@@ -39,7 +39,7 @@ Ordered by likelihood times impact. The STRIDE letter names the category.
 |---|---|---|---|---|---|
 | 1 | Theft of role-call's own cloud credential, giving an attacker the full identity map and a foothold shaped like a security tool | S, I | Medium | High | Federated, short-lived credentials rather than a stored key; read-only scope; the role's own use is audited in the target account's trail, so the watcher is watched |
 | 2 | Disclosure of the inventory: database access or a leaked export hands over the reconnaissance map | I | Medium | High | Encryption at rest; authentication on every request; response models as an allowlist on the way out; exports carry deliberate fields only |
-| 3 | A hidden identity: tampering with stored data so an attacker's principal never appears in the inventory | T | Low | High | State is derived at read time from append-only observations, and every sync is a full snapshot, so hiding requires tampering again after every sync; database least privilege; tamper-evident audit |
+| 3 | A hidden identity: tampering with stored data so an attacker's principal never appears in the inventory | T | Low | High | State is derived at read time from append-only observations, and every sync is a full snapshot, so hiding requires tampering again after every sync; database least privilege; the audit row commits with its action and carries attribution |
 | 4 | A malicious imported snapshot rewrites another account's history or plants hostile values | T | Medium | Medium | Bounded parsing on every axis; the one-account-per-file precondition is verified rather than assumed; ingestion is append-only and duplicates are rejected |
 | 5 | Stale data presents false comfort: a decision made on an inventory that no longer matches the account | I | Medium | Medium | Every view carries its as-of sync time; recency is a first-class field; an old sync is a visible warning, not a footnote |
 | 6 | Theft of an operator session token | S | Medium | Medium | Sessions are revocable from day one; short expiry; step-up authentication arrives with any action that changes the cloud account |
@@ -47,6 +47,7 @@ Ordered by likelihood times impact. The STRIDE letter names the category.
 | 8 | A governance action is denied or misattributed: who attested this identity, who cleared this flag | R | Low | Medium | Attribution columns on the record itself, plus the audit row written in the same transaction as the action |
 | 9 | Ingest exhaustion: an enormous account, or API throttling turning a sync into an outage | D | Medium | Low | Paced API calls that honor throttling; bounded imports; container resource caps |
 | 10 | A shadow admin scored as low risk because its privilege is capability-shaped rather than name-shaped | I | Medium | Medium | Admin-equivalence heuristics judge what a policy can do, not what it is called; the chaining limitation below is stated rather than hidden |
+| 11 | A deleted principal is recreated under its old name and inherits the dead identity's governance standing | S, T | Medium | Medium | Identities are keyed by the provider's immutable identifier (D-016), so a recreated principal is a new identity, and reuse of a governed name is surfaced as a finding |
 
 -------------------------------------------------------------------------------
 
@@ -67,6 +68,15 @@ Recorded so each is a decision with a reason, not a surprise.
   acts there. That is the enrichment-over-automation design, stated as a
   risk because a reader could mistake governance records for applied
   controls.
+- **The audit trail is not yet tamper-evident.** The trail is atomic and
+  attributed from the first commit, but an actor with database write
+  access could still alter history. Write-once or hash-chained audit
+  storage arrives with the cloud phases; until then this is the accepted
+  gap, stated rather than implied.
+- **Snapshot files are only as authentic as their handling.** The runbook
+  instructs exporting reports directly from the provider to the machine
+  that imports them. A file that traveled through other hands in between
+  is a risk the parser's bounds cannot remove, accepted and named.
 - **The tool depends on the provider's own reporting.** If the account's
   telemetry is wrong or delayed, the inventory inherits that. Verifying
   the provider against itself is out of scope.
