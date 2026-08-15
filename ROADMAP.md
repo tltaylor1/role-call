@@ -34,10 +34,15 @@ version one. A list of the diagrams to draw. No code.
 **Phase 1. Build the application.** The smallest system that genuinely
 governs identities: the version one operations below, with the security
 controls present from the first commit rather than added afterward.
-Authentication on every request, input validation at every boundary, audit
-rows written in the same transaction as the actions they record, schema
-migrations from the first table, encryption at rest for the inventory, and
-exports that cannot carry spreadsheet formulas. Hash-pinned dependencies, a
+Authentication on every request, three roles with authorization checked
+per route, rate limiting on sign-in and every sensitive route, a request
+timeout budget, input validation at every boundary, audit rows written in
+the same transaction as the actions they record, schema migrations from
+the first table, encryption at rest for the inventory, a backup and
+restore procedure with a stated retention policy, and exports that cannot
+carry spreadsheet formulas. Locally the stack speaks plain HTTP on the
+loopback interface; transport encryption is the edge's job and arrives
+with the cloud phases. Hash-pinned dependencies, a
 software bill of materials, secret scanning, attack-path tests, and
 continuous integration are set up here, and the container image is built
 from a digest-pinned base.
@@ -97,7 +102,7 @@ Confirmed. Version one implements four operations, and nothing else:
   identity, or records an attestation. Nothing is written to the cloud
   account.
 
-That set exercises authentication, input validation, derived state, audit
+That set exercises authentication, authorization across three roles, input validation, derived state, audit
 logging, and the enrichment model, and it keeps the tool's own cloud
 credential read-only. Adding more operations would not add a control that
 is not already demonstrated.
