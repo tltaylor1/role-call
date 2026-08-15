@@ -1,0 +1,72 @@
+# Threat model
+
+The method: STRIDE per component (Spoofing, Tampering, Repudiation,
+Information disclosure, Denial of service, Elevation of privilege), ranked
+by likelihood and impact, each threat mapped to the control that answers
+it. This is the version one model; Phase 7 changes what the tool is
+allowed to do and requires a revision before any of its code is written.
+
+The premise that shapes everything here: role-call's database is a map of
+every identity in the target account, which ones are unused, which ones
+are over-privileged, and which credentials are old. That inventory is
+exactly the reconnaissance an attacker wants, so the tool that reduces
+identity risk is itself a concentration of it, and its own handling is the
+core of the work.
+
+**Contents:** [Components](#components) · [Ranked threats](#ranked-threats) · [Accepted risks](#accepted-risks)
+
+-------------------------------------------------------------------------------
+
+## Components
+
+| Component | Role |
+|---|---|
+| Operator browser | The human's session; holds a login token |
+| Application routes | The trust boundary every request passes through |
+| Snapshot ingestion | The only untrusted input surface: API pulls and imported report files |
+| Derivation engine | Computes status and enrichment from append-only observations |
+| Inventory store (PostgreSQL) | Holds the identity map; encrypted at rest |
+| Audit trail | Records every governance action, written with the action in one transaction |
+| The tool's own cloud credential | A read-only role in the target Amazon Web Services (AWS) account; the identity that must be governed best |
+
+-------------------------------------------------------------------------------
+
+## Ranked threats
+
+Ordered by likelihood times impact. The STRIDE letter names the category.
+
+| # | Threat | STRIDE | Likelihood | Impact | Control |
+|---|---|---|---|---|---|
+| 1 | Theft of role-call's own cloud credential, giving an attacker the full identity map and a foothold shaped like a security tool | S, I | Medium | High | Federated, short-lived credentials rather than a stored key; read-only scope; the role's own use is audited in the target account's trail, so the watcher is watched |
+| 2 | Disclosure of the inventory: database access or a leaked export hands over the reconnaissance map | I | Medium | High | Encryption at rest; authentication on every request; response models as an allowlist on the way out; exports carry deliberate fields only |
+| 3 | A hidden identity: tampering with stored data so an attacker's principal never appears in the inventory | T | Low | High | State is derived at read time from append-only observations, and every sync is a full snapshot, so hiding requires tampering again after every sync; database least privilege; tamper-evident audit |
+| 4 | A malicious imported snapshot rewrites another account's history or plants hostile values | T | Medium | Medium | Bounded parsing on every axis; the one-account-per-file precondition is verified rather than assumed; ingestion is append-only and duplicates are rejected |
+| 5 | Stale data presents false comfort: a decision made on an inventory that no longer matches the account | I | Medium | Medium | Every view carries its as-of sync time; recency is a first-class field; an old sync is a visible warning, not a footnote |
+| 6 | Theft of an operator session token | S | Medium | Medium | Sessions are revocable from day one; short expiry; step-up authentication arrives with any action that changes the cloud account |
+| 7 | Spreadsheet formula injection through exported identity names and tags, which the target account's users control | T | Medium | Medium | Formula-leading cells are escaped in every export path |
+| 8 | A governance action is denied or misattributed: who attested this identity, who cleared this flag | R | Low | Medium | Attribution columns on the record itself, plus the audit row written in the same transaction as the action |
+| 9 | Ingest exhaustion: an enormous account, or API throttling turning a sync into an outage | D | Medium | Low | Paced API calls that honor throttling; bounded imports; container resource caps |
+| 10 | A shadow admin scored as low risk because its privilege is capability-shaped rather than name-shaped | I | Medium | Medium | Admin-equivalence heuristics judge what a policy can do, not what it is called; the chaining limitation below is stated rather than hidden |
+
+-------------------------------------------------------------------------------
+
+## Accepted risks
+
+Recorded so each is a decision with a reason, not a surprise.
+
+- **Effective privilege through role chaining is not computed.** Version
+  one scores what a policy grants directly. A principal that reaches
+  admin through a chain of assumable roles will be underscored, and the
+  interface says so. Computing reachability is graph analysis that earns
+  its own phase.
+- **Creator attribution is limited to the event history window.** Until
+  the organization trail exists in Phase 3, "created by whom" reaches
+  back 90 days and no further. The field says when its evidence starts.
+- **Version one observes and records; it does not enforce.** An identity
+  flagged in role-call keeps working in the cloud account until a human
+  acts there. That is the enrichment-over-automation design, stated as a
+  risk because a reader could mistake governance records for applied
+  controls.
+- **The tool depends on the provider's own reporting.** If the account's
+  telemetry is wrong or delayed, the inventory inherits that. Verifying
+  the provider against itself is out of scope.
