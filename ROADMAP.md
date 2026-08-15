@@ -19,7 +19,7 @@ requirement.
 | Decisions recorded as they are made | Started, in [DECISIONS.md](DECISIONS.md) |
 | Threat model | Drafted, in [THREAT-MODEL.md](THREAT-MODEL.md) |
 | Architecture, data flow, and trust boundaries | Not started |
-| Version one scope confirmed | Proposed below, not yet confirmed |
+| Version one scope confirmed | Done, below |
 | Diagram list specified | Not started |
 
 -------------------------------------------------------------------------------
@@ -82,16 +82,17 @@ documents re-read and shortened.
 
 ## Scope of version one
 
-Proposed, pending confirmation. Version one implements four operations, and
-nothing else:
+Confirmed. Version one implements four operations, and nothing else:
 
 - An operator authenticates.
-- An identity snapshot is ingested: a read-only pull from the AWS
-  application programming interfaces, or an imported credential report
-  file, recorded append-only.
-- The operator views the enriched inventory: each identity with its origin,
+- An identity snapshot is imported from a file, a credential report or a
+  snapshot export, recorded append-only. Synthetic sample data ships with
+  the repository, so a stranger with only Docker can run the whole demo.
+- The operator views the enriched inventory, each identity with its origin,
   owner, last use, granted-versus-exercised permissions, credential
-  hygiene, and risk context, derived from the snapshots rather than stored.
+  hygiene, and risk context, derived from the snapshots rather than
+  stored, and can produce a self-contained risk report plus CSV and JSON
+  exports, every export escaped against spreadsheet formulas.
 - The operator governs in role-call only: assigns an owner, flags an
   identity, or records an attestation. Nothing is written to the cloud
   account.
@@ -121,5 +122,8 @@ Recorded here so each absence is a decision rather than an oversight.
 - **No automated remediation, ever, by design.** Report-only, review
   periods, and human-triggered actions are the ceiling. A tool that
   revokes on its own gets disabled the first time it breaks something.
-- **No real-time event stream in version one.** Snapshots are pulled or
-  imported; event-driven refresh arrives with the cloud phases.
+- **No live provider connection in version one.** Files first, because the
+  fresh-clone demo must run with Docker alone. The read-only pull joins in
+  the cloud phases as an adapter behind the same append-only ingestion.
+- **No real-time event stream in version one.** Snapshots are imported;
+  event-driven refresh arrives with the cloud phases.
