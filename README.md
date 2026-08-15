@@ -1,14 +1,49 @@
 # role-call
 
-role-call inventories the non-human identities in a cloud account: the
-roles, service accounts, and access keys that get created, granted
-permissions once, and forgotten. It gives each identity an owner, the
-context nobody has (when it was last used, what it can do versus what it
-actually does, how old its credentials are), and a recertification path, so
-machine identities get governed the way human access already is.
+An inventory and governance tool for non-human identities: the roles,
+service accounts, and access keys that get created, granted permissions
+once, and forgotten. They outnumber the humans in most cloud accounts,
+and nobody offboards them.
+
+role-call imports identity snapshots, derives each identity's state from
+the observed history rather than storing a status that can drift, and
+gives each identity what a human needs before acting: an owner, when it
+was last used, what it can do versus what it actually does, how old its
+credentials are, and whether a governed name has been quietly recreated.
+The tool amplifies a human decision; it does not act on its own.
 
 It starts with Amazon Web Services (AWS) identity.
 
-**Status: Phase 0, design.** No application code exists yet. The
-architecture, threat model, and roadmap arrive with the first commits, and
-the code follows the design rather than preceding it.
+**Status: Phase 0, design.** No application code exists yet. The design
+documents below are the current work, and the code follows the design.
+
+## What version one will do
+
+Four operations, and nothing else:
+
+- An operator authenticates, into one of three roles.
+- An identity snapshot file is imported, recorded append-only, with
+  synthetic sample data shipped so a stranger with only Docker can run
+  the demo.
+- The operator views the enriched inventory and can produce a
+  self-contained risk report plus CSV and JSON exports.
+- The operator assigns owners, flags identities, and records
+  attestations, in role-call only; nothing is written to the cloud
+  account.
+
+## Where to start
+
+- [ROADMAP.md](ROADMAP.md) is the phase plan, the confirmed scope, and
+  what is deliberately excluded.
+- [ARCHITECTURE.md](ARCHITECTURE.md) is the components, the data flow,
+  the trust boundaries, and the list of diagrams.
+- [THREAT-MODEL.md](THREAT-MODEL.md) is the ranked threats, each mapped
+  to its control, and the accepted risks stated plainly.
+- [DECISIONS.md](DECISIONS.md) records what was chosen, what was
+  rejected, and why.
+- [AGENTS.md](AGENTS.md) is the standards this project is built to.
+
+## Running it
+
+Nothing to run yet. Setup instructions are written when Phase 1 produces
+something that starts.
