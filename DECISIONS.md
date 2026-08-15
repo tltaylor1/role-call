@@ -93,8 +93,7 @@ removes injection as a class rather than defending it query by query.
 SQLite was rejected for the deliverable because the runnable stack is the
 product. Raw SQL anywhere was rejected outright.
 
-## D-008: The ingestion surface distrusts everything, including its own
-preconditions
+## D-008: The ingestion surface distrusts even its own preconditions
 
 Imported snapshots are bounded on every axis, parsed in memory, and never
 written to disk. The file's content is authoritative and its name is not,
@@ -145,8 +144,7 @@ ending every session. Stateless-only tokens were rejected because expiry
 without revocation leaves only the option of rotating the signing key and
 logging everyone out, which in practice means nobody does it.
 
-## D-013: Migrations from the first table, and the application holds data
-rights only
+## D-013: Migrations from the first table, data rights only for the app
 
 The schema is created and changed by versioned migrations run as a
 privileged role, never by the application at startup. The application's
