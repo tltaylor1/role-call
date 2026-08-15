@@ -18,9 +18,9 @@ requirement.
 | Repository hygiene and standards | Done |
 | Decisions recorded as they are made | Started, in [DECISIONS.md](DECISIONS.md) |
 | Threat model | Drafted, in [THREAT-MODEL.md](THREAT-MODEL.md) |
-| Architecture, data flow, and trust boundaries | Not started |
+| Architecture, data flow, and trust boundaries | Done, in [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Version one scope confirmed | Done, below |
-| Diagram list specified | Not started |
+| Diagram list specified | Done, at the end of the architecture document |
 
 -------------------------------------------------------------------------------
 
