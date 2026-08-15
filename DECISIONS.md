@@ -177,3 +177,41 @@ a self-contained risk artifact is how this class of findings actually
 travels between people, a pattern proven publicly by Cloudsplaining, and
 the fields it needs already exist in the inventory view. A live pull in
 version one was rejected; a view-only version one was rejected.
+
+## D-016: An identity is keyed by the provider's immutable identifier
+
+In AWS, a deleted principal can be recreated under its old name, and the
+new principal carries the old name and Amazon Resource Name (ARN) with a
+fresh immutable unique identifier underneath. Keying identities by name or
+ARN would therefore let a recreated principal inherit a dead identity's
+governance standing: its owner, its flags, its attestation history, its
+reviewed-last-quarter credibility. So an identity is keyed by the account
+plus the provider's immutable identifier; names and ARNs are display
+attributes. A recreated principal is a new identity, and the reuse of a
+governed name is itself surfaced as a finding, because resurrection is
+exactly the move an attacker inside the account would make. Keying by ARN
+was rejected for that reason.
+
+## D-017: Three roles from the first commit
+
+Version one ships three roles: a viewer reads the inventory and reports,
+an operator imports snapshots and performs governance actions, and an
+administrator manages accounts and users. A single role was rejected
+because a governance tool's audit trail is only meaningful when the person
+who views a finding and the person who attests it can differ, and because
+an earlier build documented the one-role gap honestly rather than fixing
+it; this build starts past it. Authorization failures return 403 and are
+distinct from authentication failures from the first commit. Sample users
+for each role ship with the demo data.
+
+## D-018: Local sign-in first, single sign-on at the cloud phases
+
+Version one authenticates against local credentials: passwords hashed with
+bcrypt, verification that costs the same whether the account exists or not
+(a dummy comparison for unknown names, so response timing cannot enumerate
+accounts), and a stated byte-length cap ahead of the hash. Local-first
+follows the same reasoning as file-first ingestion: a stranger with only
+Docker must be able to run the demo, and single sign-on requires an
+identity provider the fresh clone does not have. Single sign-on (OpenID
+Connect) joins at the cloud phases, and the local login then becomes a
+break-glass path. A single-sign-on-only version one was rejected.
