@@ -1,3 +1,8 @@
+These standards originate from the build-guidelines repository at
+github.com/tltaylor1/build-guidelines, which holds the canonical and
+current version, its enforcement mappings, and the reasoning behind each
+rule. This file is a point-in-time copy adopted at project start.
+
 # Standards
 
 The doctrine. Each rule states what to do; [ENFORCEMENT.md](ENFORCEMENT.md)
