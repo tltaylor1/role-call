@@ -117,3 +117,10 @@ sketches as they complete.
 6. **Derivation concept.** How observations plus governance records become
    the state on screen, the diagram that explains the no-status-column
    decision.
+7. **Governance swimlane.** Operator, owner, and administrator across the
+   recertification flow, because cross-role handoffs are what swimlanes
+   show best.
+8. **The trust ladder.** The phased trust model as layers: read-only
+   observation, then report-only quarantine, then human-triggered
+   reversible action, then temporary approved re-elevation. The product's
+   story in one picture.
