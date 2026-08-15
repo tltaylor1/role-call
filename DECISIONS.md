@@ -63,3 +63,102 @@ record, and no application code. Writing code first was rejected for the
 same reason it always is: design is the cheapest place to fix anything, and
 a schema chosen well makes the hard requirements structural instead of
 procedural.
+
+## D-005: Enrichment over automation
+
+The product amplifies a human decision; it does not act on its own. Version
+one holds a read-only credential and writes nothing to the cloud account.
+Human-triggered actions arrive only in a late phase, each reversible where
+the platform allows, shown as a diff before it happens, and verified
+against the provider afterward. Automated remediation was rejected
+permanently: a tool that revokes on its own gets disabled the first time it
+breaks something, and a tool that never asks for trust it has not earned
+keeps its own threat model small.
+
+## D-006: Ingestion is append-only and state is derived, never stored
+
+Each sync records what was observed. An identity's state is computed from
+the observations at read time, so re-imports are harmless, out-of-order
+syncs self-correct, and there is no stored status column to drift from
+reality. Mutate-on-ingest designs were rejected because a stored security
+status that can drift is worse than none: people trust it. This structure
+was proven in an earlier build and is the core of this one.
+
+## D-007: The stack is Python, FastAPI, and PostgreSQL under Docker Compose
+
+Typed request validation at the boundary, a real database service as the
+honest shape of a composed deliverable, and database access only through
+the object-relational mapper (ORM), which parameterizes every query and
+removes injection as a class rather than defending it query by query.
+SQLite was rejected for the deliverable because the runnable stack is the
+product. Raw SQL anywhere was rejected outright.
+
+## D-008: The ingestion surface distrusts everything, including its own
+preconditions
+
+Imported snapshots are bounded on every axis, parsed in memory, and never
+written to disk. The file's content is authoritative and its name is not,
+because a filename is client-supplied. A file claiming to cover one account
+is verified to cover one account rather than trusted. A timestamp with an
+unrecognised timezone is rejected rather than guessed, because sync
+timestamps order the history and therefore decide what counts as current.
+Each of these rules exists because the assumption it replaces is exactly
+what a malicious file would exploit.
+
+## D-009: Keys and startup are strict
+
+Two keys with two lifetimes, the session signer and the data encryption
+key, generated independently and never derived from each other, so rotating
+one never silently changes the other. No defaults ship for either: the
+application refuses to start with a missing or malformed key and prints the
+command that generates a valid one. Bootstrap is idempotent with the
+environment as the source of truth, so changing the configured credential
+and restarting always converges instead of locking an operator out.
+
+## D-010: Output is an allowlist at every exit
+
+Every response declares a response model, so what a client can see is
+defined by schema rather than by what a row contains. Sensitive
+identifiers are masked in list views, and any full reveal is a dedicated,
+audited event. Client errors are generic, including a custom validation
+handler so a rejected value is never echoed back. Logs serialize an
+explicit field allowlist carrying identifiers, never values. Exports
+escape formula-leading cells so a spreadsheet cannot execute
+attacker-influenced content. There is no cross-origin configuration on
+purpose, and the interactive documentation page is a recorded decision
+either way, because concealing an API's shape is not a control.
+
+## D-011: The audit row commits with the action, and records who
+
+Any action that changes governance state writes its audit row in the same
+transaction, so no action can exist without its record; an audit write
+failure fails the action, integrity chosen over availability for the
+trail. Records that change state also carry their own attribution columns,
+so a row answers who did this without a join. Best-effort trails were
+rejected: a gap between action and record is exactly where an investigation
+dies.
+
+## D-012: Sessions are revocable from day one
+
+Whatever the session mechanism, one stolen credential can be ended without
+ending every session. Stateless-only tokens were rejected because expiry
+without revocation leaves only the option of rotating the signing key and
+logging everyone out, which in practice means nobody does it.
+
+## D-013: Migrations from the first table, and the application holds data
+rights only
+
+The schema is created and changed by versioned migrations run as a
+privileged role, never by the application at startup. The application's
+database role has data rights only, so an injection flaw, however
+unlikely the ORM makes one, could not modify the schema. Create-all at
+startup was rejected because it cannot evolve a database that already
+holds data, and because it forces the application to hold schema rights it
+should never have. These two decisions come as a pair.
+
+## D-014: The interface is REST, not GraphQL
+
+Each endpoint is one operation with one explicit authorization check, so
+the authorization surface stays countable and testable. GraphQL was
+rejected because it spreads authorization across a query graph, which is
+where authorization mistakes hide.
