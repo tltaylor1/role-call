@@ -14,8 +14,18 @@ The tool amplifies a human decision; it does not act on its own.
 
 It starts with Amazon Web Services (AWS) identity.
 
-**Status: Phase 0, design.** No application code exists yet. The design
+## Status, honestly
+
+**Phase 0 of 8: design.** No application code exists yet; the design
 documents below are the current work, and the code follows the design.
+[ROADMAP.md](ROADMAP.md) always states the current phase.
+
+This is a learning project, built in public, by one person. The software
+is provided as is under the [Apache 2.0 license](LICENSE). Before relying
+on any of it, read the code and the
+[threat model](THREAT-MODEL.md), including its accepted risks, which are
+stated rather than hidden. Nothing here is production software until the
+documents say so plainly.
 
 ## What version one will do
 
