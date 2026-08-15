@@ -75,7 +75,9 @@ identities --< governance_records
 users, audit_log
 ```
 
-- An **identity** is one principal in one account, unique on that pair.
+- An **identity** is one principal in one account, keyed by the account
+  plus the provider's immutable identifier, never the name or ARN, which
+  are display attributes (D-016). A recreated principal is a new identity.
 - A **snapshot** is one imported file: one account at one point in time,
   unique on that pair, so a re-import is rejected rather than
   double-counted.
