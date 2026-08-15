@@ -1,0 +1,11 @@
+extends: existence
+message: "Write the relationship in words. No arrows (STANDARDS.md, Writing)."
+level: error
+nonword: true
+scope: raw
+tokens:
+  - '\x{2192}'
+  - '\x{2190}'
+  - '\x{21D2}'
+  - '(?<![`\-=])->(?!`)'
+  - '(?<![`\-=])=>(?!`)'

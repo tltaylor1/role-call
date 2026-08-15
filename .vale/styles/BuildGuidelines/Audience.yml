@@ -1,0 +1,20 @@
+extends: existence
+message: "'%s' describes who might read this or why it exists. Public documents state what the work is and how it behaves, never the audience, the author's purpose, or what a reader should conclude."
+level: error
+ignorecase: true
+tokens:
+  # Words that only appear when writing about who is judging the work. "candidate"
+  # is excluded deliberately: "a candidate for automation" is a legitimate use,
+  # and the job sense is caught by the surrounding terms below.
+  - 'reviewers?'
+  - 'hiring'
+  - 'recruiters?'
+  - 'interviewers?'
+  - 'portfolio'
+  - 'resum[eé]s?'
+  - 'job (search|market|hunt|candidate)'
+  - 'prospective employers?'
+  - 'a reader (will|would|should) (see|conclude|think|notice)'
+  - 'what (a|the) reader (will|would|thinks)'
+  - 'impress'
+  - 'stand out'

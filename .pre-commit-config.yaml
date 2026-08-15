@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      # TruffleHog with verification disabled: fast and fully offline, which
+      # is what a commit-time check must be. The verified mode runs in
+      # continuous integration instead. See DECISIONS.md D-002.
+      - id: trufflehog
+        name: trufflehog secret scan
+        entry: trufflehog filesystem . --no-verification --fail
+        language: system
+        pass_filenames: false
+      # Vale enforces the writing rules at commit time, so a violation never
+      # reaches history. It needs Vale installed on the machine.
+      - id: vale
+        name: vale writing rules
+        entry: vale
+        language: system
+        types_or: [markdown, python, shell]

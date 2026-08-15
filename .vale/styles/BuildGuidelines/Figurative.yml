@@ -1,0 +1,23 @@
+extends: existence
+message: "'%s' is figurative or marketing phrasing. Say it plainly (STANDARDS.md, Writing)."
+level: error
+ignorecase: true
+tokens:
+  - 'paved road'
+  - 'golden path'
+  - 'silver bullet'
+  - 'low.hanging'
+  - 'move the needle'
+  - 'deep dive'
+  - 'circle back'
+  - 'table stakes'
+  - 'north star'
+  - 'heavy lifting'
+  - 'game.chang\w*'
+  - 'world.class'
+  - 'best.in.class'
+  - 'rock.solid'
+  - 'bulletproof'
+  - 'seamless\w*'
+  - 'leverages?'
+  - 'leveraging'

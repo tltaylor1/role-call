@@ -1,0 +1,9 @@
+extends: existence
+message: "Use a straight quote. No smart quotes (STANDARDS.md, Writing)."
+level: error
+nonword: true
+tokens:
+  - '\x{2018}'
+  - '\x{2019}'
+  - '\x{201C}'
+  - '\x{201D}'

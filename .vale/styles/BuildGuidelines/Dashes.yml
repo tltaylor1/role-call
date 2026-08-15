@@ -1,0 +1,7 @@
+extends: existence
+message: "Use a comma or restructure the sentence. No em dashes or en dashes (STANDARDS.md, Writing)."
+level: error
+nonword: true
+tokens:
+  - '\x{2013}'
+  - '\x{2014}'

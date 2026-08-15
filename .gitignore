@@ -1,0 +1,25 @@
+# Local-only reference material. Never sync to GitHub.
+# Anchored to the repo root so nested source dirs named "context/" are unaffected.
+/context/
+
+# Environment and secrets
+.env
+*.pem
+*.key
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Database files. A seed script recreates schema and data; the file itself is never committed.
+*.db
+*.sqlite
+*.sqlite3
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

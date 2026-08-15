@@ -1,0 +1,10 @@
+extends: existence
+message: "'%s' describes a hope, not a control. Name the mechanism instead (STANDARDS.md, Principles)."
+level: error
+ignorecase: true
+tokens:
+  - 'good habits?'
+  - 'remember to'
+  - 'try to remember'
+  - 'should always remember'
+  - 'make sure to remember'
