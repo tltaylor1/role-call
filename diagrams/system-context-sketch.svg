@@ -1,0 +1,47 @@
+<svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="role-call system context working sketch">
+  <!-- Working sketch under the diagram doctrine. Self-contained: system fonts, no external references. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <rect width="880" height="420" fill="#f6f5f2"/>
+  <text x="40" y="36" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.5" fill="#57606a">ROLE-CALL SYSTEM CONTEXT, WORKING SKETCH</text>
+
+  <!-- inputs -->
+  <rect x="60" y="90" width="170" height="58" rx="6" fill="rgba(87,96,106,0.08)" stroke="#8a939e"/>
+  <text x="145" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Snapshot file</text>
+  <text x="145" y="130" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">credential report, export</text>
+
+  <rect x="60" y="250" width="170" height="58" rx="6" fill="rgba(87,96,106,0.08)" stroke="#8a939e"/>
+  <text x="145" y="274" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Operator</text>
+  <text x="145" y="290" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">browser, three roles</text>
+
+  <!-- the system, focal -->
+  <rect x="360" y="160" width="200" height="80" rx="6" fill="rgba(176,79,46,0.06)" stroke="#b04f2e"/>
+  <text x="460" y="195" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#24292e">role-call</text>
+  <text x="460" y="213" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">derive, govern, report</text>
+
+  <!-- stores and outputs -->
+  <rect x="680" y="100" width="150" height="60" rx="6" fill="rgba(36,41,46,0.05)" stroke="#57606a"/>
+  <text x="755" y="126" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">PostgreSQL</text>
+  <text x="755" y="142" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">observations, audit</text>
+
+  <rect x="680" y="260" width="150" height="58" rx="6" fill="rgba(36,41,46,0.03)" stroke="rgba(36,41,46,0.35)"/>
+  <text x="755" y="284" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Exports</text>
+  <text x="755" y="300" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">report, CSV, JSON</text>
+
+  <!-- connectors -->
+  <path d="M230,119 H292 Q300,119 300,127 V172 Q300,180 308,180 H354" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="244" y="111" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">import</text>
+
+  <path d="M230,279 H292 Q300,279 300,271 V228 Q300,220 308,220 H354" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="238" y="295" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">session token</text>
+
+  <path d="M560,180 H640 Q648,180 648,172 V148 Q648,140 656,140 H674" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="584" y="172" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">stores</text>
+
+  <path d="M560,220 H640 Q648,220 648,228 V281 Q648,289 656,289 H674" fill="none" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="584" y="240" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">produces</text>
+</svg>

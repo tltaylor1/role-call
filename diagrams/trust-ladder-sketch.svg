@@ -1,0 +1,28 @@
+<svg viewBox="0 0 880 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="role-call trust ladder working sketch">
+  <!-- Working sketch under the diagram doctrine. Self-contained: system fonts, no external references.
+       A layer stack read bottom to top; position carries the order, so no connectors. -->
+  <rect width="880" height="460" fill="#f6f5f2"/>
+  <text x="40" y="36" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.5" fill="#57606a">ROLE-CALL TRUST LADDER, WORKING SKETCH</text>
+  <text x="40" y="56" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">read bottom to top; each rung requires the one below it; none is automated</text>
+
+  <!-- rung 4, top -->
+  <rect x="160" y="94" width="560" height="64" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="180" y="121" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">4. Temporary approved re-elevation</text>
+  <text x="180" y="139" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">just in time; someone else approves; the clock does the offboarding</text>
+
+  <!-- rung 3 -->
+  <rect x="160" y="176" width="560" height="64" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="180" y="203" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">3. Human-triggered, reversible action</text>
+  <text x="180" y="221" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">step-up auth; policy diff shown first; verified with the provider after</text>
+
+  <!-- rung 2 -->
+  <rect x="160" y="258" width="560" height="64" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="180" y="285" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">2. Report-only quarantine</text>
+  <text x="180" y="303" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">watch through a review window; the owner decides with evidence</text>
+
+  <!-- rung 1, current, focal -->
+  <rect x="160" y="340" width="560" height="64" rx="6" fill="rgba(176,79,46,0.06)" stroke="#b04f2e"/>
+  <text x="180" y="367" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">1. Read-only observation</text>
+  <text x="180" y="385" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">version one; a credential that can only look; nothing written to the account</text>
+  <text x="700" y="367" text-anchor="end" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" fill="#b04f2e">CURRENT</text>
+</svg>
