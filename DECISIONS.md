@@ -215,3 +215,43 @@ Docker must be able to run the demo, and single sign-on requires an
 identity provider the fresh clone does not have. Single sign-on (OpenID
 Connect) joins at the cloud phases, and the local login then becomes a
 break-glass path. A single-sign-on-only version one was rejected.
+
+## D-019: Identities act, privilege sources grant, and both are governed
+
+The model holds two governable kinds. Identities (users, roles, the root
+account) can act: they authenticate, hold credentials, and carry liveness
+enrichment. Privilege sources (groups now, and policies as they earn it)
+cannot act but grant: they carry membership, policy, and privilege
+enrichment instead. Governance records, meaning owners, flags, and
+attestations, attach to both, because access review in practice certifies
+group memberships as much as it certifies actors, and the remediation for
+an over-privileged member is usually a change to the group, so the
+group must be first class for the fix to be trackable.
+
+Consequences built in from the start: every privilege in an identity's
+summary names its source, direct or through which group; membership is
+observed per snapshot, so a member appearing in a privileged group
+between snapshots is a finding; an empty privileged group and an unowned
+privileged group are both findings on the group itself; and groups never
+appear in the identity inventory pretending to be actors.
+
+Two alternatives were rejected. Treating groups as identities blurs what
+acting means and hangs liveness questions on things that cannot log in.
+Treating groups as mere policy carriers, attributable but not governable,
+was this decision's own first draft, rejected because it could not hold
+an owner or an attestation for the object where real access reviews
+actually happen.
+
+## D-020: Encryption at rest is the deployment layer's job, stated
+
+role-call stores no secrets: no credential values, no tokens, nothing
+whose disclosure is worse than the inventory itself. Field-level
+encryption of the stored policy documents was considered and rejected: it
+adds key management and rotation burden to protect documents that any
+reader of the target account can already fetch, which is cost without
+commensurate gain. The inventory's confidentiality controls are
+authentication and authorization on every request, the egress allowlists,
+and encrypted storage at the deployment layer (the disk and the database
+service), which the runbook states as a deployment requirement rather
+than assuming. If a future field ever carries a secret, this decision is
+revisited before that field exists.
