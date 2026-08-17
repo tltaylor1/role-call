@@ -53,15 +53,27 @@ manufactured entry would defeat the reason this file exists.
   this product's user. The exception is a scoped inline allowlist with
   its reason; the rule runs at full strength everywhere else.
 
-- **The provenance record itself was wrong.** Every commit before this
-  entry carries a co-author trailer naming a model that was not the one
-  running; the session's actual model is Claude Fable 5, id
-  claude-fable-5. Caught by the human reading the history against the
-  claim in this very file. The trailers are deliberately not rewritten,
-  because rewriting history to polish a provenance error would defeat
-  both the history and the provenance; from the commit that adds this
-  entry forward, the trailer names the running model exactly, and this
-  entry is the correction the old trailers point to.
+- **The provenance record was corrected wrongly, then corrected again.**
+  This one took two tries and is the sharpest lesson in the file. Early
+  commit trailers named the model as Claude Opus 4.8. The trailers were
+  then "corrected" to Claude Fable 5 on the belief that Opus was a
+  mistaken string, and this file said so. That correction was itself
+  wrong. The runtime switches models between turns: this is a Mythos-class
+  model whose safeguards flag dual-use work, and a security tool that
+  reads access policies and models attacker moves is dual-use by
+  definition, so many turns are handed to a fallback model. The switch
+  happens below the model's own visibility, so its self-report is
+  unreliable and the original Opus trailers were most likely accurate
+  when written. The human resolved it with an external signal the model
+  could not see. Because per-turn attribution is not reliably knowable
+  from inside, the trailer no longer names one model; from the commit
+  that adds this entry forward it reads "Claude (Anthropic), model varies
+  per turn," which is the true statement. History is not rewritten,
+  because rewriting a provenance record to look cleaner is exactly the
+  failure this entry documents.
 
 Each entry changed a rule, a checklist, or a design, which is the point:
-the catches compound, the mistakes do not.
+the catches compound, the mistakes do not. This last one changed the
+attribution itself, and its lesson is the whole file's thesis turned on
+its own record: a confident correction can be wrong, and only an outside
+check settles it.
