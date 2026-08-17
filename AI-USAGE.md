@@ -53,5 +53,15 @@ manufactured entry would defeat the reason this file exists.
   this product's user. The exception is a scoped inline allowlist with
   its reason; the rule runs at full strength everywhere else.
 
+- **The provenance record itself was wrong.** Every commit before this
+  entry carries a co-author trailer naming a model that was not the one
+  running; the session's actual model is Claude Fable 5, id
+  claude-fable-5. Caught by the human reading the history against the
+  claim in this very file. The trailers are deliberately not rewritten,
+  because rewriting history to polish a provenance error would defeat
+  both the history and the provenance; from the commit that adds this
+  entry forward, the trailer names the running model exactly, and this
+  entry is the correction the old trailers point to.
+
 Each entry changed a rule, a checklist, or a design, which is the point:
 the catches compound, the mistakes do not.
