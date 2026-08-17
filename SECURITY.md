@@ -42,8 +42,8 @@ The application's controls are designed before the code, mapped
 threat-by-threat in [THREAT-MODEL.md](THREAT-MODEL.md) and committed as
 Phase 1 requirements in [ROADMAP.md](ROADMAP.md): authentication on every
 request, three roles with per-route authorization, rate limiting, bounded
-ingestion, derived state, atomic audit, encryption at rest, escaped
-exports, and the rest. When the code exists, this file gains the
+ingestion, derived state, atomic audit, deployment-layer encryption at
+rest (D-020), escaped exports, and the rest. When the code exists, this file gains the
 controls-implemented table: each control, the threat it answers, and the
 test that proves it. A control listed here without its test is a claim,
 not a control, so the table waits for the tests.

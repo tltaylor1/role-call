@@ -8,8 +8,10 @@ and nobody offboards them.
 role-call imports identity snapshots, derives each identity's state from
 the observed history rather than storing a status that can drift, and
 gives each identity what a human needs before acting: an owner, when it
-was last used, what it can do versus what it actually does, how old its
-credentials are, and whether a governed name has been quietly recreated.
+was last used, how old its credentials are, how much privilege it holds
+and where that privilege comes from, and whether a governed name has been
+quietly recreated. The full comparison of granted against exercised
+permissions arrives with the live provider connection.
 The tool amplifies a human decision; it does not act on its own.
 
 It starts with Amazon Web Services (AWS) identity.

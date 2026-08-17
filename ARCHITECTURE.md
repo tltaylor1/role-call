@@ -39,7 +39,7 @@ nothing else moves.
 | Derivation engine | Computes each identity's state and enrichment from the observation history at read time |
 | Governance records | The human layer: owners, flags, attestations, written with attribution and an audit row in one transaction |
 | Report builder | Produces the self-contained risk report and the escaped CSV and JSON exports |
-| PostgreSQL | Holds observations, governance records, and the audit trail; sensitive values encrypted at rest |
+| PostgreSQL | Holds observations, governance records, and the audit trail; access controlled, with encryption at rest supplied by the deployment layer (D-020) |
 
 ## Data flow
 

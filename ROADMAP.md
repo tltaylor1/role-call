@@ -38,7 +38,7 @@ Authentication on every request, three roles with authorization checked
 per route, rate limiting on sign-in and every sensitive route, a request
 timeout budget, input validation at every boundary, audit rows written in
 the same transaction as the actions they record, schema migrations from
-the first table, encryption at rest for the inventory, a backup and
+the first table, deployment-layer encryption at rest stated as a requirement (D-020), a backup and
 restore procedure with a stated retention policy, and exports that cannot
 carry spreadsheet formulas. Locally the stack speaks plain HTTP on the
 loopback interface; transport encryption is the edge's job and arrives
