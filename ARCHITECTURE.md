@@ -6,7 +6,7 @@ platform underneath the application, not the shape described here. The
 working sketches below are for orientation; the finished diagrams are
 listed at the end and drawn by hand.
 
-**Contents:** [The idea in plain words](#the-idea-in-plain-words) · [Components](#components) · [Data flow](#data-flow) · [Trust boundaries](#trust-boundaries) · [The data model shape](#the-data-model-shape) · [The report pipeline](#the-report-pipeline) · [Diagrams to draw](#diagrams-to-draw)
+**Contents:** [The idea in plain words](#the-idea-in-plain-words) · [The people using it](#the-people-using-it) · [Components](#components) · [Data flow](#data-flow) · [Trust boundaries](#trust-boundaries) · [The data model shape](#the-data-model-shape) · [The report pipeline](#the-report-pipeline) · [Diagrams to draw](#diagrams-to-draw)
 
 -------------------------------------------------------------------------------
 
@@ -29,6 +29,29 @@ screen shows, so they cannot disagree with it. And in version one the tool
 never connects to the cloud at all: files come in, reports go out, and
 nothing else moves.
 
+<!-- vale BuildGuidelines.Audience = NO -->
+<!-- Scoped exception: "reviewer" below names the product's user, the
+     person who performs an access review, which is the standard term in
+     every framework this work follows. It does not describe this
+     document's audience, which is what the rule exists to prevent. -->
+## The people using it
+
+Four people, and the design answers their questions in their order.
+
+- **The reviewer** certifies identities and groups: what is this, whose is
+  it, what can it do and where did that privilege come from, is it used,
+  what changed since last time, what do you recommend. Everything on the
+  decision screen exists to answer those without leaving the page, and
+  when the answer is not there, "insufficient evidence, here is what was
+  missing" is a recorded outcome that steers what gets built next.
+- **The operator** imports snapshots, runs campaigns, and triages
+  findings.
+- **The auditor** consumes proof: the population statement, coverage,
+  each decision with its actor and time, and remediation followed to
+  closure.
+- **The administrator** manages users and roles, and nothing else extra.
+
+<!-- vale BuildGuidelines.Audience = YES -->
 ## Components
 
 | Component | Job |
@@ -103,9 +126,15 @@ users, audit_log
 - An **observation** is the append-only fact that a snapshot saw an
   identity, carrying the attributes seen at that moment: credentials and
   their ages, permission summaries, last-use marks.
-- A **governance record** is the human layer: an owner assignment, a flag,
-  or an attestation, attributed and audited, stored rather than derived
-  because it IS the human input.
+- A **governance record** is the human layer: an owner, a purpose, a flag,
+  or an attestation, on an identity or a group (D-019), attributed and
+  audited, stored rather than derived because it IS the human input.
+<!-- vale BuildGuidelines.Audience = NO -->
+- A **review campaign** scopes a set of identities and groups to a set of
+  reviewers with a due date (D-021); its items hold each disposition,
+  including insufficient evidence, and the campaign closes into an
+  evidence export.
+<!-- vale BuildGuidelines.Audience = YES -->
 - Everything shown about an identity's state, current, stale, unused,
   unowned, over-privileged, is derived by the engine from observations
   plus governance records at read time. No status column exists anywhere.
