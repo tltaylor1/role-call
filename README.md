@@ -29,6 +29,11 @@ on any of it, read the code and the
 stated rather than hidden. Nothing here is production software until the
 documents say so plainly.
 
+The build is review-gated on purpose: [BUILD-PLAN.md](BUILD-PLAN.md) sets
+the subphases and their order before any code, and
+[AI-USAGE.md](AI-USAGE.md) keeps the honest record of what the coding
+agent got wrong along the way, because that record is the point.
+
 ## What version one will do
 
 Four operations, and nothing else:
