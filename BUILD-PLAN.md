@@ -10,6 +10,13 @@ subphase ships its own tests, and there is no hardening phase in
 substance, because each control arrives with the thing it protects; the
 final subphase is proof, not retrofit.
 
+The plan binds the order, not the learning. Testing and hardening run
+through every subphase and get verified again at the end; and change is
+expected, because building teaches. A discovery mid-build is not silently
+absorbed: it becomes a decision, a roadmap amendment, or a backlog entry,
+and this plan updates visibly, so the difference between the plan as
+written and the build as it happened stays readable.
+
 This is the opposite of building fast, on purpose. The pace is set by
 review, and the interesting output of an AI-assisted build is the record
 of what generation got wrong and what caught it; that record lives in
