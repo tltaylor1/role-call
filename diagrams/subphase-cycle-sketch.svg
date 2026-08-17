@@ -1,7 +1,7 @@
 <svg viewBox="0 0 880 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="the subphase review cycle working sketch">
   <!-- Working sketch under the diagram doctrine. Self-contained: system fonts, no external references.
-       Twelve subphases as boxes would bust the complexity budget; the diagram that earns its
-       place is the cycle each one goes through. -->
+       Twelve subphases in a row would be a list wearing boxes, and a list beats
+       that diagram; the drawing that earns its place is the cycle each subphase travels. -->
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
       <polygon points="0 0, 8 3, 0 6" fill="#57606a"/>
