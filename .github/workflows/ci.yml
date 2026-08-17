@@ -4,6 +4,10 @@
 # supply chain meets the same bar as the application's.
 name: checks
 
+# The pipeline's own identity holds least privilege: read-only contents.
+permissions:
+  contents: read
+
 on:
   push:
   pull_request:

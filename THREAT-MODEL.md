@@ -43,7 +43,7 @@ Ordered by likelihood times impact. The STRIDE letter names the category.
 | 4 | A malicious imported snapshot rewrites another account's history or plants hostile values | T | Medium | Medium | Bounded parsing on every axis; the one-account-per-file precondition is verified rather than assumed; ingestion is append-only and duplicates are rejected |
 | 5 | Stale data presents false comfort: a decision made on an inventory that no longer matches the account | I | Medium | Medium | Every view carries its as-of sync time; recency is a first-class field; an old sync is a visible warning, not a footnote |
 | 6 | Theft of an operator session token | S | Medium | Medium | Sessions are revocable from day one; short expiry; step-up authentication arrives with any action that changes the cloud account |
-| 7 | Spreadsheet formula injection through exported identity names and tags, which the target account's users control | T | Medium | Medium | Formula-leading cells are escaped in every export path |
+| 7 | Injection through exported identity names and tags, which the target account's users control: formulas in spreadsheets, markup in the generated report | T | Medium | Medium | Formula-leading cells are escaped in every export path, and the report builder context-escapes every value, treating names and tags as data, never markup |
 | 8 | A governance action is denied or misattributed: who attested this identity, who cleared this flag | R | Low | Medium | Attribution columns on the record itself, plus the audit row written in the same transaction as the action |
 | 9 | Ingest exhaustion: an enormous account, or API throttling turning a sync into an outage | D | Medium | Low | Paced API calls that honor throttling; bounded imports; container resource caps |
 | 10 | A shadow admin scored as low risk because its privilege is capability-shaped rather than name-shaped | I | Medium | Medium | Admin-equivalence heuristics judge what a policy can do, not what it is called; the chaining limitation below is stated rather than hidden |
@@ -77,6 +77,14 @@ Recorded so each is a decision with a reason, not a surprise.
   instructs exporting reports directly from the provider to the machine
   that imports them. A file that traveled through other hands in between
   is a risk the parser's bounds cannot remove, accepted and named.
+- **Roles are global, not account-scoped.** Any operator sees every
+  imported account. Right-sized for one team governing its own accounts;
+  account-scoped authorization is the named prerequisite for any
+  multi-tenant future, decided before that future starts.
+- **Direct pushes to main, single author.** Guarded by the local hooks
+  and continuous integration rather than branch protection. The exit
+  condition is the first collaborator, when protected branches and
+  required checks become mandatory.
 - **The tool depends on the provider's own reporting.** If the account's
   telemetry is wrong or delayed, the inventory inherits that. Verifying
   the provider against itself is out of scope.
