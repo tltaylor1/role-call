@@ -150,8 +150,8 @@ formula escaping applied to every cell that could carry one.
 
 ## Diagrams to draw
 
-Working sketches exist for three so far (the system context, the data
-flow, and the trust ladder), as sketch-suffixed files in the diagrams
+Working sketches exist for five so far (the system context, the data
+flow, the trust ladder, the phase journey, and the subphase cycle), as sketch-suffixed files in the diagrams
 directory, with the rest sketched as the design work needs them. The
 finished diagrams below are all still to be drawn by hand, and they
 replace the sketches as they complete.
@@ -174,3 +174,9 @@ replace the sketches as they complete.
    observation, then report-only quarantine, then human-triggered
    reversible action, then temporary approved re-elevation. The product's
    story in one picture.
+9. **Campaign lifecycle.** A review cycle from creation through its item
+   dispositions to close and evidence export, the noun D-021 added.
+10. **The phase journey.** The eight phases on a timeline with the
+    current position marked.
+11. **The subphase cycle.** The loop every build subphase travels, with
+    human review as the gate.

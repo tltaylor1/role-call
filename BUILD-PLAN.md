@@ -22,6 +22,8 @@ review, and the interesting output of an AI-assisted build is the record
 of what generation got wrong and what caught it; that record lives in
 [AI-USAGE.md](AI-USAGE.md).
 
+![The cycle every subphase travels: plan, build, demo and tests, human review, push](diagrams/subphase-cycle-sketch.svg)
+
 ## The subphases
 
 1. **Foundation.** Hash-pinned dependencies checked against canonical

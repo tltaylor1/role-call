@@ -26,6 +26,8 @@ requirement.
 
 ## Phases
 
+![The eight phases as a timeline, with the current position marked](diagrams/phase-journey-sketch.svg)
+
 **Phase 0. Design.** Architecture, data flow, and trust boundaries. A
 threat model using STRIDE per component, ranked by likelihood and impact
 and mapped to the controls that answer each threat. Confirmed scope for

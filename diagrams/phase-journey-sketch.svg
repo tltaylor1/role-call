@@ -1,0 +1,47 @@
+<svg viewBox="0 0 920 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="the eight phases working sketch">
+  <!-- Working sketch under the diagram doctrine. Self-contained: system fonts, no external references. -->
+  <rect width="920" height="290" fill="#f6f5f2"/>
+  <text x="40" y="36" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.5" fill="#57606a">THE PHASES, WORKING SKETCH</text>
+
+  <!-- axis -->
+  <line x1="80" y1="170" x2="880" y2="170" stroke="#8a939e" stroke-width="1.5"/>
+
+  <!-- ticks and labels -->
+  <g stroke="#57606a" stroke-width="1.5">
+    <line x1="110" y1="162" x2="110" y2="178"/>
+    <line x1="215" y1="162" x2="215" y2="178"/>
+    <line x1="320" y1="162" x2="320" y2="178"/>
+    <line x1="425" y1="162" x2="425" y2="178"/>
+    <line x1="530" y1="162" x2="530" y2="178"/>
+    <line x1="635" y1="162" x2="635" y2="178"/>
+    <line x1="740" y1="162" x2="740" y2="178"/>
+    <line x1="845" y1="162" x2="845" y2="178"/>
+  </g>
+  <g font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a" text-anchor="middle">
+    <text x="110" y="154">P0</text>
+    <text x="215" y="154">P1</text>
+    <text x="320" y="154">P2</text>
+    <text x="425" y="154">P3</text>
+    <text x="530" y="154">P4</text>
+    <text x="635" y="154">P5</text>
+    <text x="740" y="154">P6</text>
+    <text x="845" y="154">P7</text>
+  </g>
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="9" fill="#24292e" text-anchor="middle">
+    <text x="110" y="198">Design</text>
+    <text x="215" y="198">Build the app</text>
+    <text x="320" y="198">Local Kubernetes</text>
+    <text x="425" y="198">Cloud enclave</text>
+    <text x="530" y="198">Managed cluster</text>
+    <text x="635" y="198">Gated pipeline</text>
+    <text x="740" y="198">Runtime security</text>
+    <text x="845" y="198">Remediation</text>
+  </g>
+
+  <!-- current position, the one accent -->
+  <polygon points="162,161 171,170 162,179 153,170" fill="#b04f2e"/>
+  <text x="162" y="118" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" fill="#b04f2e">PHASE 0.5, CURRENT</text>
+  <text x="162" y="132" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#b04f2e">final design review</text>
+
+  <text x="80" y="248" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">each phase ends in a state that runs and demonstrates on its own; the write phase, P7, is last on purpose</text>
+</svg>
