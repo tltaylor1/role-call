@@ -6,9 +6,28 @@ platform underneath the application, not the shape described here. The
 working sketches below are for orientation; the finished diagrams are
 listed at the end and drawn by hand.
 
-**Contents:** [Components](#components) · [Data flow](#data-flow) · [Trust boundaries](#trust-boundaries) · [The data model shape](#the-data-model-shape) · [The report pipeline](#the-report-pipeline) · [Diagrams to draw](#diagrams-to-draw)
+**Contents:** [The idea in plain words](#the-idea-in-plain-words) · [Components](#components) · [Data flow](#data-flow) · [Trust boundaries](#trust-boundaries) · [The data model shape](#the-data-model-shape) · [The report pipeline](#the-report-pipeline) · [Diagrams to draw](#diagrams-to-draw)
 
 -------------------------------------------------------------------------------
+
+## The idea in plain words
+
+You feed role-call snapshot files: a record of every identity in a cloud
+account at one moment. It keeps every snapshot and never edits an old one.
+When you open the inventory, it works out each identity's situation on the
+spot: compare the newest snapshot with the history, add what humans have
+recorded, and show the result. No status is ever stored, so no status can
+go stale or be quietly changed; the answer is recomputed from the evidence
+every time you ask.
+
+People supply the judgment the files cannot: who owns this identity, which
+one is suspicious, which one was reviewed and found fine. Each of those
+records is saved with who said it and when, and the same database action
+that saves it also writes the audit line, so a decision cannot exist
+without its record. Reports and exports come from the same computation the
+screen shows, so they cannot disagree with it. And in version one the tool
+never connects to the cloud at all: files come in, reports go out, and
+nothing else moves.
 
 ## Components
 
@@ -102,9 +121,11 @@ formula escaping applied to every cell that could carry one.
 
 ## Diagrams to draw
 
-Working sketches exist above and as sketch-suffixed files in the diagrams
-directory; these are the finished diagrams, drawn by hand, replacing the
-sketches as they complete.
+Working sketches exist for three so far (the system context, the data
+flow, and the trust ladder), as sketch-suffixed files in the diagrams
+directory, with the rest sketched as the design work needs them. The
+finished diagrams below are all still to be drawn by hand, and they
+replace the sketches as they complete.
 
 1. **System context.** Operator, application, database, imported files,
    exports out. The one-glance picture.
