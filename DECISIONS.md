@@ -255,3 +255,47 @@ and encrypted storage at the deployment layer (the disk and the database
 service), which the runbook states as a deployment requirement rather
 than assuming. If a future field ever carries a secret, this decision is
 revisited before that field exists.
+
+<!-- vale BuildGuidelines.Audience = NO -->
+<!-- Scoped exception: "reviewer" below names the product's user, the
+     person who performs an access review, which is the standard term in
+     every framework this work follows. It does not describe this
+     document's audience, which is what the rule exists to prevent. -->
+## D-021: Version one gains the review campaign, shaped by the reviewer
+
+The published codifications of this work (PCI DSS 4.0 requirements 7.2.4
+and 7.2.5, ISO/IEC 27002 5.18, NIST AC-2 and AC-6(7), CIS Control 5, and
+the audit practice around SOX and SOC 2; see COMPLIANCE.md) all define
+the unit of governance as a periodic, scoped, evidenced review. Version
+one therefore adds, on top of the four confirmed operations: review
+campaigns (a scope of identities and groups, assigned reviewers, a due
+date, item-level progress, and a close); a purpose governance record,
+answering the reviewer's first question, what is this for; the delta
+view, what changed since the last certification, computed from snapshot
+differences; a recommended disposition per item with its evidence stated;
+and a per-campaign evidence export carrying the population statement,
+every decision, its actor, and its time.
+
+Review dispositions include "insufficient evidence," with the reviewer
+saying what was missing. That is a first-class outcome, not a skipped
+row: it appears in the campaign report, and the rollup of what reviewers
+found missing steers what the product adds next.
+
+On scheduling, considered rather than assumed: real programs run
+quarterly and semiannual big-bang campaigns under SOX and PCI, annual
+recertification under federal regimes, and risk-based frequencies for
+system accounts. Version one gives a campaign a due date and an optional
+recurrence preset (quarterly, twice yearly, yearly), and completion over
+time is inherent because items are decided individually while the
+campaign tracks progress. Rejected for version one: arbitrary schedule
+configuration, which is maintenance surface without a named user, and
+rolling event-triggered micro-reviews, which are a real modern practice
+that deserves its own later decision once campaigns exist to hang it on.
+Auto-applied decisions are rejected permanently here as they were in
+D-005.
+
+This decision also names the method it came from: the design phase takes
+the reviewer's and the auditor's itemized needs as first-class inputs
+beside the threat model, user first and security first together, and the
+framework references run in both directions through COMPLIANCE.md.
+<!-- vale BuildGuidelines.Audience = YES -->
