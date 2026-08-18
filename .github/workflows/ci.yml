@@ -46,6 +46,8 @@ jobs:
         run: git ls-files -z "*.md" | xargs -0 "$RUNNER_TEMP/vale"
       - name: docs-truth status check
         run: python3 scripts/check_docs_truth.py
+      - name: digest-parity check
+        run: python3 scripts/check_digest_parity.py
       - name: forbid deferred-work markers
         run: |
           ! grep -rnE "\b(TODO|FIXME|HACK|XXX)\b" --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude=AGENTS.md --exclude=.pre-commit-config.yaml .
@@ -134,8 +136,10 @@ jobs:
         run: |
           alembic upgrade head
           alembic check
-      - name: audit the pinned tree against known vulnerabilities
-        run: pip-audit --require-hashes -r requirements.txt
+      - name: audit the pinned trees against known vulnerabilities
+        run: |
+          pip-audit --require-hashes -r requirements.txt
+          pip-audit --require-hashes -r requirements-dev.txt
       - name: software bill of materials
         run: pip-audit --require-hashes -r requirements.txt --format cyclonedx-json --output "$RUNNER_TEMP/sbom.json"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
