@@ -367,3 +367,36 @@ zizmor publishes no checksum, so its pin is the hash of the artifact
 inspected at adoption; a changed artifact fails the pipeline. Every
 binary added to the pipeline widens the set of pins nothing watches
 for staleness, which is a recorded cost, carried knowingly.
+
+## D-026: Sessions are opaque rows, and the database never holds a token
+
+A signed stateless token (a JSON Web Token) was considered and
+rejected for version one: statelessness buys horizontal scale this
+deployment does not have, and it costs the one property a governance
+tool cannot give up, the ability to revoke one session now and know it
+is dead. Sessions are rows: an opaque 256-bit random token goes to the
+client, and the database stores only its SHA-256, so a database leak
+yields nothing a client can present. Plain hashing is correct here
+where it would be wrong for passwords, because the values are random
+and cannot be guessed offline. Expiry is absolute from sign-in rather
+than sliding: a stolen token dies on schedule no matter how actively
+it is used. The cost, one database read per authenticated request, is
+the right trade at this scale.
+
+## D-027: The sign-in rate limiter is forty lines we own
+
+The library route (slowapi wrapping limits) was vetted and declined:
+two more supply-chain entries, storage backends and decorators this
+application does not need, for one policy on one route. The hand-rolled
+limiter counts failures per username and per client address over a
+sliding window; success clears the username key so a user who finally
+types the right password is not locked behind their own mistakes, and
+deliberately does not clear the address key, so a valid login cannot
+refill an attacker's allowance. Failures are limited, accounts are
+never locked, because lockout hands an attacker denial of service
+against any username they can spell. State lives in process memory,
+which is stated plainly: version one deploys as one process, a restart
+clears the counters, and the control's job is slowing online guessing,
+not surviving restarts. Forwarded-for headers are not consulted; they
+are attacker-writable, and the deployment layer owns address
+translation when it arrives.
