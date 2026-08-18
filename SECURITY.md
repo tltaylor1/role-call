@@ -13,9 +13,20 @@ for a suspected vulnerability before it has been triaged.
 A useful report includes the affected file or behavior, the impact as you
 understand it, reproduction steps or a minimal proof of concept, and any
 conditions required. Do not include real credentials or personal data in
-a report. Reports get acknowledged, triaged, and answered honestly,
-including when the answer is that the behavior is a documented, accepted
-risk; those are listed in [THREAT-MODEL.md](THREAT-MODEL.md).
+a report.
+
+What to expect after reporting: acknowledgment within seven days, a
+triage answer within fourteen, and a status note at least every two
+weeks while a fix is in progress. Confirmed vulnerabilities are fixed
+before they are discussed publicly, and public disclosure is
+coordinated with the reporter, with ninety days as the default outer
+bound if a fix stalls. Reporters are credited in the advisory unless
+they ask not to be. Some reports will be answered with a pointer to a
+documented, accepted risk; those are listed in
+[THREAT-MODEL.md](THREAT-MODEL.md), and that answer arrives with the
+same timelines. This is one person's project: there is no bounty
+program, and the timelines above are commitments of attention, not of
+around-the-clock response.
 
 ## Controls in place today
 
