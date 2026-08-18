@@ -7,6 +7,7 @@ for every matrix row and every role, the live endpoint answers allow or
 forgot its dependency fails here.
 """
 
+import json
 import secrets
 
 from fastapi.routing import APIRoute
@@ -55,6 +56,25 @@ CALL_PLANS: dict[str, tuple[str, str, dict[str, object]]] = {
             "data": {"captured_at": "2026-08-01T00:00:00+00:00"},
         },
     ),
+    "POST /imports/authorization-details": (
+        "post",
+        "/imports/authorization-details",
+        {
+            "files": {
+                "file": (
+                    "details.json",
+                    json.dumps({"UserDetailList": [{
+                        "UserName": "matrix.auth",
+                        "UserId": "AIDAMATRIX000000000001",
+                        "Arn": "arn:aws:iam::123456789012:user/matrix.auth",
+                        "CreateDate": "2025-01-01T00:00:00Z",
+                    }]}).encode(),
+                    "application/json",
+                )
+            },
+            "data": {"captured_at": "2026-08-01T00:00:00+00:00"},
+        },
+    ),
     "GET /imports": ("get", "/imports", {}),
     "GET /identities": ("get", "/identities", {}),
 }
@@ -95,7 +115,7 @@ def test_matrix_rows_are_enforced_for_every_role(
                 else tokens[role]
             )
             call_kwargs = dict(kwargs)
-            if key == "POST /imports/credential-report":
+            if key.startswith("POST /imports/"):
                 call_kwargs["data"] = {
                     "captured_at": f"2026-08-0{1 + list(Role).index(role)}T00:00:00+00:00"
                 }

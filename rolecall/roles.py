@@ -27,6 +27,7 @@ ROUTE_ROLES: dict[str, frozenset[Role]] = {
     # Reviewers read; importing changes the record, so it is the
     # operator's and administrator's act.
     "POST /imports/credential-report": frozenset({Role.operator, Role.administrator}),
+    "POST /imports/authorization-details": frozenset({Role.operator, Role.administrator}),
     "GET /imports": ALL_ROLES,
     "GET /identities": ALL_ROLES,
 }
