@@ -1,0 +1,36 @@
+"""The role vocabulary and the route matrix, single source.
+
+ROUTE_ROLES is the one data structure that answers "who may call what."
+The route dependencies read it to enforce, and the tests read it to
+verify, so the enforced matrix and the tested matrix cannot drift
+apart. A route is either in this matrix, or named public here, or the
+drift test fails the build.
+"""
+
+from enum import StrEnum
+
+
+class Role(StrEnum):
+    reviewer = "reviewer"
+    operator = "operator"
+    administrator = "administrator"
+
+
+ALL_ROLES: frozenset[Role] = frozenset(Role)
+
+# Key form: "METHOD /path", matching FastAPI's registered routes.
+ROUTE_ROLES: dict[str, frozenset[Role]] = {
+    "GET /auth/me": ALL_ROLES,
+    "POST /auth/logout": ALL_ROLES,
+    "GET /admin/users": frozenset({Role.administrator}),
+    "POST /admin/users": frozenset({Role.administrator}),
+}
+
+# Routes that are reachable without a session, each with its reason.
+PUBLIC_ROUTES: frozenset[str] = frozenset(
+    {
+        "POST /auth/login",  # the way in
+        "GET /health",  # liveness for the platform
+        "GET /health/database",  # readiness for the platform
+    }
+)
