@@ -43,6 +43,10 @@ class JsonLineFormatter(logging.Formatter):
         }
         # Structured fields arrive via the record's extra dict.
         line.update(getattr(record, "fields", {"event": record.getMessage()}))
+        # Tracebacks reach the server log for the operator; response
+        # bodies never carry them, which is the no-echo rule's side.
+        if record.exc_info:
+            line["traceback"] = self.formatException(record.exc_info)
         return json.dumps(line)
 
 
@@ -54,13 +58,24 @@ def configure_logging(level: str) -> None:
     root.setLevel(level.upper())
 
 
-def log_event(event: str, **fields: object) -> None:
-    """Emit one structured log line, allowlist enforced."""
+def log_event(
+    event: str, *, include_traceback: bool = False, **fields: object
+) -> None:
+    """Emit one structured log line, allowlist enforced.
+
+    include_traceback attaches the active exception's traceback to the
+    line; it is not a field and does not pass through the allowlist,
+    because it exists for the operator reading the server log.
+    """
     rejected = set(fields) - ALLOWED_FIELDS
     if rejected:
         raise DisallowedLogField(
             "log fields not on the allowlist: " + ", ".join(sorted(rejected))
         )
-    logging.getLogger("rolecall").info(
-        event, extra={"fields": {"event": event, **fields}}
-    )
+    logger = logging.getLogger("rolecall")
+    if include_traceback:
+        logger.error(
+            event, exc_info=True, extra={"fields": {"event": event, **fields}}
+        )
+    else:
+        logger.info(event, extra={"fields": {"event": event, **fields}})
