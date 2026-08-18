@@ -8,7 +8,7 @@ migration drift check in the pipeline guards the production side.
 
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import JSON, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from rolecall.db import Base
@@ -147,6 +147,67 @@ class Observation(Base):
     key2_last_service: Mapped[str | None] = mapped_column(String(64), default=None)
     cert1_active: Mapped[bool | None] = mapped_column(default=None)
     cert2_active: Mapped[bool | None] = mapped_column(default=None)
+    # Authorization-details fields; null for credential-report rows.
+    role_last_used: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+    role_last_used_region: Mapped[str | None] = mapped_column(
+        String(64), default=None
+    )
+    trust_policy: Mapped[dict[str, object] | None] = mapped_column(JSON, default=None)
+    tags: Mapped[dict[str, str] | None] = mapped_column(JSON, default=None)
+    attached_policies: Mapped[list[dict[str, str]] | None] = mapped_column(
+        JSON, default=None
+    )
+    inline_policy_names: Mapped[list[str] | None] = mapped_column(JSON, default=None)
+    group_names: Mapped[list[str] | None] = mapped_column(JSON, default=None)
+
+
+class Group(Base):
+    """Groups are governable privilege sources, never actors (D-019)."""
+
+    __tablename__ = "groups"
+    __table_args__ = (UniqueConstraint("account_id", "provider_identifier"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    account_id: Mapped[int] = mapped_column(ForeignKey("accounts.id"))
+    provider_identifier: Mapped[str] = mapped_column(String(128), index=True)
+    display_name: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow
+    )
+
+
+class GroupObservation(Base):
+    __tablename__ = "group_observations"
+    __table_args__ = (UniqueConstraint("snapshot_id", "group_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    snapshot_id: Mapped[int] = mapped_column(ForeignKey("snapshots.id"))
+    group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"))
+    display_name: Mapped[str] = mapped_column(String(255))
+    arn: Mapped[str | None] = mapped_column(String(2048), default=None)
+    attached_policies: Mapped[list[dict[str, str]] | None] = mapped_column(
+        JSON, default=None
+    )
+    inline_policy_names: Mapped[list[str] | None] = mapped_column(JSON, default=None)
+    # Members as identity provider identifiers, resolved within the
+    # same file; membership is observed, never stored as state (D-006).
+    member_identifiers: Mapped[list[str] | None] = mapped_column(JSON, default=None)
+
+
+class PolicyDocumentRecord(Base):
+    """A managed policy's default-version document as one snapshot saw it."""
+
+    __tablename__ = "policy_documents"
+    __table_args__ = (UniqueConstraint("snapshot_id", "policy_arn"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    snapshot_id: Mapped[int] = mapped_column(ForeignKey("snapshots.id"))
+    policy_arn: Mapped[str] = mapped_column(String(2048))
+    policy_name: Mapped[str] = mapped_column(String(255))
+    aws_managed: Mapped[bool] = mapped_column(default=False)
+    document: Mapped[dict[str, object] | None] = mapped_column(JSON, default=None)
 
 
 class AuditEvent(Base):

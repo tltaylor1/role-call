@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from rolecall.db import get_session
 from rolecall.deps import AuthContext, require_roles
+from rolecall.ingest import authorization_details as authz
 from rolecall.ingest.credential_report import (
     MAX_FILE_BYTES,
     ParseError,
@@ -25,6 +26,7 @@ from rolecall.ingest.credential_report import (
 from rolecall.ingest.importer import (
     CaptureTimeInvalid,
     DuplicateSnapshot,
+    import_authorization_details,
     import_credential_report,
 )
 from rolecall.models import Account, Snapshot
@@ -66,6 +68,43 @@ def import_report(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     try:
         result = import_credential_report(
+            db,
+            report=report,
+            captured_at=captured_at,
+            source_filename=file.filename,
+            actor_user_id=auth.user.id,
+            actor_username=auth.user.username,
+        )
+    except CaptureTimeInvalid as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except DuplicateSnapshot as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return ImportResponse(
+        account=result.account,
+        captured_at=result.captured_at.isoformat(),
+        identities_new=result.identities_new,
+        identities_known=result.identities_known,
+        observations=result.observations,
+        skipped_rows=result.skipped_rows,
+    )
+
+
+@router.post("/authorization-details", status_code=201)
+def import_authorization(
+    file: UploadFile,
+    captured_at: Annotated[datetime, Form()],
+    db: Annotated[Session, Depends(get_session)],
+    auth: Annotated[AuthContext, require_roles("POST /imports/authorization-details")],
+) -> ImportResponse:
+    data = file.file.read(authz.MAX_FILE_BYTES + 1)
+    if len(data) > authz.MAX_FILE_BYTES:
+        raise HTTPException(status_code=413, detail="file exceeds the size bound")
+    try:
+        report = authz.parse_authorization_details(data)
+    except authz.ParseError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    try:
+        result = import_authorization_details(
             db,
             report=report,
             captured_at=captured_at,
