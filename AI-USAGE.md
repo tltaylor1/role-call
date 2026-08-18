@@ -71,6 +71,17 @@ manufactured entry would defeat the reason this file exists.
   per turn," which is the true statement. History is not rewritten,
   because rewriting a provenance record to look cleaner is exactly the
   failure this entry documents.
+- **An edit silently did not happen, and a commit message lied about
+  it.** Two scripted text replacements targeted wording that was not in
+  the file, and the replacement primitive reports nothing on a miss: a
+  comment claimed for the workflow file never landed, and neither did
+  the database service block, so the pipeline shipped a job that needed
+  a database with no database. The commit message stating the comment
+  was in both files entered public history false. Caught by the
+  pipeline failing on the missing service; the falsehood is corrected
+  forward, not rewritten. The lesson joins the environment one: an edit
+  is not made until the result is read back, and a tool that fails
+  loudly on a missed match beats one that continues in silence.
 - **The vetting itself was weaker than the gate it vetted.** The
   workflow linter delegates embedded scripts to a shell analyzer only
   when one is installed. The build machine had none, so the local

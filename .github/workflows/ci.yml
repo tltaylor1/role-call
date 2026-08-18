@@ -93,9 +93,25 @@ jobs:
   application:
     runs-on: ubuntu-latest
     # The same digest the Dockerfile pins, so the interpreter that tests
-    # the code is the interpreter that ships it.
+    # the code is the interpreter that ships it. Automated update tools
+    # only bump the Dockerfile; this pin moves by hand in the same commit.
     container:
       image: python@sha256:4fad23465a06cc5149a541fbec6f87e234a64dc0550f6bfdd2d290d8f03240df
+    services:
+      # A real database for the migration drift check, on the same digest
+      # the compose file pins. The password derives from the run id: not
+      # a secret, not credential-shaped, different every run.
+      postgres:
+        image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+        env:
+          POSTGRES_USER: rolecall
+          POSTGRES_DB: rolecall
+          POSTGRES_PASSWORD: ci-run-${{ github.run_id }}
+        options: >-
+          --health-cmd "pg_isready -U rolecall -d rolecall"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
