@@ -5,7 +5,7 @@ rule. This file is a point-in-time copy adopted at project start.
 
 # Standards
 
-The doctrine. Each rule states what to do; [ENFORCEMENT.md](ENFORCEMENT.md)
+The doctrine. Each rule states what to do; [ENFORCEMENT.md](https://github.com/tltaylor1/build-guidelines/blob/main/ENFORCEMENT.md)
 states what checks it, and [DECISIONS.md](DECISIONS.md) states which failure
 produced it.
 
@@ -31,7 +31,7 @@ against these.
    rule, and every rule records the incident that produced it. A standard that
    never changes is not stable, it is unmaintained. The mechanism is
    [DECISIONS.md](DECISIONS.md), where each entry names its cause, and the
-   promotion path in [ENFORCEMENT.md](ENFORCEMENT.md), where a human check that
+   promotion path in [ENFORCEMENT.md](https://github.com/tltaylor1/build-guidelines/blob/main/ENFORCEMENT.md), where a human check that
    catches the same problem twice becomes an automated one. Treating the
    standards as final is the failure this baseline is built to avoid.
 
@@ -350,4 +350,4 @@ identical from outside; only this section distinguishes them.
   standard here. Triggered by anything reachable from the public internet.
 
 Adding a rule here without a project that exercises it would produce exactly the
-unenforceable doctrine [ENFORCEMENT.md](ENFORCEMENT.md) exists to expose.
+unenforceable doctrine [ENFORCEMENT.md](https://github.com/tltaylor1/build-guidelines/blob/main/ENFORCEMENT.md) exists to expose.
