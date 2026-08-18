@@ -13,6 +13,9 @@ services:
       interval: 2s
       timeout: 2s
       retries: 15
+    ports:
+      # Loopback only: migration authoring runs Alembic from the host.
+      - "127.0.0.1:5432:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
 
@@ -20,6 +23,8 @@ services:
     build: .
     environment:
       ROLECALL_DATABASE_URL: postgresql+psycopg://rolecall:${POSTGRES_PASSWORD:?set it in .env, see .env.example}@db:5432/rolecall
+      ROLECALL_ADMIN_USERNAME: ${ROLECALL_ADMIN_USERNAME:-}
+      ROLECALL_ADMIN_PASSWORD: ${ROLECALL_ADMIN_PASSWORD:-}
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
