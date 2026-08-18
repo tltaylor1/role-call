@@ -20,6 +20,13 @@ repos:
         entry: vale
         language: system
         types_or: [markdown, python, shell]
+      # The docs-truth gate (D-031): status figures must match the journey
+      # diagram, and claims once publicly false may never return.
+      - id: docs-truth
+        name: docs-truth status check
+        entry: python3 scripts/check_docs_truth.py
+        language: system
+        pass_filenames: false
       # The standards ban deferred-work stubs; this makes the ban a mechanism.
       # AGENTS.md states the rule so it names the markers, and this file
       # names them to match them, so both are excluded.

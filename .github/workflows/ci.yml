@@ -44,6 +44,8 @@ jobs:
           tar -xzf vale.tar.gz vale
       - name: writing rules
         run: git ls-files -z "*.md" | xargs -0 "$RUNNER_TEMP/vale"
+      - name: docs-truth status check
+        run: python3 scripts/check_docs_truth.py
       - name: forbid deferred-work markers
         run: |
           ! grep -rnE "\b(TODO|FIXME|HACK|XXX)\b" --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude=AGENTS.md --exclude=.pre-commit-config.yaml .

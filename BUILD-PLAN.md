@@ -9,9 +9,11 @@ required checks green, so the merge itself is the public record of the
 review. No approval is required on the pull request, because there is
 no second person to give one and a self-approval would be theater; the
 gates are the checks and the deliberate merge. A subphase is not finished until the phase
-diagrams match what is now true and the repository's one-line
-description says the current phase; both live outside the gates'
-reach, so the ritual is what keeps them honest. There is no testing phase at the end, because every
+diagrams match what is now true, the repository's one-line description
+says the current phase, and the status claims across the documents
+agree with the journey diagram, which the docs-truth gate (D-031)
+enforces in the pipeline; what the gates cannot reach, the ritual
+covers. There is no testing phase at the end, because every
 subphase ships its own tests, and there is no hardening phase in
 substance, because each control arrives with the thing it protects; the
 final subphase is proof, not retrofit.
