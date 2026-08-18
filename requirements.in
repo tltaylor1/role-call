@@ -9,3 +9,4 @@ psycopg[binary]
 alembic
 bcrypt
 pydantic-settings
+python-multipart

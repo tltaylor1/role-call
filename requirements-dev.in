@@ -6,3 +6,4 @@ httpx2
 ruff
 pip-audit
 mypy
+hypothesis
