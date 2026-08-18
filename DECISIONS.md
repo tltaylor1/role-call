@@ -423,3 +423,27 @@ destroy what review reads.
 
 Dependabot's update pull requests flow through the same gate, which
 also means the update path is now check-gated by construction.
+
+## D-029: What the credential report cannot say, and what stands in
+
+Verified against the provider's documentation at build time, the
+credential report's content carries neither a generation timestamp nor
+any immutable unique identifier. Two rules follow.
+
+Capture time is operator-attested. The enumeration wanted it from file
+content, and for this file that is impossible; inferring it from the
+newest timestamp inside the report was rejected because a quiet account
+would date its snapshot days early and staleness math would lie.
+The operator supplies the capture time at import, it must carry a
+timezone and must not be in the future, and it is content-authoritative
+wherever content exists: the account number still comes only from the
+rows themselves.
+
+Identity keys from this file are provisional. D-016 forbids keying by
+name or ARN because a recreated principal inherits both; the only
+immutable content available is the ARN paired with the user's creation
+time, which a recreated principal cannot reproduce. The provisional key
+hashes that pair, the identity row says provisional plainly, and the
+authorization details import upgrades it to the provider's real
+identifier by matching the same pair. Resurrection still mints a new
+identity, which is the property D-016 exists to keep.
