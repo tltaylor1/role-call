@@ -95,7 +95,7 @@ jobs:
     # The same digest the Dockerfile pins, so the interpreter that tests
     # the code is the interpreter that ships it.
     container:
-      image: python@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
+      image: python@sha256:4fad23465a06cc5149a541fbec6f87e234a64dc0550f6bfdd2d290d8f03240df
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

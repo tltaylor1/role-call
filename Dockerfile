@@ -1,7 +1,10 @@
 # The base is pinned by digest, not by tag, so the image that built and
 # passed review is the image that runs. The digest resolves the
-# python:3.14-slim tag as of August 2026; moving it is a reviewed change.
-FROM python@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
+# python:3.14-slim tag; moving it is a reviewed change. The same digest
+# is pinned in .github/workflows/ci.yml, and the two move together:
+# automated update tools only see this file, so the workflow pin is
+# updated by hand in the same commit.
+FROM python@sha256:4fad23465a06cc5149a541fbec6f87e234a64dc0550f6bfdd2d290d8f03240df
 
 # The application runs as a user that owns nothing but its own code.
 RUN useradd --create-home --shell /usr/sbin/nologin rolecall
