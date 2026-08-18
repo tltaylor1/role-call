@@ -16,6 +16,16 @@ select = ["E", "F", "I", "B", "UP", "S", "ERA"]
 # Test functions assert; that is their job, not an assertion misuse.
 "tests/*" = ["S101"]
 
+[tool.ruff.lint.flake8-bugbear]
+# Dependency factories are FastAPI's idiom for defaults, not the
+# mutable-default bug B008 exists to catch.
+extend-immutable-calls = ["fastapi.Depends", "rolecall.deps.require_roles"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+files = ["rolecall"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
