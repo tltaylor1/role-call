@@ -1,0 +1,17 @@
+# Dependabot watches every pinned surface: the Python tree, the workflow
+# action pins, and the digest-pinned container bases. It only opens pull
+# requests; nothing updates without review.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
