@@ -32,9 +32,9 @@ around-the-clock response.
 
 ## Controls in place today
 
-The application does not exist yet, so the controls that exist guard the
-repository and its pipeline. Each is a mechanism that runs, not a rule
-that hopes.
+The application exists and grows subphase by subphase; the controls
+here guard the repository, the pipeline, and the application code that
+has landed. Each is a mechanism that runs, not a rule that hopes.
 
 | Control | What it guards against |
 |---|---|
@@ -52,20 +52,36 @@ that hopes.
 | Workflow lint and security audit in the pipeline | A mistake in the files that gate everything else; both tools found and fixed real findings here before adoption |
 | Posture scorecard, externally run and published | A silent drift in the repository's own practices; the score is checkable, not claimed |
 
-At the repository's visibility flip, the server layer joins: GitHub secret
-scanning and push protection, completing the three scanning layers.
+At the repository's visibility flip, the server layer joined: GitHub
+secret scanning and push protection, completing the three scanning
+layers.
 
-## Controls planned for the application
+## Application controls in place, each with its proving test
 
-The application's controls are designed before the code, mapped
-threat-by-threat in [THREAT-MODEL.md](THREAT-MODEL.md) and committed as
-Phase 1 requirements in [ROADMAP.md](ROADMAP.md): authentication on every
-request, three roles with per-route authorization, rate limiting, bounded
-ingestion, derived state, atomic audit, deployment-layer encryption at
-rest (D-020), escaped exports, and the rest. When the code exists, this file gains the
-controls-implemented table: each control, the threat it answers, and the
-test that proves it. A control listed here without its test is a claim,
-not a control, so the table waits for the tests.
+A control listed without its test is a claim, not a control, so every
+row names the tests that fail if the control disappears. Threat numbers
+refer to [THREAT-MODEL.md](THREAT-MODEL.md).
+
+| Control | Threat it answers | Proven by |
+|---|---|---|
+| Authentication on every request; 401 without a valid session | 2, 6 | tests/test_matrix.py, tests/test_auth.py |
+| The role matrix as one source driving enforcement and tests, with a drift test refusing ungoverned routes | 2 | tests/test_matrix.py |
+| Timing-equalized login: unknown names pay the same bcrypt cost and receive the identical body | 2 | tests/test_auth.py |
+| Sessions stored only as token hashes, individually revocable, absolute expiry (D-026) | 6 | tests/test_auth.py |
+| Sign-in rate limiting per username and per address, failures only (D-027) | 2 | tests/test_ratelimit.py |
+| Bounded, in-memory, claim-verifying ingestion on both file types (D-008, D-030) | 4 | tests/test_ingest.py, tests/test_ingest_authz.py, both property suites |
+| Append-only observations; re-imports rejected; state derived at read (D-006) | 3, 5 | tests/test_ingest.py |
+| Audit rows in the acting transaction, attributed (D-011) | 8 | tests/test_auth.py, tests/test_ingest.py |
+| Validation and login failures echo nothing the caller sent | 2 | tests/test_validation.py, both property suites |
+| Identities keyed immutably; resurrection mints a new identity and is surfaced (D-016, D-029) | 11 | tests/test_ingest.py, tests/test_ingest_authz.py |
+
+## Controls still planned
+
+Mapped threat-by-threat in [THREAT-MODEL.md](THREAT-MODEL.md) and
+scheduled by [BUILD-PLAN.md](BUILD-PLAN.md): the derivation engine and
+findings, escaped exports at every exit, deployment-layer encryption at
+rest (D-020), step-up authentication for any action that changes a
+cloud account, and the remaining hardening the final subphase proves.
 
 ## Supported versions
 

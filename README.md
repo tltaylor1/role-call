@@ -39,11 +39,14 @@ carries out traces to the person who decided it.
 
 ## Status
 
-**Phase 1 of 8: building, subphase 1.1 of 12 complete.** The
-foundation runs: a fresh clone with Docker starts the stack, migrates
-the schema, and answers on its health routes. The design documents
-below govern the build, and [BUILD-PLAN.md](BUILD-PLAN.md) sets the
-subphases. [ROADMAP.md](ROADMAP.md) always states the current phase.
+**Phase 1 of 8: building, subphases 4 of 12 built** and merged. A fresh clone with Docker starts the stack,
+migrates the schema, serves sign-in with three roles behind a tested
+authorization matrix, imports identity snapshots append-only, and
+lists the resulting inventory. The design documents below govern the
+build, [BUILD-PLAN.md](BUILD-PLAN.md) sets the subphases, and
+[ROADMAP.md](ROADMAP.md) states the current phase, with the status
+figures gated against the journey diagram so they cannot drift
+(D-031).
 
 This is a learning project, built in public, by one person. The software
 is provided as is under the [Apache 2.0 license](LICENSE). Before relying
@@ -111,12 +114,17 @@ The full sequence, with what each phase proves, is in
 
 ## Running it
 
-The skeleton runs; the application arrives subphase by subphase.
+The stack runs with sign-in, imports, and the inventory; the rest
+arrives subphase by subphase.
 
 ```
-cp .env.example .env   # then set a password, for example: openssl rand -hex 24
+cp .env.example .env
+# set POSTGRES_PASSWORD, and set ROLECALL_ADMIN_USERNAME and
+# ROLECALL_ADMIN_PASSWORD so startup creates your administrator
 docker compose up --build
 ```
 
-Then open http://127.0.0.1:8000/health. Full instructions, sample data,
-and the demo walk-through arrive with the later subphases.
+Then open http://127.0.0.1:8000/docs, authorize by signing in with the
+administrator from your .env, and use it to create users, import a
+credential report with its capture time, and read /identities. Sample
+data and the full demo walk-through arrive with the later subphases.

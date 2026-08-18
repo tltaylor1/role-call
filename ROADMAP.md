@@ -10,17 +10,15 @@ later phase completes it.
 
 ## Status
 
-Phase 0 is in progress. No application code exists, which is the
-requirement.
-
-| Phase 0 item | State |
-|---|---|
-| Repository hygiene and standards | Done |
-| Decisions recorded as they are made | Started, in [DECISIONS.md](DECISIONS.md) |
-| Threat model | Drafted, in [THREAT-MODEL.md](THREAT-MODEL.md) |
-| Architecture, data flow, and trust boundaries | Done, in [ARCHITECTURE.md](ARCHITECTURE.md) |
-| Version one scope confirmed | Done, below |
-| Diagram list specified | Done, at the end of the architecture document |
+Phase 1 is in progress: the application is being built in review-gated
+subphases whose order and content [BUILD-PLAN.md](BUILD-PLAN.md) fixed
+in advance. Subphases 4 of 12 are built and merged: the foundation, the
+operators and audit spine, and both ingestion surfaces, the credential
+report and the authorization details. Phase 0's design
+artifacts are complete: the decisions in [DECISIONS.md](DECISIONS.md),
+the threat model, the architecture, the confirmed scope below, and the
+diagram list at the end of the architecture document. This figure is
+kept honest by a pipeline check against the journey diagram (D-031).
 
 -------------------------------------------------------------------------------
 

@@ -113,8 +113,10 @@ threat model revision first.
 
 ```
 accounts --< snapshots --< observations >-- identities
+groups --< group_observations (snapshots also point here)
+snapshots --< policy_documents
 identities --< governance_records
-users, audit_log
+users, audit_events
 ```
 
 - An **identity** is one principal in one account, keyed by the account
@@ -125,7 +127,9 @@ users, audit_log
   double-counted.
 - An **observation** is the append-only fact that a snapshot saw an
   identity, carrying the attributes seen at that moment: credentials and
-  their ages, permission summaries, last-use marks.
+  their ages, permission summaries, last-use marks. Groups get their own
+  observations, membership and policies per snapshot (D-019), and each
+  snapshot stores the managed policy documents it saw in force.
 - A **governance record** is the human layer: an owner, a purpose, a flag,
   or an attestation, on an identity or a group (D-019), attributed and
   audited, stored rather than derived because it IS the human input.
@@ -161,7 +165,7 @@ replace the sketches as they complete.
 2. **Data flow.** The mermaid sketch above, drawn properly: import, derive,
    govern, report.
 3. **Trust boundaries.** The three boundaries with the controls at each.
-4. **The data model.** The five tables and their relationships.
+4. **The data model.** The tables and their relationships.
 5. **Ingestion sequence.** A file's path from upload through bounds,
    verification, observation rows, and the single commit.
 6. **Derivation concept.** How observations plus governance records become

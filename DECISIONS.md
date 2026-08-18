@@ -448,6 +448,26 @@ authorization details import upgrades it to the provider's real
 identifier by matching the same pair. Resurrection still mints a new
 identity, which is the property D-016 exists to keep.
 
+## D-031: Status claims are gated, with the journey diagram as the source
+
+A session review found the public documents materially stale: the
+roadmap still said the design phase was in progress and no application
+code existed, the security document said the application did not exist
+while listing five built controls as planned, and the front door
+undercounted the merged subphases. The failure was structural: the
+subphase-close ritual covered the diagrams and the repository
+description but never the document set, and a figure that lives in
+several files drifts, which is the same disease the derive-don't-store
+rule treats in data.
+
+The mechanism: the journey diagram is the single source for the build
+status figure, because the close ritual already moves it. A pipeline
+and pre-commit check reads the figure there and fails when the front
+door or the roadmap disagree, and it forbids outright the specific
+claims that sat false in public, so those sentences can never return.
+Prose accuracy beyond the figures stays with the close ritual, which
+now names the document set explicitly; the gate holds the numbers, the
+ritual holds the words.
 ## D-030: The authorization details file, taken at its word and no further
 
 Four rules from the build-time verification of the provider's
