@@ -31,6 +31,7 @@ ROUTE_ROLES: dict[str, frozenset[Role]] = {
     "GET /imports": ALL_ROLES,
     "GET /identities": ALL_ROLES,
     "GET /identities/{identity_id}": ALL_ROLES,
+    "GET /groups": ALL_ROLES,
 }
 
 # Routes that are reachable without a session, each with its reason.
