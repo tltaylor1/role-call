@@ -15,7 +15,9 @@ through every subphase and get verified again at the end; and change is
 expected, because building teaches. A discovery mid-build is not silently
 absorbed: it becomes a decision, a roadmap amendment, or a backlog entry,
 and this plan updates visibly, so the difference between the plan as
-written and the build as it happened stays readable.
+written and the build as it happened stays readable. Design is never
+finished: each phase boundary reopens it, and the design documents are
+revised with what the phase taught before the next one begins.
 
 This is the opposite of building fast, on purpose. The pace is set by
 review, and the interesting output of an AI-assisted build is the record
