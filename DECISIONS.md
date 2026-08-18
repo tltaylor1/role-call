@@ -509,3 +509,46 @@ Every finding carries its OWASP Non-Human Identities Top 10 identifier
 and an explanation containing the numbers that triggered it, because a
 finding that cannot explain itself is an accusation, and the review
 these findings feed runs on evidence.
+
+## D-033: Privilege read by capability, attributed, and honest about limits
+
+The judgment subphase, and three choices carry it.
+
+Detection is capability-shaped, never name-shaped. A policy called
+ReadOnly that can rewrite its own default version is administrator
+access; a policy called FullAdminLegacy granting three read actions is
+not. The heuristics read what a document permits: every action on every
+resource, the wildcard breadth underneath that, identity-mutating
+operations, and the escalation combinations from the published research
+credited in ACKNOWLEDGEMENTS.md, including the pair where passing a role
+into a compute service is ordinary on either side and an escalation
+together. The escalation finding is reported only for identities that
+are not already administrators, because an administrator reaches every
+path by definition and listing them there buries the finding that
+matters: the principal nobody calls an administrator that can become
+one.
+
+Every capability names its source. "This account is over-privileged" is
+an accusation; "this account holds administrator access through the
+automation group, and can rewrite its own policy through an inline
+policy it holds directly" is something a human can act on. Inline
+policies are stored and attributed by the provider's immutable
+identifier rather than by name or address (D-016), because two
+identities share an address during a resurrection window and the dead
+one must not inherit the live one's privilege.
+
+The limits ride with the claims rather than living in a footnote.
+Version one reads grants, not effective permissions: an explicit deny
+is noticed and not evaluated against the allow it narrows, a condition
+is noticed and not interpreted, and privilege reachable by assuming
+another role is not computed at all. Each finding that rests on a
+document carrying a deny or a condition says so in its own text. The
+consequence is stated once here and inherited everywhere: this reading
+can overstate a grant that a deny or condition narrows, and it
+understates anything reachable through a chain.
+
+Tuning is part of the design, not a later polish. Wildcards over read
+operations are separated from wildcards that can change things, because
+the provider's own read-only policies grant read wildcards on every
+resource, and scoring those like write access is exactly how a tool
+earns the reputation that gets it muted.

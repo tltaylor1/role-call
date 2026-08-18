@@ -18,7 +18,23 @@ from rolecall.db import get_session
 from rolecall.deps import require_roles
 from rolecall.derive import derive
 from rolecall.findings import evaluate
-from rolecall.models import Account, Identity, Observation, Snapshot
+from rolecall.models import (
+    Account,
+    Group,
+    GroupObservation,
+    Identity,
+    Observation,
+    PolicyDocumentRecord,
+    Snapshot,
+)
+from rolecall.privilege import (
+    GroupFacts,
+    PolicyIndex,
+    evaluate_group,
+    evaluate_privilege,
+    membership_drift,
+    read_identity_privilege,
+)
 
 router = APIRouter()
 
@@ -59,6 +75,8 @@ class IdentityDetail(BaseModel):
     as_of: str
     observed_days: int
     last_activity: str | None
+    owner: str | None
+    privilege_sources: list[str]
     findings: list[FindingView]
     timeline: list[ObservationView]
 
@@ -75,6 +93,58 @@ def _observation_pairs(
     for obs, captured, _source in rows:
         out.setdefault(obs.identity_id, []).append((obs, captured))
     return out
+
+
+def _privilege_context(
+    db: Session, account_id: int
+) -> tuple[PolicyIndex, dict[str, GroupFacts], dict[str, list[str]]]:
+    """Policies and groups from the freshest snapshot carrying each,
+    the same read-time rule the derivation engine uses for fields, plus
+    the previous membership for drift."""
+    index = PolicyIndex()
+    doc_rows = db.execute(
+        select(PolicyDocumentRecord, Snapshot.captured_at)
+        .join(Snapshot, PolicyDocumentRecord.snapshot_id == Snapshot.id)
+        .where(Snapshot.account_id == account_id)
+    ).all()
+    if doc_rows:
+        newest = max(captured for _, captured in doc_rows)
+        for record, captured in doc_rows:
+            if captured != newest:
+                continue
+            if record.policy_arn.startswith("inline:"):
+                owner, _, name = record.policy_arn[len("inline:"):].partition("#")
+                index.inline.setdefault(owner, {})[name] = record.document
+            else:
+                index.managed[record.policy_arn] = record.document
+
+    group_rows = db.execute(
+        select(GroupObservation, Group, Snapshot.captured_at)
+        .join(Group, GroupObservation.group_id == Group.id)
+        .join(Snapshot, GroupObservation.snapshot_id == Snapshot.id)
+        .where(Snapshot.account_id == account_id)
+        .order_by(Snapshot.captured_at)
+    ).all()
+    groups: dict[str, GroupFacts] = {}
+    previous_members: dict[str, list[str]] = {}
+    if group_rows:
+        captures = sorted({captured for _, _, captured in group_rows})
+        newest = captures[-1]
+        prior = captures[-2] if len(captures) > 1 else None
+        for observation, _group, captured in group_rows:  # noqa: B007
+            if captured == newest:
+                groups[observation.display_name] = GroupFacts(
+                    name=observation.display_name,
+                    key=_group.provider_identifier,
+                    attached=list(observation.attached_policies or []),
+                    inline_names=list(observation.inline_policy_names or []),
+                    members=list(observation.member_identifiers or []),
+                )
+            elif prior is not None and captured == prior:
+                previous_members[observation.display_name] = list(
+                    observation.member_identifiers or []
+                )
+    return index, groups, previous_members
 
 
 @router.get("/identities", dependencies=[require_roles("GET /identities")])
@@ -98,6 +168,7 @@ def list_identities(
     for identity, _ in identities:
         key = (identity.account_id, identity.first_display_name)
         seen[key] = seen.get(key, 0) + 1
+    contexts: dict[int, tuple[PolicyIndex, dict[str, GroupFacts], dict[str, list[str]]]] = {}
     views = []
     for identity, account in identities:
         mine = pairs.get(identity.id, [])
@@ -106,6 +177,24 @@ def list_identities(
             state = derive(mine, as_of_by_account[identity.account_id])
             state.identity_type = identity.identity_type
             for finding in evaluate(state):
+                tiers[finding.tier] += 1
+            if identity.account_id not in contexts:
+                contexts[identity.account_id] = _privilege_context(
+                    db, identity.account_id
+                )
+            index, groups, _ = contexts[identity.account_id]
+            newest_observation = max(mine, key=lambda pair: pair[1])[0]
+            picture = read_identity_privilege(
+                identity_key=identity.provider_identifier,
+                tags=newest_observation.tags,
+                attached=newest_observation.attached_policies,
+                group_names=newest_observation.group_names,
+                trust_policy=newest_observation.trust_policy,
+                account_id=account,
+                index=index,
+                groups=groups,
+            )
+            for finding in evaluate_privilege(picture):
                 tiers[finding.tier] += 1
         views.append(IdentityView(
             id=identity.id,
@@ -148,6 +237,19 @@ def identity_detail(
     state = derive(mine, as_of)
     state.identity_type = identity.identity_type
     findings = evaluate(state)
+    index, groups, _ = _privilege_context(db, identity.account_id)
+    newest_observation = max(mine, key=lambda pair: pair[1])[0]
+    picture = read_identity_privilege(
+        identity_key=identity.provider_identifier,
+        tags=newest_observation.tags,
+        attached=newest_observation.attached_policies,
+        group_names=newest_observation.group_names,
+        trust_policy=newest_observation.trust_policy,
+        account_id=account,
+        index=index,
+        groups=groups,
+    )
+    findings = findings + evaluate_privilege(picture)
     reused = db.execute(
         select(func.count()).select_from(Identity).where(
             Identity.account_id == identity.account_id,
@@ -173,6 +275,8 @@ def identity_detail(
         last_activity=(
             state.last_activity.isoformat() if state.last_activity else None
         ),
+        owner=picture.owner,
+        privilege_sources=[source.describe() for source in picture.sources],
         findings=[FindingView(**vars(f)) for f in findings],
         timeline=[
             ObservationView(
@@ -189,3 +293,35 @@ def identity_detail(
             for obs, captured in mine
         ],
     )
+
+
+class GroupView(BaseModel):
+    account: str
+    name: str
+    members: int
+    privileged: bool
+    findings: list[FindingView]
+
+
+@router.get("/groups", dependencies=[require_roles("GET /groups")])
+def list_groups(db: Annotated[Session, Depends(get_session)]) -> list[GroupView]:
+    """Groups as governed privilege sources (D-019): what each grants,
+    who is in it, and what changed since the previous snapshot."""
+    accounts = db.execute(select(Account)).scalars().all()
+    views: list[GroupView] = []
+    for account in accounts:
+        index, groups, previous = _privilege_context(db, account.id)
+        for name, facts in sorted(groups.items()):
+            reading, findings = evaluate_group(facts, index)
+            if name in previous:
+                findings = findings + membership_drift(
+                    name, previous[name], facts.members
+                )
+            views.append(GroupView(
+                account=account.provider_account_id,
+                name=name,
+                members=len(facts.members),
+                privileged=reading.privileged,
+                findings=[FindingView(**vars(f)) for f in findings],
+            ))
+    return views

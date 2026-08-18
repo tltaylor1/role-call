@@ -40,6 +40,7 @@ class ParsedUser:
     attached_policies: list[dict[str, str]]
     inline_policy_names: list[str]
     tags: dict[str, str]
+    inline_documents: list[dict[str, object]]
 
 
 @dataclass
@@ -54,6 +55,7 @@ class ParsedRole:
     attached_policies: list[dict[str, str]]
     inline_policy_names: list[str]
     tags: dict[str, str]
+    inline_documents: list[dict[str, object]]
 
 
 @dataclass
@@ -63,6 +65,7 @@ class ParsedGroup:
     group_id: str
     attached_policies: list[dict[str, str]]
     inline_policy_names: list[str]
+    inline_documents: list[dict[str, object]]
 
 
 @dataclass
@@ -130,6 +133,24 @@ def _inline_names(raw: object) -> list[str]:
         for item in raw:
             if isinstance(item, dict) and isinstance(item.get("PolicyName"), str):
                 out.append(item["PolicyName"][:MAX_NAME_CHARS])
+    return out
+
+
+def _inline_documents(raw: object) -> list[dict[str, object]]:
+    """Inline policies with their documents: the classic place privilege
+    hides, so names alone were never going to be enough (D-033)."""
+    out: list[dict[str, object]] = []
+    if isinstance(raw, list):
+        for item in raw:
+            if isinstance(item, dict) and isinstance(item.get("PolicyName"), str):
+                try:
+                    document = _document(item.get("PolicyDocument"))
+                except ValueError:
+                    document = None
+                out.append({
+                    "name": item["PolicyName"][:MAX_NAME_CHARS],
+                    "document": document,
+                })
     return out
 
 
@@ -229,6 +250,7 @@ def parse_authorization_details(data: bytes) -> ParsedDetails:
                     attached_policies=_attached(raw.get("AttachedManagedPolicies")),
                     inline_policy_names=_inline_names(raw.get("UserPolicyList")),
                     tags=_tags(raw.get("Tags")),
+                    inline_documents=_inline_documents(raw.get("UserPolicyList")),
                 )
             )
         except ParseError:
@@ -269,6 +291,7 @@ def parse_authorization_details(data: bytes) -> ParsedDetails:
                     attached_policies=_attached(raw.get("AttachedManagedPolicies")),
                     inline_policy_names=_inline_names(raw.get("RolePolicyList")),
                     tags=_tags(raw.get("Tags")),
+                    inline_documents=_inline_documents(raw.get("RolePolicyList")),
                 )
             )
         except ParseError:
@@ -296,6 +319,7 @@ def parse_authorization_details(data: bytes) -> ParsedDetails:
                     group_id=group_id[:128],
                     attached_policies=_attached(raw.get("AttachedManagedPolicies")),
                     inline_policy_names=_inline_names(raw.get("GroupPolicyList")),
+                    inline_documents=_inline_documents(raw.get("GroupPolicyList")),
                 )
             )
         except ParseError:
