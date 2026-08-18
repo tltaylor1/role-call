@@ -16,7 +16,7 @@ The tool amplifies a human decision; it does not act on its own.
 
 It starts with Amazon Web Services (AWS) identity.
 
-## The vision
+## What done looks like
 
 Human accounts in a regulated company have a lifecycle: created for a
 named person, owned, reviewed on a schedule, and disabled at departure.
