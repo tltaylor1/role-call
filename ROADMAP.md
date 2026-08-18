@@ -12,9 +12,9 @@ later phase completes it.
 
 Phase 1 is in progress: the application is being built in review-gated
 subphases whose order and content [BUILD-PLAN.md](BUILD-PLAN.md) fixed
-in advance. Subphases 3 of 12 are built and merged, the foundation, the
-operators and audit spine, and the credential report ingestion; the
-fourth, authorization details ingestion, is in review. Phase 0's design
+in advance. Subphases 4 of 12 are built and merged: the foundation, the
+operators and audit spine, and both ingestion surfaces, the credential
+report and the authorization details. Phase 0's design
 artifacts are complete: the decisions in [DECISIONS.md](DECISIONS.md),
 the threat model, the architecture, the confirmed scope below, and the
 diagram list at the end of the architecture document. This figure is
