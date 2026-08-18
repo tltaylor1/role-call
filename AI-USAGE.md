@@ -71,6 +71,15 @@ manufactured entry would defeat the reason this file exists.
   per turn," which is the true statement. History is not rewritten,
   because rewriting a provenance record to look cleaner is exactly the
   failure this entry documents.
+- **The vetting itself was weaker than the gate it vetted.** The
+  workflow linter delegates embedded scripts to a shell analyzer only
+  when one is installed. The build machine had none, so the local
+  vetting run silently skipped a whole class of checks and passed;
+  the pipeline, which has the analyzer, failed on two unquoted
+  substitutions the local run never saw. The analyzer is now installed
+  locally, the finding was real and fixed, and the lesson is that a
+  passing check proves nothing until the environments match: the same
+  tool ran in both places and was not the same gate.
 - **The new gates found work before they were installed.** Vetting the
   pipeline batch meant running each tool against the repository first.
   The workflow audit found every checkout persisting a repository

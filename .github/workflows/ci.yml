@@ -43,7 +43,7 @@ jobs:
           echo "a903f1f60c3293fac643e0137f599a462881cc691ee19d6120dcfc786f1be86d  vale.tar.gz" | sha256sum -c -
           tar -xzf vale.tar.gz vale
       - name: writing rules
-        run: '"$RUNNER_TEMP/vale" $(git ls-files "*.md")'
+        run: git ls-files -z "*.md" | xargs -0 "$RUNNER_TEMP/vale"
       - name: forbid deferred-work markers
         run: |
           ! grep -rnE "\b(TODO|FIXME|HACK|XXX)\b" --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude=AGENTS.md --exclude=.pre-commit-config.yaml .
@@ -88,7 +88,7 @@ jobs:
       # Offline on purpose: the pipeline checks the cross-references
       # inside this repository and fetches nothing.
       - name: check internal links
-        run: '"$RUNNER_TEMP/lychee-x86_64-unknown-linux-gnu/lychee" --offline --no-progress --include-fragments $(git ls-files "*.md")'
+        run: git ls-files -z "*.md" | xargs -0 "$RUNNER_TEMP/lychee-x86_64-unknown-linux-gnu/lychee" --offline --no-progress --include-fragments
 
   application:
     runs-on: ubuntu-latest
