@@ -78,6 +78,7 @@ CALL_PLANS: dict[str, tuple[str, str, dict[str, object]]] = {
     "GET /imports": ("get", "/imports", {}),
     "GET /identities": ("get", "/identities", {}),
     "GET /identities/{identity_id}": ("get", "/identities/999999", {}),
+    "GET /groups": ("get", "/groups", {}),
 }
 
 
