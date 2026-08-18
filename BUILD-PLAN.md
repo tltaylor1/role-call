@@ -5,7 +5,9 @@ divided into ordered subphases, planned in full in advance, built one at
 a time. A subphase is built in small commits and then stops: a human
 reads the diff, runs the demo, and reads the tests, and only after that
 review does the work push to this repository, so the push itself is the
-record of the review. There is no testing phase at the end, because every
+record of the review. A subphase is not finished until the phase
+diagrams match what is now true; redrawing them is part of the work,
+not an afterthought. There is no testing phase at the end, because every
 subphase ships its own tests, and there is no hardening phase in
 substance, because each control arrives with the thing it protects; the
 final subphase is proof, not retrofit.
@@ -37,11 +39,14 @@ of what generation got wrong and what caught it; that record lives in
    names, individually revocable sessions, the three roles checked per
    route, idempotent bootstrap, sign-in rate limiting, the audit spine
    writing in the same transaction as every action, and error responses
-   that never echo input.
+   that never echo input. Static type checking joins the gates here,
+   with the first real logic, and the migration drift check joins with
+   the first real model.
 3. **Ingestion one.** The credential report parser: bounded, in memory,
    verified against its own claims, append-only, duplicates rejected,
    identities keyed by the provider's immutable identifier. Its fuzz
-   suite arrives with it.
+   suite arrives with it, property-based: stated invariants, hunted
+   counterexamples, remembered failures.
 4. **Ingestion two.** The account authorization details parser: roles,
    trust policies, groups as privilege sources, memberships, policy
    documents, tags, and the recreated-name detection. Its fuzz suite
@@ -67,10 +72,20 @@ of what generation got wrong and what caught it; that record lives in
 11. **Sample data and the stranger drill.** The synthetic generator
     covering every archetype the rules need, and the fresh-clone run
     with nothing installed but Docker, following the README literally.
-12. **Proof.** Container hardening verified by command, remaining rate
-    limits and the timeout budget, the backup and retention procedure,
-    the mutation check, the external checklist audits, figures verified
-    against the running system, and the documents re-read and shortened.
+12. **Proof.** Container hardening verified by command, with the
+    container file linted and the base image's operating system packages
+    scanned, not only the Python tree; remaining rate limits and the
+    timeout budget; the backup and retention procedure; the mutation
+    check, automated, with coverage measured to inform it; the external
+    checklist audits; figures verified against the running system; and
+    the documents re-read and shortened.
+
+Between subphases, the pipeline itself gets one deliberate batch: deep
+static analysis on every push, linting and security audit of the
+workflow files that gate everything else, an external scorecard of the
+repository's own posture, and a link check across the cross-referenced
+documents. Each tool is vetted at adoption and recorded as a decision,
+the same way the linter was.
 
 ## Why this order
 

@@ -38,10 +38,11 @@
     <text x="845" y="198">Remediation</text>
   </g>
 
-  <!-- current position, the one accent -->
-  <polygon points="162,161 171,170 162,179 153,170" fill="#b04f2e"/>
-  <text x="162" y="118" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" fill="#b04f2e">PHASE 0.5, CURRENT</text>
-  <text x="162" y="132" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#b04f2e">final design review</text>
+  <!-- current position, the one accent; nudged past the P1 tick by one
+       twelfth of the span, one subphase of twelve complete -->
+  <polygon points="224,161 233,170 224,179 215,170" fill="#b04f2e"/>
+  <text x="224" y="118" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" fill="#b04f2e">PHASE 1, CURRENT</text>
+  <text x="224" y="132" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#b04f2e">subphase 1 of 12 built</text>
 
   <text x="80" y="248" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">each phase ends in a state that runs and demonstrates on its own; the write phase, P7, is last on purpose</text>
 </svg>
