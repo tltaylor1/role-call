@@ -71,6 +71,15 @@ manufactured entry would defeat the reason this file exists.
   per turn," which is the true statement. History is not rewritten,
   because rewriting a provenance record to look cleaner is exactly the
   failure this entry documents.
+- **The new gates found work before they were installed.** Vetting the
+  pipeline batch meant running each tool against the repository first.
+  The workflow audit found every checkout persisting a repository
+  token on disk for later steps that never needed it; the link checker
+  found three references to a file that lives in another repository.
+  Then the fix for those links introduced a misspelled address, caught
+  only by running the checker again. Fix, then re-verify the fix: the
+  second check is not optional, because the fix is written by the same
+  hands that wrote the flaw.
 - **The secret gate blocked the first code commit.** The moment a
   Python virtual environment existed, the commit-time scan swept it and
   found dozens of example credentials in installed libraries'

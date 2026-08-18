@@ -345,3 +345,25 @@ but whether it decides. D-005's choice of enrichment over automation
 and D-021's permanent rejection of auto-applied certification
 decisions both stand; this decision names the boundary they were
 circling.
+
+## D-025: The pipeline guards itself
+
+One deliberate batch, five tools, each doing for the pipeline and the
+documents what the earlier gates do for the code. CodeQL runs deep
+static analysis on the application and on the workflows themselves,
+weekly as well as per push, so a new query pack finds old code.
+actionlint lints the workflow files; zizmor audits them for the
+security mistakes workflows invite, and both ran against this
+repository before they were adopted, which is the vetting. The OpenSSF
+Scorecard rates the repository's own posture and publishes the result,
+so the score is checkable rather than claimed, and its check list is a
+standing audit of practices not yet adopted. lychee checks the
+cross-references between documents, offline, fetching nothing.
+
+Provenance, stated: CodeQL and Scorecard run as actions pinned by
+commit hash, from GitHub and the OpenSSF respectively. actionlint and
+lychee are single binaries verified against their published checksums.
+zizmor publishes no checksum, so its pin is the hash of the artifact
+inspected at adoption; a changed artifact fails the pipeline. Every
+binary added to the pipeline widens the set of pins nothing watches
+for staleness, which is a recorded cost, carried knowingly.
