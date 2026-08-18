@@ -71,6 +71,14 @@ manufactured entry would defeat the reason this file exists.
   per turn," which is the true statement. History is not rewritten,
   because rewriting a provenance record to look cleaner is exactly the
   failure this entry documents.
+- **The secret gate blocked the first code commit.** The moment a
+  Python virtual environment existed, the commit-time scan swept it and
+  found dozens of example credentials in installed libraries'
+  documentation, all fake, and refused the commit anyway. The fix
+  scopes the scan with an exclude file for git-ignored tool
+  directories, which nothing can commit from; alarms that are always
+  false teach the eye to skip the alarm, and a gate nobody believes is
+  not a gate.
 
 Each entry changed a rule, a checklist, or a design, which is the point:
 the catches compound, the mistakes do not. This last one changed the

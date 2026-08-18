@@ -3,10 +3,14 @@ repos:
     hooks:
       # TruffleHog with verification disabled: fast and fully offline, which
       # is what a commit-time check must be. The verified mode runs in
-      # continuous integration instead. See DECISIONS.md D-002.
+      # continuous integration instead. See DECISIONS.md D-002. The exclude
+      # file keeps the scan off git-ignored tool directories, whose library
+      # documentation is full of example credentials; nothing in them can
+      # reach a commit, and alarms that are always false teach the eye to
+      # skip the alarm.
       - id: trufflehog
         name: trufflehog secret scan
-        entry: trufflehog filesystem . --no-verification --fail
+        entry: trufflehog filesystem . --no-verification --fail --exclude-paths=.trufflehog-exclude.txt
         language: system
         pass_filenames: false
       # Vale enforces the writing rules at commit time, so a violation never
