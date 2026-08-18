@@ -34,6 +34,11 @@ class LoginRateLimiter:
     def allowed(self, key: str) -> bool:
         now = time.monotonic()
         with self._lock:
+            # Distributed probing grows the key map without bound if only
+            # touched keys prune; sweep everything once the map is large.
+            if len(self._failures) > 1024:
+                for stale in list(self._failures):
+                    self._prune(stale, now)
             return len(self._prune(key, now)) < self.max_failures
 
     def record_failure(self, key: str) -> None:
