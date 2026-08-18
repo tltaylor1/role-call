@@ -9,9 +9,11 @@
 
 # Python
 venv/
+.venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+.ruff_cache/
 
 # Database files. A seed script recreates schema and data; the file itself is never committed.
 *.db

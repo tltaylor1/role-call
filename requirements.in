@@ -1,0 +1,11 @@
+# Runtime dependency tree, deliberately small. Each entry was checked
+# against its canonical source (the PyPI project page and the upstream
+# repository) before being pinned. The compiled requirements.txt carries
+# the hashes; this file carries the intent.
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg[binary]
+alembic
+bcrypt
+pydantic-settings

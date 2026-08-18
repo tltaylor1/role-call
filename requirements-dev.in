@@ -1,0 +1,7 @@
+# Development and verification tools. Kept separate from runtime so the
+# container image installs only what the application needs.
+-c requirements.txt
+pytest
+httpx2
+ruff
+pip-audit
