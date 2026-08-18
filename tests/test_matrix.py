@@ -77,6 +77,7 @@ CALL_PLANS: dict[str, tuple[str, str, dict[str, object]]] = {
     ),
     "GET /imports": ("get", "/imports", {}),
     "GET /identities": ("get", "/identities", {}),
+    "GET /identities/{identity_id}": ("get", "/identities/999999", {}),
 }
 
 
@@ -123,6 +124,10 @@ def test_matrix_rows_are_enforced_for_every_role(
                 method.upper(), path, headers=auth_header(token), **call_kwargs  # type: ignore[arg-type]
             )
             if role in allowed:
+                # A 404 on the parameterized detail route is an allow:
+                # authorization passed and the lookup ran.
+                if response.status_code == 404 and "{identity_id}" in key:
+                    continue
                 assert response.status_code < 400, (
                     f"{key} should admit {role}: {response.status_code}"
                 )
