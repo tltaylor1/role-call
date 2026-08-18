@@ -61,7 +61,12 @@ Recorded so each is a decision with a reason, not a surprise.
   interface says so. Computing reachability is graph analysis that earns
   its own phase; the raw material for it, every trust policy document,
   is already recorded per snapshot as of the second ingestion surface,
-  so the later phase starts from data, not from scratch.
+  so the later phase starts from data, not from scratch. Two narrower
+  limits join it with the privilege findings (D-033): an explicit deny
+  is noticed but not evaluated against the allow it narrows, and a
+  condition is noticed but not interpreted. Both can overstate a grant,
+  and each finding resting on such a document says so in its own text
+  rather than relying on a reader finding this paragraph.
 - **Creator attribution is limited to the event history window.** Until
   the organization trail exists in Phase 3, "created by whom" reaches
   back 90 days and no further. The field says when its evidence starts.

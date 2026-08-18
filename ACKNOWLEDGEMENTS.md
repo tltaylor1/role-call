@@ -30,6 +30,11 @@ its source.
 - **[ConsoleMe](https://github.com/Netflix/consoleme)** (Netflix).
   Ownership and request workflows as the thing that turns an inventory
   into governance.
+- **Rhino Security Labs' privilege escalation research** (2018), the
+  published catalogue of AWS Identity and Access Management permission
+  combinations that let a principal raise its own privilege. Version
+  one's escalation heuristics detect the combinations that catalogue
+  named, and the same research underpins several of the tools below.
 - **[SkyArk](https://github.com/cyberark/SkyArk)** (CyberArk). Shadow
   admin detection: privilege judged by what a policy can do, not what it
   is called.
