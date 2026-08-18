@@ -18,7 +18,7 @@ from rolecall.bootstrap import bootstrap_admin
 from rolecall.config import get_settings
 from rolecall.db import database_reachable, get_engine
 from rolecall.logs import configure_logging, log_event
-from rolecall.routes import admin, auth
+from rolecall.routes import admin, auth, imports, inventory
 
 
 def create_app() -> FastAPI:
@@ -78,6 +78,8 @@ def create_app() -> FastAPI:
 
     app.include_router(auth.router)
     app.include_router(admin.router)
+    app.include_router(imports.router)
+    app.include_router(inventory.router)
     return app
 
 
