@@ -1,5 +1,9 @@
 # Build plan
 
+How each phase gets built, and the current phase's subphase
+decomposition. The destination and the scope live in
+[ROADMAP.md](ROADMAP.md).
+
 How the application gets built, decided before any of it is. Phase 1 is
 divided into ordered subphases, planned in full in advance, built one at
 a time. A subphase is built in small commits on its own branch and then
