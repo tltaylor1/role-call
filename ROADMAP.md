@@ -1,5 +1,9 @@
 # Roadmap
 
+Where this is going and what is out of scope. How each phase gets
+built, and the current phase's subphases, live in
+[BUILD-PLAN.md](BUILD-PLAN.md).
+
 The build runs in phases. Each phase ends in a state that can be run and
 demonstrated on its own, rather than leaving work half-finished until a
 later phase completes it.
