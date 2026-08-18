@@ -1,0 +1,30 @@
+# Local development stack. Both images are digest-pinned. No credential
+# lives in this file: the database password comes from .env, which git
+# ignores; .env.example documents the shape.
+services:
+  db:
+    image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+    environment:
+      POSTGRES_USER: rolecall
+      POSTGRES_DB: rolecall
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set it in .env, see .env.example}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rolecall -d rolecall"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    environment:
+      ROLECALL_DATABASE_URL: postgresql+psycopg://rolecall:${POSTGRES_PASSWORD:?set it in .env, see .env.example}@db:5432/rolecall
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  dbdata:
