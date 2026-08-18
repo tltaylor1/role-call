@@ -30,6 +30,7 @@ ROUTE_ROLES: dict[str, frozenset[Role]] = {
     "POST /imports/authorization-details": frozenset({Role.operator, Role.administrator}),
     "GET /imports": ALL_ROLES,
     "GET /identities": ALL_ROLES,
+    "GET /identities/{identity_id}": ALL_ROLES,
 }
 
 # Routes that are reachable without a session, each with its reason.

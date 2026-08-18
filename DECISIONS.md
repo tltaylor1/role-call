@@ -489,3 +489,23 @@ The stored take: only the default version of each managed policy's
 document is kept per snapshot, because that is the version in force,
 and the findings this feeds (1.6) judge what is in force, not what is
 drafted.
+
+## D-032: Findings explain themselves, in three tiers, on a watched clock
+
+The credential findings arrive with the derivation engine, and three
+choices shape them. Tiers are the triage order a human works in,
+critical, warning, notice, because severity taxonomies with more
+levels than a person has attention produce sorting, not action. The
+minimum observation age gates the unused finding: an identity is not
+flaggable as unused until it has been watched fourteen days, because a
+new key that has not been used yet is new, not stale, and the false
+positive that cries wolf on day one costs the tool its credibility
+(the eligibility lesson from the prior art, credited in
+ACKNOWLEDGEMENTS.md). Staleness is always computed against the
+account's newest snapshot capture time, never the wall clock, so an
+old import shows its age instead of silently accruing findings.
+
+Every finding carries its OWASP Non-Human Identities Top 10 identifier
+and an explanation containing the numbers that triggered it, because a
+finding that cannot explain itself is an accusation, and the review
+these findings feed runs on evidence.

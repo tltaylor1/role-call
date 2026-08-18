@@ -47,8 +47,14 @@ its source.
 
 ## Publications and standards
 
-- **[OWASP Non-Human Identities Top 10](https://owasp.org/www-project-non-human-identities-top-10/)**
-  (2025). The named risk classes this project's findings anchor to.
+- **[OWASP](https://owasp.org/)**, whose published lists shaped this
+  design well beyond the one the findings anchor to. The Non-Human
+  Identities Top 10 (2025) supplies the finding identifiers; the Web
+  Application Top 10 (2021), the API Security Top 10, the CI/CD
+  Security Top 10, the Kubernetes Top 10, the Docker security guidance,
+  and the LLM Applications Top 10 were each walked item by item against
+  the design before the first application commit, and several of this
+  project's controls exist because that walk caught their absence.
 - **PCI DSS 4.0, ISO/IEC 27002:2022, NIST SP 800-53, CIS Controls v8**,
   and the audit practice around SOX and SOC 2, which together define the
   periodic, evidenced access review this tool exists to serve. The

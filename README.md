@@ -39,10 +39,10 @@ carries out traces to the person who decided it.
 
 ## Status
 
-**Phase 1 of 8: building, subphases 4 of 12 built** and merged. A fresh clone with Docker starts the stack,
+**Phase 1 of 8: building, subphases 5 of 12 built** and merged. A fresh clone with Docker starts the stack,
 migrates the schema, serves sign-in with three roles behind a tested
 authorization matrix, imports identity snapshots append-only, and
-lists the resulting inventory. The design documents below govern the
+derives the inventory with its credential findings at read time. The design documents below govern the
 build, [BUILD-PLAN.md](BUILD-PLAN.md) sets the subphases, and
 [ROADMAP.md](ROADMAP.md) states the current phase, with the status
 figures gated against the journey diagram so they cannot drift

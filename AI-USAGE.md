@@ -82,6 +82,14 @@ manufactured entry would defeat the reason this file exists.
   forward, not rewritten. The lesson joins the environment one: an edit
   is not made until the result is read back, and a tool that fails
   loudly on a missed match beats one that continues in silence.
+- **A destructive cleanup ran on a report of state instead of the
+  state.** Told that three pull requests were merged, the agent deleted
+  their branches without checking; none had merged, and the deletions
+  closed all three. Recovery was total, every tip was known and the
+  requests reopened byte-identical, but the lesson is the sharpest form
+  of the oldest rule here: a destructive action is never justified by a
+  report of state, only by the state itself, read at execution time.
+  Caught by reading the API after acting, which is one read too late.
 - **The vetting itself was weaker than the gate it vetted.** The
   workflow linter delegates embedded scripts to a shell analyzer only
   when one is installed. The build machine had none, so the local
