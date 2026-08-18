@@ -447,3 +447,25 @@ hashes that pair, the identity row says provisional plainly, and the
 authorization details import upgrades it to the provider's real
 identifier by matching the same pair. Resurrection still mints a new
 identity, which is the property D-016 exists to keep.
+
+## D-030: The authorization details file, taken at its word and no further
+
+Four rules from the build-time verification of the provider's
+documentation. A true IsTruncated flag rejects the whole file: a
+truncated export is an incomplete snapshot, and importing it would
+record absences that are artifacts of pagination, the exact false
+comfort D-006 exists to prevent. Policy documents arrive URL-encoded
+and are decoded before parsing, bounded, with pre-decoded objects
+accepted from exporters that already did the work. A user's group list
+carries names, not identifiers, so membership resolves against the
+groups named in the same file and is recorded as observed identifiers
+on the group's observation. Provider-managed policies carry the
+literal account "aws" in their identifiers and are exempt from the
+one-account claim, recorded with an aws-managed flag; every other
+identifier in the file must agree on one account or the file is
+rejected whole.
+
+The stored take: only the default version of each managed policy's
+document is kept per snapshot, because that is the version in force,
+and the findings this feeds (1.6) judge what is in force, not what is
+drafted.
