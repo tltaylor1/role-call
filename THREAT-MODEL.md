@@ -59,7 +59,9 @@ Recorded so each is a decision with a reason, not a surprise.
   one scores what a policy grants directly. A principal that reaches
   admin through a chain of assumable roles will be underscored, and the
   interface says so. Computing reachability is graph analysis that earns
-  its own phase.
+  its own phase; the raw material for it, every trust policy document,
+  is already recorded per snapshot as of the second ingestion surface,
+  so the later phase starts from data, not from scratch.
 - **Creator attribution is limited to the event history window.** Until
   the organization trail exists in Phase 3, "created by whom" reaches
   back 90 days and no further. The field says when its evidence starts.
@@ -70,9 +72,11 @@ Recorded so each is a decision with a reason, not a surprise.
   controls.
 - **The audit trail is not yet tamper-evident.** The trail is atomic and
   attributed from the first commit, but an actor with database write
-  access could still alter history. Write-once or hash-chained audit
-  storage arrives with the cloud phases; until then this is the accepted
-  gap, stated rather than implied.
+  access could still alter history. The exit is concrete: hash chaining
+  arrives with the campaign work, anchored by the evidence exports,
+  because a chain nobody anchors outside the database only detects
+  casual tampering and would be a control in name. Until then this is
+  the accepted gap, stated rather than implied.
 - **Snapshot files are only as authentic as their handling.** The
   intended procedure, stated here until the runbook document exists to
   carry it, is exporting reports directly from the provider to the
@@ -82,7 +86,10 @@ Recorded so each is a decision with a reason, not a surprise.
 - **Roles are global, not account-scoped.** Any operator sees every
   imported account. Right-sized for one team governing its own accounts;
   account-scoped authorization is the named prerequisite for any
-  multi-tenant future, decided before that future starts.
+  multi-tenant future, decided before that future starts. The sharpest
+  consequence, a stolen token reading every account for its whole
+  lifetime, gets its mitigation with user management's completion: an
+  administrator surface that revokes any user's sessions on demand.
 - **Single author, no second review of changes.** Every change lands
   through a pull request that must pass the required checks before
   merging, and main refuses direct pushes, force pushes, and deletion
