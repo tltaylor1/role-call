@@ -1,5 +1,8 @@
-# Dependabot watches every pinned surface: the Python tree, the workflow
-# action pins, and the digest-pinned container bases. It only opens pull
+# Dependabot watches what it can see: the Python tree, the workflow
+# action pins, the Dockerfile base digest, and the compose file's
+# digests. It cannot see container images embedded in workflow files or
+# checksummed tool downloads; those pins are listed with their watchers
+# in the digest-parity check and the close ritual. It only opens pull
 # requests; nothing updates without review.
 version: 2
 updates:
@@ -12,6 +15,10 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker-compose
     directory: /
     schedule:
       interval: weekly

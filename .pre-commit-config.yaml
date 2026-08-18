@@ -15,16 +15,24 @@ repos:
         pass_filenames: false
       # Vale enforces the writing rules at commit time, so a violation never
       # reaches history. It needs Vale installed on the machine.
+      # Vale's configuration maps markdown only; declaring more file
+      # types here checked nothing and misstated the gate's coverage.
       - id: vale
         name: vale writing rules
         entry: vale
         language: system
-        types_or: [markdown, python, shell]
+        types_or: [markdown]
       # The docs-truth gate (D-031): status figures must match the journey
       # diagram, and claims once publicly false may never return.
       - id: docs-truth
         name: docs-truth status check
         entry: python3 scripts/check_docs_truth.py
+        language: system
+        pass_filenames: false
+      # The digest-parity gate: paired image digests move together.
+      - id: digest-parity
+        name: digest-parity check
+        entry: python3 scripts/check_digest_parity.py
         language: system
         pass_filenames: false
       # The standards ban deferred-work stubs; this makes the ban a mechanism.
