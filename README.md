@@ -16,22 +16,44 @@ The tool amplifies a human decision; it does not act on its own.
 
 It starts with Amazon Web Services (AWS) identity.
 
-## Status, honestly
+## The vision
 
-**Phase 0 of 8: design.** No application code exists yet; the design
-documents below are the current work, and the code follows the design.
-[ROADMAP.md](ROADMAP.md) always states the current phase.
+Human accounts in a regulated company have a lifecycle: created for a
+named person, owned, reviewed on a schedule, and disabled at departure.
+The identities software uses have none of that, and they outnumber the
+humans many times over. The destination for role-call is a tool where
+every non-human identity is governed the way human accounts already
+are: a named owner, a stated purpose, a privilege picture beside its
+actual usage, a next review date, and evidence behind every one of
+those claims, so that the identity nobody can explain becomes visible
+the day it appears rather than the day it is abused.
+
+The operating principle is that people decide and the machine never
+does. Automation carries out what a person already decided, inside
+bounds that person set: a review window that closes on its own
+schedule, an approved re-elevation that the clock takes back, a
+drafted right-sizing change waiting as a diff for an owner to approve.
+Automation prepares, schedules, executes, and verifies. It does not
+grant, revoke, or certify on its own judgment, and every action it
+carries out traces to the person who decided it.
+
+## Status
+
+**Phase 1 of 8: building, subphase 1.1 of 12 complete.** The
+foundation runs: a fresh clone with Docker starts the stack, migrates
+the schema, and answers on its health routes. The design documents
+below govern the build, and [BUILD-PLAN.md](BUILD-PLAN.md) sets the
+subphases. [ROADMAP.md](ROADMAP.md) always states the current phase.
 
 This is a learning project, built in public, by one person. The software
 is provided as is under the [Apache 2.0 license](LICENSE). Before relying
 on any of it, read the code and the
-[threat model](THREAT-MODEL.md), including its accepted risks, which are
-stated rather than hidden. Nothing here is production software until the
-documents say so plainly.
+[threat model](THREAT-MODEL.md), including its accepted risks. Nothing
+here is production software until the documents say so.
 
 The build is review-gated on purpose: [BUILD-PLAN.md](BUILD-PLAN.md) sets
 the subphases and their order before any code, and
-[AI-USAGE.md](AI-USAGE.md) keeps the honest record of what the coding
+[AI-USAGE.md](AI-USAGE.md) keeps the record of what the coding
 agent got wrong along the way, because that record is the point.
 
 ## What version one will do
@@ -62,7 +84,7 @@ order:
   enforces: mark an identity pending, watch its usage through a review
   window, and let the owner decide with evidence. A what-if view answers
   "had this been revoked a month ago, what would have broken."
-- **Human-triggered remediation, never automation.** Deactivate and
+- **Human-decided remediation, machine-verified.** Deactivate and
   restore, each behind a fresh proof of identity, each shown as a policy
   diff before it happens, each verified against the provider afterward,
   because clicked is not revoked until the provider says so.
@@ -82,12 +104,19 @@ The full sequence, with what each phase proves, is in
 - [ARCHITECTURE.md](ARCHITECTURE.md) is the components, the data flow,
   the trust boundaries, and the list of diagrams.
 - [THREAT-MODEL.md](THREAT-MODEL.md) is the ranked threats, each mapped
-  to its control, and the accepted risks stated plainly.
+  to its control, and the accepted risks.
 - [DECISIONS.md](DECISIONS.md) records what was chosen, what was
   rejected, and why.
 - [AGENTS.md](AGENTS.md) is the standards this project is built to.
 
 ## Running it
 
-Nothing to run yet. Setup instructions are written when Phase 1 produces
-something that starts.
+The skeleton runs; the application arrives subphase by subphase.
+
+```
+cp .env.example .env   # then set a password, for example: openssl rand -hex 24
+docker compose up --build
+```
+
+Then open http://127.0.0.1:8000/health. Full instructions, sample data,
+and the demo walk-through arrive with the later subphases.
