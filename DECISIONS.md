@@ -552,3 +552,50 @@ operations are separated from wildcards that can change things, because
 the provider's own read-only policies grant read wildcards on every
 resource, and scoring those like write access is exactly how a tool
 earns the reputation that gets it muted.
+
+## D-034: The plan mixes three methods, and one of them was misapplied
+
+The subphase decomposition was never written against a single named
+method, and the question of which one it followed is fair, so the
+answer is recorded rather than left implied.
+
+Three methods are in the plan, deliberately. The first subphase is a
+walking skeleton: the thinnest end-to-end thread through container,
+database, migrations, configuration, logging, and a served route, so
+the architecture is proven before anything is built on it. Everything
+after it is dependency-ordered layering: identity before data because
+every route needs the role checks, parsers before the engine because
+reading real data before designing against it is the lesson this
+project inherited, credential findings before privilege findings
+because the second carries judgment. Two constraints ride on top:
+every subphase must end in something that runs and can be shown, and
+controls arrive with the thing they protect, which is why there is no
+hardening phase.
+
+Vertical slicing, the dominant modern prescription, was not used, and
+the cost is real: five consecutive subphases produced no surface a
+person could click. The reasons for the choice are that the record is
+the deliverable here rather than a shippable increment, that a solo
+build has none of the cross-team integration risk vertical slicing
+exists to reduce, and that layered order produces cleaner review
+boundaries and cleaner decision entries. The mitigation is that every
+subphase ends demonstrable through the interface that exists at the
+time, which for the middle subphases meant the documented API rather
+than a screen. An engineer who prefers slices would push
+here, and the push would be fair.
+
+Risk-driven sequencing was also inverted on purpose. The judgment-heavy
+work sat sixth rather than first, because the risk retired earliest was
+the shape of the real data, and heuristics designed against imagined
+data would have been rewritten anyway.
+
+Where the ordering was wrong: sample data. The synthetic generator sat
+eleventh while every subphase from the first parser onward needed demo
+input, and input made by hand was wrong three separate times, each
+caught by the system rather than by its author. The generator moves to
+seventh, ahead of the frontend, so the remaining subphases demonstrate
+against realistic data. The stranger drill it used to share a subphase
+with stays at the end, inside the proof, because a fresh-clone run of
+the finished demo cannot happen before the demo is finished. The count
+stays at twelve, so the status figures and their gate stay valid, and
+the earlier subphases keep the numbers their transcripts already cite.

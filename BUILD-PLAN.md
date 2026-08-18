@@ -67,27 +67,33 @@ of what generation got wrong and what caught it; that record lives in
 6. **Privilege findings.** Policy parsing, wildcard and admin-equivalent
    detection, external trust exposure, ownership findings, group
    findings, membership drift, and privilege attributed to its source.
-7. **Inventory and frontend.** The lists, the detail view with its
+7. **Sample data.** The synthetic generator producing both file formats
+   across three snapshot generations and every archetype the rules need,
+   resurrection included, credential-shaped strings impossible by
+   construction. Moved up from eleventh, with the reason recorded in
+   D-034: every subphase since the first parser has needed demo input
+   made by hand, and hand-made input was wrong three times.
+8. **Inventory and frontend.** The lists, the detail view with its
    observation timeline, the dashboard, the as-of banner, and the single
    page that renders every value as text.
-8. **Governance records.** Owner, purpose, flag, and attestation on
+9. **Governance records.** Owner, purpose, flag, and attestation on
    identities and groups, attributed, audited, clearable.
-9. **Review campaigns.** Scoped, deadlined review cycles with per-item
-   dispositions including insufficient evidence, recommendations with
-   their reasons, the change-since-last-certification view, recurrence
-   presets, and no bulk certification by design.
-10. **Reports and exports.** Escaped CSV and JSON, the self-contained
+10. **Review campaigns.** Scoped, deadlined review cycles with per-item
+    dispositions including insufficient evidence, recommendations with
+    their reasons, the change-since-last-certification view, recurrence
+    presets, and no bulk certification by design.
+11. **Reports and exports.** Escaped CSV and JSON, the self-contained
     risk report with every value context-escaped, and the per-campaign
     evidence export with its population statement.
-11. **Sample data and the stranger drill.** The synthetic generator
-    covering every archetype the rules need, and the fresh-clone run
-    with nothing installed but Docker, following the README literally.
-12. **Proof.** Container hardening verified by command, with the
-    container file linted and the base image's operating system packages
-    scanned, not only the Python tree; remaining rate limits and the
-    timeout budget; the backup and retention procedure; the mutation
-    check, automated, with coverage measured to inform it; the external
-    checklist audits; figures verified against the running system; and
+12. **Proof, and the stranger drill.** Container hardening verified by
+    command, with the container file linted and the base image's
+    operating system packages scanned, not only the Python tree;
+    remaining rate limits and the timeout budget; the backup and
+    retention procedure; the mutation check, automated, with coverage
+    measured to inform it; the external checklist audits; figures
+    verified against the running system; the fresh-clone run on a
+    machine with nothing but Docker, following the README literally,
+    which is the drill this subphase absorbed from the eleventh; and
     the documents re-read and shortened.
 
 Between subphases, the pipeline itself gets one deliberate batch: deep
@@ -99,6 +105,12 @@ the same way the linter was.
 
 ## Why this order
 
+The method is named rather than implied, because a plan without one
+drifts into whatever felt next: a walking skeleton first, then ordered
+layers, with demonstrability and controls-with-their-feature as
+standing constraints, and vertical slicing rejected for stated reasons
+(D-034).
+
 Identity before data, because every later route needs the role checks.
 Parsers before the engine, because reading the data before designing
 against it is the deepest lesson this project inherits. Credential
@@ -106,7 +118,9 @@ findings before privilege findings, because the second carries the
 judgment and gets the hardest review. The frontend in the middle, so
 every later subphase demonstrates with clicks. Governance before
 campaigns, because the noun precedes the workflow. Reports after the
-engine settles, because they consume it. The stranger drill before the
-proof, so the audits run against the real demo. And the proof last only
+engine settles, because they consume it. Sample data before the frontend, so every later subphase demonstrates
+against realistic data instead of input typed by hand. The stranger
+drill sits inside the proof, so the drill and the audits run against
+the same finished demo. And the proof last only
 in its verification, since most of its controls exist from the first
 subphase.
