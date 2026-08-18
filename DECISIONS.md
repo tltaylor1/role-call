@@ -325,3 +325,23 @@ drift from the requirements file it describes; the requirements file
 with its hashes remains the single tracked source of truth. The
 alternative, a dedicated generator beside a dedicated auditor, is a
 second tool to vet and pin for no additional information.
+
+## D-024: The machine never decides
+
+The automation doctrine, named after living implicitly in D-005 and
+D-021. Automation in role-call carries out what a person already
+decided, inside bounds that person set: a review window that closes on
+its own schedule, an approved re-elevation the clock takes back, a
+drafted right-sizing change waiting as a diff for an owner to approve.
+Automation prepares, schedules, executes, and verifies. It does not
+grant, revoke, or certify on its own judgment, and every automated
+action traces to the person who decided it and the bounds they chose.
+
+This replaces the blanket phrase "never automation," which was both
+stronger than the recorded decisions and contradicted by the design
+itself, whose re-elevation expiry is a machine revoking access
+legitimately. The line that matters is not whether the machine acts
+but whether it decides. D-005's choice of enrichment over automation
+and D-021's permanent rejection of auto-applied certification
+decisions both stand; this decision names the boundary they were
+circling.
