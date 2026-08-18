@@ -27,7 +27,7 @@ core of the work.
 | Derivation engine | Computes status and enrichment from append-only observations |
 | Inventory store (PostgreSQL) | Holds the identity map; encrypted at rest |
 | Audit trail | Records every governance action, written with the action in one transaction |
-| The tool's own cloud credential | A read-only role in the target Amazon Web Services (AWS) account; the identity that must be governed best |
+| The tool's own cloud credential | A read-only role in the target Amazon Web Services (AWS) account, arriving with the live pull phases; the identity that must be governed best |
 
 -------------------------------------------------------------------------------
 
@@ -73,10 +73,12 @@ Recorded so each is a decision with a reason, not a surprise.
   access could still alter history. Write-once or hash-chained audit
   storage arrives with the cloud phases; until then this is the accepted
   gap, stated rather than implied.
-- **Snapshot files are only as authentic as their handling.** The runbook
-  instructs exporting reports directly from the provider to the machine
-  that imports them. A file that traveled through other hands in between
-  is a risk the parser's bounds cannot remove, accepted and named.
+- **Snapshot files are only as authentic as their handling.** The
+  intended procedure, stated here until the runbook document exists to
+  carry it, is exporting reports directly from the provider to the
+  machine that imports them. A file that traveled through other hands in
+  between is a risk the parser's bounds cannot remove, accepted and
+  named.
 - **Roles are global, not account-scoped.** Any operator sees every
   imported account. Right-sized for one team governing its own accounts;
   account-scoped authorization is the named prerequisite for any
