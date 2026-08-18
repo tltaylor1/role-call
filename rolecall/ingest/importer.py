@@ -366,6 +366,27 @@ def import_authorization_details(
             )
         )
 
+    # Inline documents are stored under a synthetic identifier naming
+    # their owner by the provider's immutable identifier, never by ARN
+    # (D-016): during a resurrection window two identities share an ARN,
+    # and attributing one's inline policies to the other would hand a
+    # dead identity the live one's privilege.
+    for owner_key, inline in (
+        [(u.user_id, u.inline_documents) for u in report.users]
+        + [(r.role_id, r.inline_documents) for r in report.roles]
+        + [(g.group_id, g.inline_documents) for g in report.groups]
+    ):
+        for entry in inline:
+            db.add(
+                PolicyDocumentRecord(
+                    snapshot_id=snapshot.id,
+                    policy_arn=f"inline:{owner_key}#{entry['name']}"[:2048],
+                    policy_name=str(entry["name"]),
+                    aws_managed=False,
+                    document=entry["document"],
+                )
+            )
+
     audit.record(
         db,
         actor_user_id=actor_user_id,
