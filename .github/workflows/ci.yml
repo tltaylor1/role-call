@@ -106,8 +106,16 @@ jobs:
           pip install --no-cache-dir --require-hashes -r requirements-dev.txt
       - name: lint
         run: ruff check .
+      - name: types
+        run: mypy
       - name: tests
         run: pytest
+      - name: migrations apply and match the models
+        env:
+          ROLECALL_DATABASE_URL: postgresql+psycopg://rolecall:ci-run-${{ github.run_id }}@postgres:5432/rolecall
+        run: |
+          alembic upgrade head
+          alembic check
       - name: audit the pinned tree against known vulnerabilities
         run: pip-audit --require-hashes -r requirements.txt
       - name: software bill of materials
