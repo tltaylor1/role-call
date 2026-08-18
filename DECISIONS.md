@@ -400,3 +400,26 @@ clears the counters, and the control's job is slowing online guessing,
 not surviving restarts. Forwarded-for headers are not consulted; they
 are attacker-writable, and the deployment layer owns address
 translation when it arrives.
+
+## D-028: Every change lands through a pull request
+
+The method change, adopted at the start of subphase 1.3: work happens
+on a branch, the subphase's pull request carries the review evidence,
+the required checks must pass, and the merge is the review's public
+receipt. Main now refuses direct pushes outright, alongside the
+existing force-push and deletion blocks, so the review gate that
+previously ran invisibly on one machine is enforced by the server and
+visible to any reader.
+
+What is deliberately absent: required approvals. One person cannot
+review their own work in any meaningful sense, and a self-approval
+dressed up as review would be the exact theater this project refuses.
+The controls are the checks and the deliberate merge; the accepted
+risk in the threat model narrows from "direct pushes on trust" to
+"no second review of changes," with the first collaborator as the
+exit condition. Merges are plain merge commits, never squashes, because
+the small-commit history is the record and flattening it would
+destroy what review reads.
+
+Dependabot's update pull requests flow through the same gate, which
+also means the update path is now check-gated by construction.

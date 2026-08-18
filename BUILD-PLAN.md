@@ -2,12 +2,16 @@
 
 How the application gets built, decided before any of it is. Phase 1 is
 divided into ordered subphases, planned in full in advance, built one at
-a time. A subphase is built in small commits and then stops: a human
-reads the diff, runs the demo, and reads the tests, and only after that
-review does the work push to this repository, so the push itself is the
-record of the review. A subphase is not finished until the phase
-diagrams match what is now true; redrawing them is part of the work,
-not an afterthought. There is no testing phase at the end, because every
+a time. A subphase is built in small commits on its own branch and then
+stops: a human reads the diff, runs the demo, and reads the tests, and
+only after that review is the subphase's pull request merged, with the
+required checks green, so the merge itself is the public record of the
+review. No approval is required on the pull request, because there is
+no second person to give one and a self-approval would be theater; the
+gates are the checks and the deliberate merge. A subphase is not finished until the phase
+diagrams match what is now true and the repository's one-line
+description says the current phase; both live outside the gates'
+reach, so the ritual is what keeps them honest. There is no testing phase at the end, because every
 subphase ships its own tests, and there is no hardening phase in
 substance, because each control arrives with the thing it protects; the
 final subphase is proof, not retrofit.
@@ -26,7 +30,7 @@ review, and the interesting output of an AI-assisted build is the record
 of what generation got wrong and what caught it; that record lives in
 [AI-USAGE.md](AI-USAGE.md).
 
-![The cycle every subphase travels: plan, build, demo and tests, human review, push](diagrams/subphase-cycle-sketch.svg)
+![The cycle every subphase travels: plan, build, demo and tests, human review, pull request merged](diagrams/subphase-cycle-sketch.svg)
 
 ## The subphases
 
