@@ -81,10 +81,14 @@ Recorded so each is a decision with a reason, not a surprise.
   imported account. Right-sized for one team governing its own accounts;
   account-scoped authorization is the named prerequisite for any
   multi-tenant future, decided before that future starts.
-- **Direct pushes to main, single author.** Guarded by the local hooks
-  and continuous integration rather than branch protection. The exit
-  condition is the first collaborator, when protected branches and
-  required checks become mandatory.
+- **Single author, no second review of changes.** Every change lands
+  through a pull request that must pass the required checks before
+  merging, and main refuses direct pushes, force pushes, and deletion
+  (D-028). What remains accepted is the absence of a second human:
+  approvals are not required because there is nobody to give one, and
+  pretending otherwise would be theater. The exit condition is the
+  first collaborator, when required approvals join the required
+  checks.
 - **The tool depends on the provider's own reporting.** If the account's
   telemetry is wrong or delayed, the inventory inherits that. Verifying
   the provider against itself is out of scope.
