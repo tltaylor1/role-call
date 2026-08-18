@@ -299,3 +299,29 @@ the reviewer's and the auditor's itemized needs as first-class inputs
 beside the threat model, user first and security first together, and the
 framework references run in both directions through COMPLIANCE.md.
 <!-- vale BuildGuidelines.Audience = YES -->
+
+## D-022: Ruff is the linter, and commented-out code is a finding
+
+Ruff was vetted at build time as subphase 1.1 planned: one binary, no
+plugin tree to audit, active maintenance, and rule families that cover
+correctness, import order, known bug patterns, outdated idioms, and
+security checks. The deciding rule family is ERA, which flags
+commented-out code. The standards already forbid deferred-work markers;
+commented-out code is the same debt wearing a disguise, and now a gate
+catches it instead of a human eye. The alternative, flake8 with
+plugins, spreads the same coverage across a half-dozen separately
+maintained packages, which is more supply chain for the same result.
+Formatting is not enforced in version one: a formatter is a one-line
+addition later, and the linter is the part with security value.
+
+## D-023: One tool audits the tree and writes the bill of materials
+
+pip-audit both checks the pinned dependency tree against known
+vulnerability databases and emits the software bill of materials in
+CycloneDX form. One vetted tool, two supply-chain artifacts. The bill of
+materials is generated fresh by continuous integration on every run and
+published as a build artifact rather than committed, so it can never
+drift from the requirements file it describes; the requirements file
+with its hashes remains the single tracked source of truth. The
+alternative, a dedicated generator beside a dedicated auditor, is a
+second tool to vet and pin for no additional information.
