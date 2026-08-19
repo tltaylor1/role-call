@@ -39,7 +39,7 @@ carries out traces to the person who decided it.
 
 ## Status
 
-**Phase 1 of 8: building, subphases 7 of 12 built** and merged. A fresh clone with Docker starts the stack,
+**Phase 1 of 8: building, subphases 8 of 12 built** and merged. A fresh clone with Docker starts the stack,
 migrates the schema, serves sign-in with three roles behind a tested
 authorization matrix, imports identity snapshots append-only, and
 derives the inventory at read time with its credential and privilege
@@ -125,8 +125,9 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Then open http://127.0.0.1:8000/docs, authorize by signing in with the
-administrator from your .env, and import the sample account that ships
+Then open http://127.0.0.1:8000 and sign in with the administrator
+from your .env. The page has an import section; import the sample
+account that ships
 in [sample-data](sample-data): three snapshot generations, both file
 formats, with the capture time in each file's name. Import them oldest
 first, then read /identities and /groups.
