@@ -249,6 +249,68 @@ class GovernanceRecord(Base):
     cleared_by: Mapped[str | None] = mapped_column(String(64), default=None)
 
 
+class Campaign(Base):
+    """One review cycle: a scope frozen into items at creation, a due
+    date, and a close that requires every item answered. There is no
+    bulk disposition anywhere, by design: certification means someone
+    looked, and a button that certifies a hundred rows at once records
+    that nobody did (D-039)."""
+
+    __tablename__ = "campaigns"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(255))
+    # What the campaign covers: everything, privileged, flagged, or one
+    # identity type. Frozen into items at creation; the scope is the
+    # population statement.
+    scope: Mapped[str] = mapped_column(String(32))
+    due_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    # none | monthly | quarterly | yearly; a preset the next cycle is
+    # created from, never an automatic creation (people decide).
+    recurrence: Mapped[str] = mapped_column(String(16), default="none")
+    created_by: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow
+    )
+    closed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+    closed_by: Mapped[str | None] = mapped_column(String(64), default=None)
+
+
+class CampaignItem(Base):
+    """One identity or group inside one campaign, carrying the evidence
+    as it stood at creation and exactly one human disposition."""
+
+    __tablename__ = "campaign_items"
+    __table_args__ = (
+        UniqueConstraint("campaign_id", "target_type", "target_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id"), index=True)
+    target_type: Mapped[str] = mapped_column(String(16))
+    target_id: Mapped[int] = mapped_column()
+    display_name: Mapped[str] = mapped_column(String(255))
+    # The engine's recommendation with its reasons, written at creation.
+    recommendation: Mapped[str] = mapped_column(String(32))
+    recommendation_reasons: Mapped[list[str] | None] = mapped_column(
+        JSON, default=None
+    )
+    # The facts the recommendation was made from, frozen: findings,
+    # owner, last activity, privilege sources. This is what the
+    # delta-since-last-certification compares.
+    evidence: Mapped[dict[str, object] | None] = mapped_column(JSON, default=None)
+    # certify | revoke_recommended | insufficient_evidence | delegated;
+    # null until a person answers.
+    disposition: Mapped[str | None] = mapped_column(String(32), default=None)
+    disposition_note: Mapped[str | None] = mapped_column(String(500), default=None)
+    disposed_by: Mapped[str | None] = mapped_column(String(64), default=None)
+    disposed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+
+
 class AuditEvent(Base):
     __tablename__ = "audit_events"
 

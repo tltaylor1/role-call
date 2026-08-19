@@ -7,3 +7,4 @@ ruff
 pip-audit
 mypy
 hypothesis
+pytest-cov

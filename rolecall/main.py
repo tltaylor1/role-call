@@ -20,7 +20,15 @@ from rolecall.bootstrap import bootstrap_admin
 from rolecall.config import get_settings
 from rolecall.db import database_reachable, get_engine
 from rolecall.logs import configure_logging, log_event
-from rolecall.routes import admin, auth, governance, imports, inventory
+from rolecall.routes import (
+    admin,
+    auth,
+    campaigns,
+    governance,
+    imports,
+    inventory,
+    reports,
+)
 
 # The page is served from this application and fetches nothing from
 # anywhere else, so the policy can forbid every external origin and
@@ -104,6 +112,8 @@ def create_app() -> FastAPI:
     app.include_router(imports.router)
     app.include_router(inventory.router)
     app.include_router(governance.router)
+    app.include_router(campaigns.router)
+    app.include_router(reports.router)
 
     # The shell and its assets are public; every value they display
     # arrives over the authenticated API.

@@ -10,3 +10,4 @@ alembic
 bcrypt
 pydantic-settings
 python-multipart
+jinja2

@@ -747,3 +747,105 @@ writes stay with the operator and administrator, because stating "I
 looked at this and it is still needed" is exactly the reviewer's act,
 and changing who answers for an identity is not.
 <!-- vale BuildGuidelines.Audience = YES -->
+
+<!-- vale BuildGuidelines.Audience = NO -->
+<!-- Scoped exception: "reviewer" below names the product's role, the
+     person performing the access review inside the application. It
+     does not describe this document's audience. -->
+## D-039: The campaign freezes its population, and nobody certifies in bulk
+
+A review campaign resolves its scope into items once, at creation,
+with each item carrying the evidence as it stood: the findings, the
+owner, the privilege sources, the liveness. The population statement
+in the evidence export describes that frozen set, which is what makes
+it a statement rather than a moving target.
+
+Every disposition is one item, decided by one person, recorded with
+attribution and its audit row in the same transaction. There is no
+operation anywhere in the application that disposes more than one
+item, because a certification records that someone looked at that
+identity, and a button that certifies a hundred rows records that
+nobody did. A decision is final within its campaign; a changed mind is
+the next campaign's decision, which keeps the record honest about what
+was believed when.
+
+Insufficient evidence is a first-class answer that must name what was
+missing, and the rollup collects those notes across campaigns: one
+recurring line is a reviewer's problem, the same line across a column
+is the program's problem. Close refuses while any item is undecided,
+because an access review with gaps is a false population statement.
+Recurrence is a preset the next cycle is created from by a person;
+the machine recommends with reasons and never decides (D-005).
+
+The engine's recommendation order is deliberate: too little
+observation history outranks everything, because a verdict built on
+four days of watching is a guess wearing a verdict; then revocation
+signals; then the tier weight; then the quiet default.
+
+## D-040: The report renders through an engine that escapes by default
+
+The risk report is a single self-contained file, built to be opened
+from disk years later, which means it runs with no content security
+policy and no server headers: whatever is in the file is what
+executes. So the report is built by a template engine that escapes
+every interpolated value by default, contains no script element at
+all, and inlines its styles in the one file.
+
+The engine is Jinja2, vetted at adoption: maintained by the Pallets
+project alongside the framework family this application already
+trusts, pinned by hash like every dependency, with automatic escaping
+selected explicitly rather than assumed. The alternative was
+hand-escaping each interpolation in string-built HTML, which is the
+pattern where one forgotten call reintroduces the class; the engine
+removes the class the way the ORM removes query injection.
+
+The other two exits get the escaping their format needs. CSV cells
+that begin with a formula character are prefixed so a spreadsheet
+reads them as text, because identity names and tags are controlled by
+the observed account's users and a name that starts with an equals
+sign is a program. JSON is exported raw, because JSON is data and its
+consumers parse rather than interpret; escaping it would corrupt the
+values auditors compare against the provider.
+
+## D-041: The proof subphase, and what its checks are allowed to block on
+
+The last subphase is the one that proves the others, and each of its
+mechanisms records what it may block a merge on, because a gate that
+is always red teaches the eye to skip it (the D-037 lesson, applied
+in advance).
+
+The coverage floor is 90, set under the measured 94 at adoption: it
+catches erosion without inviting tests written to move a number. The
+mutation check is a fixed, reviewed set of seven mutations, each
+removing one named control and requiring the tests that claim that
+control to fail; fixed rather than generated, so the kill list is
+readable in one screen and the check runs in minutes. Generated
+mutation sweeps stay a local exploration tool. The check earned its
+place on its first run by surviving a broken token hash: nothing
+proved a fabricated token was rejected, and now a test does.
+
+The container file is linted, and the base image's operating system
+packages are scanned with a deliberate split: the merge blocks only on
+critical findings that have fixes, because there the fix is moving the
+digest, which a pull request can do. Findings without fixes are
+reported for the record; failing on them would be an alarm nothing in
+this repository can answer. Adopting the scan surfaced that the pinned
+base was months behind its rebuilds, and the digest moved in the same
+change, which is the scan doing its job before it was even merged.
+
+The request budget: uploads were already bounded in memory, the
+keep-alive timeout is now stated in the serve command, and imports and
+campaign creation carry a per-user write budget of thirty per minute,
+far above any human pace and below any useful abuse. State for that
+budget is process memory, the same stated limitation as the login
+limiter (D-027).
+
+The route surface is now a documented enumeration asserted against the
+live route table in both directions. Adding that assertion exposed
+that the framework had begun wrapping included routers lazily, which
+had quietly made the existing drift test vacuous: it was checking
+three routes and passing. The flattened enumeration carries a count
+canary so the next framework change fails loudly instead of passing
+silently, and the incident is the strongest argument this subphase
+will make for asserting what a test actually sees.
+<!-- vale BuildGuidelines.Audience = YES -->

@@ -17,6 +17,7 @@
     <nav id="nav" hidden>
       <button data-view="inventory">Inventory</button>
       <button data-view="groups">Groups</button>
+      <button data-view="campaigns">Campaigns</button>
       <button data-view="imports">Imports</button>
       <span class="spacer"></span>
       <span id="whoami"></span>
@@ -37,6 +38,11 @@
 
     <section id="inventory" hidden>
       <div id="dashboard" class="tiles"></div>
+      <div class="filters">
+        <button id="download-report" type="button">Risk report</button>
+        <button id="download-csv" type="button">CSV export</button>
+        <button id="download-json" type="button">JSON export</button>
+      </div>
       <div class="filters">
         <input id="filter-text" placeholder="filter by name">
         <select id="filter-type">
@@ -145,6 +151,60 @@
         <button type="submit">Set</button>
       </form>
       <p id="group-gov-result" role="status" hidden></p>
+    </section>
+
+    <section id="campaigns" hidden>
+      <h2>Campaigns</h2>
+      <form id="campaign-form" hidden>
+        <label>Name <input name="name" maxlength="255" required></label>
+        <label>Scope
+          <select name="scope">
+            <option value="everything">everything</option>
+            <option value="privileged">privileged</option>
+            <option value="flagged">flagged</option>
+            <option value="users">users</option>
+            <option value="roles">roles</option>
+          </select>
+        </label>
+        <label>Due <input name="due_at" placeholder="2026-09-30T00:00:00+00:00" required></label>
+        <label>Recurrence
+          <select name="recurrence">
+            <option value="none">none</option>
+            <option value="monthly">monthly</option>
+            <option value="quarterly">quarterly</option>
+            <option value="yearly">yearly</option>
+          </select>
+        </label>
+        <button type="submit">Create</button>
+      </form>
+      <p id="campaign-result" role="status" hidden></p>
+      <table>
+        <thead><tr>
+          <th>campaign</th><th>scope</th><th>due</th><th>progress</th>
+          <th>recurrence</th><th>state</th>
+        </tr></thead>
+        <tbody id="campaign-rows"></tbody>
+      </table>
+      <h3>Insufficient evidence, across campaigns</h3>
+      <table>
+        <thead><tr>
+          <th>campaign</th><th>item</th><th>what was missing</th>
+          <th>by</th><th>at</th>
+        </tr></thead>
+        <tbody id="rollup-rows"></tbody>
+      </table>
+    </section>
+
+    <section id="campaign-detail" hidden>
+      <button id="campaign-back">Back to campaigns</button>
+      <h2 id="campaign-name"></h2>
+      <p id="campaign-facts"></p>
+      <div class="filters">
+        <button id="campaign-close" type="button" hidden>Close campaign</button>
+        <button id="campaign-evidence" type="button">Evidence export</button>
+      </div>
+      <p id="campaign-detail-result" role="status" hidden></p>
+      <div id="campaign-items"></div>
     </section>
 
     <section id="imports" hidden>

@@ -109,7 +109,7 @@ jobs:
     # the code is the interpreter that ships it. Automated update tools
     # only bump the Dockerfile; this pin moves by hand in the same commit.
     container:
-      image: python@sha256:4fad23465a06cc5149a541fbec6f87e234a64dc0550f6bfdd2d290d8f03240df
+      image: python@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
     services:
       # A real database for the migration drift check, on the same digest
       # the compose file pins. The password derives from the run id: not
@@ -137,8 +137,15 @@ jobs:
         run: ruff check .
       - name: types
         run: mypy
-      - name: tests
-        run: pytest
+      - name: tests, with the coverage floor
+        # The floor sits under the measured figure (94 at adoption) so
+        # it catches erosion without inviting tests written to move a
+        # number (D-041).
+        run: pytest --cov=rolecall --cov-fail-under=90
+      - name: mutation check
+        # Break one control at a time; the tests that claim it must
+        # fail. Seven reviewed mutations, minutes not hours (D-041).
+        run: python3 scripts/check_mutation.py
       - name: migrations apply and match the models
         env:
           ROLECALL_DATABASE_URL: postgresql+psycopg://rolecall:ci-run-${{ github.run_id }}@postgres:5432/rolecall
@@ -155,3 +162,37 @@ jobs:
         with:
           name: sbom
           path: ${{ runner.temp }}/sbom.json
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: install hadolint, verified
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o hadolint https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-linux-x86_64
+          echo "6bf226944684f56c84dd014e8b979d27425c0148f61b3bd99bcc6f39e9dc5a47  hadolint" | sha256sum -c -
+          chmod +x hadolint
+      - name: lint the container file
+        run: '"$RUNNER_TEMP/hadolint" Dockerfile'
+      - name: install trivy, verified
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o trivy.tar.gz https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz
+          echo "2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a  trivy.tar.gz" | sha256sum -c -
+          tar -xzf trivy.tar.gz trivy
+      - name: base image operating system packages, blocking on critical with a fix
+        # The digest in the Dockerfile is what gets scanned, so the
+        # scan and the build cannot disagree about the base. Blocking
+        # only where a digest move is the fix, per the alarm-stays-
+        # meaningful rule (D-037, D-041): unfixed Debian findings are
+        # reported, not failed on.
+        run: |
+          BASE=$(grep -oP '^FROM \K.*' Dockerfile)
+          "$RUNNER_TEMP/trivy" image --scanners vuln --pkg-types os --ignore-unfixed --severity CRITICAL --exit-code 1 "$BASE"
+      - name: base image, the rest reported for the record
+        run: |
+          BASE=$(grep -oP '^FROM \K.*' Dockerfile)
+          "$RUNNER_TEMP/trivy" image --scanners vuln --pkg-types os --severity HIGH,CRITICAL "$BASE" || true

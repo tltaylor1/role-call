@@ -51,6 +51,10 @@ has landed. Each is a mechanism that runs, not a rule that hopes.
 | Deep static analysis on code and workflows, per push and weekly | A dataflow-level flaw the linter's pattern rules cannot see (D-025) |
 | Workflow lint and security audit in the pipeline | A mistake in the files that gate everything else; both tools found and fixed real findings here before adoption |
 | Posture scorecard, externally run and published | A silent drift in the repository's own practices; the score is checkable, not claimed |
+| Container file linted in the pipeline | A container-build mistake the reviewed file carries silently |
+| Base image operating system packages scanned, blocking on critical findings that have fixes | A vulnerable base staying pinned after its fix shipped; unfixed findings are reported, not alarmed on, so the alarm stays meaningful (D-037, D-041) |
+| Coverage floor on the test suite | The suite quietly shrinking below what the controls tables claim it proves |
+| Mutation check: seven controls broken one at a time, the suite must notice each | A control whose proving test is a claim; the check found and closed one such gap at adoption (D-041) |
 
 At the repository's visibility flip, the server layer joined: GitHub
 secret scanning and push protection, completing the three scanning
@@ -77,14 +81,22 @@ refer to [THREAT-MODEL.md](THREAT-MODEL.md).
 | The page renders every value as text and contains no markup sink; a scan gates it (D-036) | 7 | tests/test_frontend.py |
 | Content policy forbids inline script and style; the page needs neither | 7 | tests/test_frontend.py |
 | The session token lives in memory, never in browser storage (D-036) | 6 | verified in the browser at the subphase review |
+| Governance records attributed and audited in the acting transaction; owner typed, assigned outranking the tag, disagreement surfaced (D-038) | 8 | tests/test_governance.py |
+| Campaigns freeze their population at creation, one item one decision, no bulk path, close refuses open items (D-039) | 8 | tests/test_campaigns.py |
+| Spreadsheet formula escaping on every CSV cell | 7 | tests/test_reports.py |
+| The risk report renders through an engine that escapes by default; no script in the artifact (D-040) | 7 | tests/test_reports.py |
+| The evidence export states population, coverage, and every decision with actor and time | 8 | tests/test_reports.py |
+| A per-user write budget on imports and campaign creation; keep-alive bounded in the serve command (D-041) | 9 | tests/test_ratelimit.py |
+| The documented route surface asserted against the live route table, in both directions | 2 | tests/test_matrix.py |
 
 ## Controls still planned
 
-Mapped threat-by-threat in [THREAT-MODEL.md](THREAT-MODEL.md) and
-scheduled by [BUILD-PLAN.md](BUILD-PLAN.md): the derivation engine and
-findings, escaped exports at every exit, deployment-layer encryption at
-rest (D-020), step-up authentication for any action that changes a
-cloud account, and the remaining hardening the final subphase proves.
+Mapped threat-by-threat in [THREAT-MODEL.md](THREAT-MODEL.md):
+deployment-layer encryption at rest (D-020) arrives with the
+deployment phases, and step-up authentication arrives with the first
+action that changes a cloud account, which version one deliberately
+does not contain. The backup, restore, and retention procedures are in
+[RUNBOOK.md](RUNBOOK.md).
 
 ## Supported versions
 

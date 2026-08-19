@@ -24,7 +24,7 @@ from sqlalchemy.pool import StaticPool
 
 from rolecall import db as db_module
 from rolecall.db import Base
-from rolecall.ratelimit import LOGIN_LIMITER
+from rolecall.ratelimit import LOGIN_LIMITER, WRITE_LIMITER
 from rolecall.roles import Role
 from rolecall.security import hash_password
 
@@ -73,6 +73,7 @@ def client() -> Iterator[TestClient]:
     Base.metadata.drop_all(_engine)
     Base.metadata.create_all(_engine)
     LOGIN_LIMITER.clear()
+    WRITE_LIMITER.clear()
     with TestClient(app, raise_server_exceptions=False) as c:
         yield c
 

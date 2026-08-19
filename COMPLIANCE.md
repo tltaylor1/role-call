@@ -17,16 +17,16 @@ edition before anything claims conformance.
 
 | Requirement | What it asks | What answers it here |
 |---|---|---|
-| PCI DSS 4.0, 7.2.4 | Review all user accounts and privileges at least every six months | Review campaigns with due dates and recurrence (D-021) and the evidence export, arriving at subphases 10 and 11 |
-| PCI DSS 4.0, 7.2.5 and 7.2.5.1 | Application and system accounts get least privilege and periodic review at a risk-based frequency | The non-human inventory, built and importing today; campaign recurrence (subphase 10) and privilege findings (subphase 6) |
-| OWASP Non-Human Identities Top 10 (2025) | The named risk classes for non-human identities | Identity reuse is detected and surfaced today (D-016, D-029); the full finding vocabulary with the NHI identifiers arrives at subphases 5 and 6 |
-| NIST SP 800-53, AC-2 | Accounts managed, reviewed on a schedule, disabled when inactive | The inventory, built; staleness findings (subphase 5) and campaigns (subphase 10); disabling waits for the action phases by design (D-005) |
-| NIST SP 800-53, AC-6(7) | Periodic review of privileges, with removal when no longer fit | Privilege observation with source attribution is recorded today (D-019); the findings (subphase 6) and review decisions (subphases 9 and 10) follow |
+| PCI DSS 4.0, 7.2.4 | Review all user accounts and privileges at least every six months | Review campaigns with due dates and recurrence presets, and the per-campaign evidence export with population and coverage (D-021, D-039); tests/test_campaigns.py and tests/test_reports.py hold them |
+| PCI DSS 4.0, 7.2.5 and 7.2.5.1 | Application and system accounts get least privilege and periodic review at a risk-based frequency | The non-human inventory with privilege findings attributed to their source, and campaign recurrence, all present |
+| OWASP Non-Human Identities Top 10 (2025) | The named risk classes for non-human identities | Every finding carries its NHI identifier as the anchor field, from improper offboarding through human use of a non-human identity |
+| NIST SP 800-53, AC-2 | Accounts managed, reviewed on a schedule, disabled when inactive | The inventory, staleness findings on a minimum observation age, and scheduled campaigns; disabling waits for the action phases by design (D-005) |
+| NIST SP 800-53, AC-6(7) | Periodic review of privileges, with removal when no longer fit | Privilege findings with source attribution, and the revoke-recommended disposition carrying its reasons into the evidence export |
 | ISO/IEC 27002:2022, 5.16 | Identity lifecycle management, explicitly including non-human | The whole product |
-| ISO/IEC 27002:2022, 5.18 | Access rights reviewed at planned intervals and on change | Campaigns and the delta view, arriving at subphase 10 |
-| CIS Controls v8, 5.1 and 5.5 | An inventory of accounts, and a dedicated, validated service account inventory | The inventory, derived from snapshots, importing and listing today; the as-of completeness statement arrives with the frontend (subphase 8) |
-| CIS Controls v8, 5.3 | Dormant accounts disabled after a defined period | Staleness findings with the minimum observation age (subphase 5); action itself deferred (D-005) |
-| SOX ITGC and SOC 2 CC6 practice | Complete population, independent reviewer, evidence per decision, timely remediation | The completeness statement, attribution, evidence export, and closure tracking, arriving across subphases 8 through 11 |
+| ISO/IEC 27002:2022, 5.18 | Access rights reviewed at planned intervals and on change | Campaigns with the delta-since-last-certification view, so the review reads what changed rather than re-reading everything |
+| CIS Controls v8, 5.1 and 5.5 | An inventory of accounts, and a dedicated, validated service account inventory | The inventory, derived from snapshots, with the as-of statement on every view |
+| CIS Controls v8, 5.3 | Dormant accounts disabled after a defined period | Staleness findings with the minimum observation age; action itself deferred (D-005) |
+| SOX ITGC and SOC 2 CC6 practice | Complete population, independent reviewer, evidence per decision, timely remediation | The frozen population statement, attribution on every decision, the evidence export, and a close that refuses gaps, all present |
 
 ## From the decisions to the frameworks
 
