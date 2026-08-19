@@ -416,7 +416,7 @@ demonstrated.
 | `diagrams/` | Working sketches, including the journey diagram the status reads from |
 | `requirements*.in` / `*.txt` | Chosen packages, and the hash-pinned trees that install |
 | `Dockerfile` / `docker-compose.yml` | Digest-pinned base, non-root user, the composed stack |
-| `.github/workflows/` | The pipeline: tests, types, scanners, the container jobs |
+| `.github/workflows/` | The pipeline: tests, types, scanners, the container jobs, and the software bill of materials each run delivers |
 | `.pre-commit-config.yaml` | Secret scan, writing rules, and the truth gates at commit time |
 | `.env.example` | Documents required configuration without containing it |
 
@@ -482,7 +482,10 @@ doing exactly what it is for.
 merge to main passes secret scanning, writing rules and status-truth
 gates, workflow lint and audit, link checks, the application job with
 the coverage floor and mutation check, two static analysis passes, and
-the container job.
+the container job. Every run also delivers the software bill of
+materials as a downloadable artifact; the reasoning for delivering it
+fresh rather than committing it is in
+[How it is built](#how-it-is-built).
 
 -------------------------------------------------------------------------------
 
