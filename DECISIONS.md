@@ -265,7 +265,7 @@ revisited before that field exists.
 
 The published codifications of this work (PCI DSS 4.0 requirements 7.2.4
 and 7.2.5, ISO/IEC 27002 5.18, NIST AC-2 and AC-6(7), CIS Control 5, and
-the audit practice around SOX and SOC 2; see COMPLIANCE.md) all define
+the audit practice around SOX and SOC 2; see the compliance section of README.md) all define
 the unit of governance as a periodic, scoped, evidenced review. Version
 one therefore adds, on top of the four confirmed operations: review
 campaigns (a scope of identities and groups, assigned reviewers, a due
@@ -297,7 +297,7 @@ D-005.
 This decision also names the method it came from: the design phase takes
 the reviewer's and the auditor's itemized needs as first-class inputs
 beside the threat model, user first and security first together, and the
-framework references run in both directions through COMPLIANCE.md.
+framework references run in both directions through the README's compliance section.
 <!-- vale BuildGuidelines.Audience = YES -->
 
 ## D-022: Ruff is the linter, and commented-out code is a finding

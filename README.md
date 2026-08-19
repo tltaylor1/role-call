@@ -24,11 +24,13 @@ decided it.
 
 - [Status](#status)
 - [Setup and run](#setup-and-run)
+- [Operating it](#operating-it)
 - [The gates a request passes](#the-gates-a-request-passes)
 - [Using the app](#using-the-app)
 - [What version one does](#what-version-one-does)
 - [Repository map](#repository-map)
 - [Verified, in numbers](#verified-in-numbers)
+- [Compliance traceability](#compliance-traceability)
 - [The container is part of the attack surface](#the-container-is-part-of-the-attack-surface)
 - [Roadmap](#roadmap)
 - [Out of scope](#out-of-scope)
@@ -43,8 +45,9 @@ decided it.
 ## Status
 
 **Phase 1 of 8 is complete, subphases 12 of 12 built** and merged,
-in the review-gated order [BUILD-PLAN.md](BUILD-PLAN.md) fixed before
-any code, closed August 19, 2026. Phase 2, local Kubernetes, has not
+in a review-gated order fixed before any code
+([the plan](#how-phase-1-was-built-the-plan-fixed-before-code)),
+closed August 19, 2026. Phase 2, local Kubernetes, has not
 begun. A fresh clone with Docker starts the stack, migrates the schema,
 serves sign-in with three roles behind a tested authorization matrix,
 imports identity snapshots append-only, derives the inventory with its
@@ -104,8 +107,72 @@ subphases before this became a rule; a test regenerates it and fails
 if the shipped files and the generator disagree.
 
 To stop, `docker compose down`; add `-v` to also delete the database
-and start clean. Backup, restore, and retention procedures are in
-[RUNBOOK.md](RUNBOOK.md).
+and start clean. Backup, restore, and retention are in
+[Operating it](#operating-it), next.
+
+-------------------------------------------------------------------------------
+
+## Operating it
+
+Each procedure below was run against a live stack before it was
+written down.
+
+**Backup.** The database is the only state; the containers hold
+nothing worth keeping. One command produces a dated, compressed dump:
+
+```
+docker compose exec -T db pg_dump -U rolecall -Fc rolecall > rolecall-$(date +%Y-%m-%d).dump
+```
+
+The dump contains every snapshot, observation, governance record,
+campaign, and audit row. It contains password hashes and session token
+hashes but no passwords and no tokens, because none are ever stored.
+Store it where the database's readers are the only readers: the
+observations inside it name every identity in the connected accounts,
+which is reconnaissance material in the wrong hands.
+
+**Restore.** Restore replaces the running database. Stop the
+application first so nothing writes mid-restore:
+
+```
+docker compose stop app
+docker compose exec -T db pg_restore -U rolecall --clean --if-exists -d rolecall < rolecall-2026-08-19.dump
+docker compose start app
+```
+
+The application migrates on start, so a dump taken by an older schema
+is brought forward automatically, and a failed migration stops the
+container rather than serving the wrong schema.
+
+**Verify the backup.** A backup that was never restored is a hope.
+Restore into a throwaway database and count:
+
+```
+docker compose exec -T db createdb -U rolecall restore_drill
+docker compose exec -T db pg_restore -U rolecall -d restore_drill < rolecall-2026-08-19.dump
+docker compose exec -T db psql -U rolecall -d restore_drill -c "select count(*) from observations"
+docker compose exec -T db dropdb -U rolecall restore_drill
+```
+
+The count matches the live table or the backup is not a backup.
+
+**Retention.** The record model is append-only by design:
+observations, governance history, campaign decisions, and audit rows
+exist to answer questions years later, so the data itself has no
+deletion schedule inside the application. Retention is therefore a
+property of the backups: keep daily dumps for thirty days and one
+dump per month for two years, deleting older ones, which bounds disk
+while preserving the ability to answer how any decision looked at the
+time it was made. An instance holding a real organization's data
+follows that organization's records schedule where it is stricter.
+
+**The clean-slate reset**, development only, deletes every imported
+snapshot, every governance record, and the audit history:
+
+```
+docker compose down -v
+docker compose up --build
+```
 
 -------------------------------------------------------------------------------
 
@@ -417,6 +484,44 @@ the container job.
 
 -------------------------------------------------------------------------------
 
+<!-- vale BuildGuidelines.Audience = NO -->
+<!-- Scoped exception: "reviewer" below names the product's user, the
+     person who performs an access review, which is the standard term in
+     every framework this work follows. It does not describe this
+     document's audience. -->
+
+## Compliance traceability
+
+The published frameworks that codify what this tool does, mapped in
+both directions: from each requirement to what answers it, and from
+each design decision to the requirements that informed it. Wordings
+are paraphrased; exact clause text is verified against the current
+edition before anything claims conformance.
+
+| Requirement | What it asks | What answers it here |
+|---|---|---|
+| PCI DSS 4.0, 7.2.4 | Review all user accounts and privileges at least every six months | Review campaigns with due dates and recurrence presets, and the per-campaign evidence export with population and coverage (D-021, D-039); tests/test_campaigns.py and tests/test_reports.py hold them |
+| PCI DSS 4.0, 7.2.5 and 7.2.5.1 | Application and system accounts get least privilege and periodic review at a risk-based frequency | The non-human inventory with privilege findings attributed to their source, and campaign recurrence, all present |
+| OWASP Non-Human Identities Top 10 (2025) | The named risk classes for non-human identities | Every finding carries its NHI identifier as the anchor field, from improper offboarding through human use of a non-human identity |
+| NIST SP 800-53, AC-2 | Accounts managed, reviewed on a schedule, disabled when inactive | The inventory, staleness findings on a minimum observation age, and scheduled campaigns; disabling waits for the action phases by design (D-005) |
+| NIST SP 800-53, AC-6(7) | Periodic review of privileges, with removal when no longer fit | Privilege findings with source attribution, and the revoke-recommended disposition carrying its reasons into the evidence export |
+| ISO/IEC 27002:2022, 5.16 | Identity lifecycle management, explicitly including non-human | The whole product |
+| ISO/IEC 27002:2022, 5.18 | Access rights reviewed at planned intervals and on change | Campaigns with the delta-since-last-certification view, so the review reads what changed rather than re-reading everything |
+| CIS Controls v8, 5.1 and 5.5 | An inventory of accounts, and a dedicated, validated service account inventory | The inventory, derived from snapshots, with the as-of statement on every view |
+| CIS Controls v8, 5.3 | Dormant accounts disabled after a defined period | Staleness findings with the minimum observation age; action itself deferred (D-005) |
+| SOX ITGC and SOC 2 CC6 practice | Complete population, independent reviewer, evidence per decision, timely remediation | The frozen population statement, attribution on every decision, the evidence export, and a close that refuses gaps, all present |
+
+| Decision | Framework grounding |
+|---|---|
+| D-005 enrichment over automation | AC-2 and CIS 5.3 name disabling as the goal; this design routes it through a human until the trust ladder earns the action phases |
+| D-006 append-only derived state | The SOX completeness and evidence expectations: a population and history that cannot silently change |
+| D-016 immutable identifier keying | OWASP NHI reuse risk: a recreated principal must not inherit standing |
+| D-019 identities act, sources grant, both governed | ISO 5.18 and universal access review practice certify group memberships, so the group must hold owners and attestations |
+| D-021 the review campaign scope | PCI 7.2.4 and 7.2.5, ISO 5.18, AC-2, and audit practice all define the periodic, evidenced review as the unit of governance |
+<!-- vale BuildGuidelines.Audience = YES -->
+
+-------------------------------------------------------------------------------
+
 ## The container is part of the attack surface
 
 Least privilege applies to the container boundary, not only to code
@@ -469,6 +574,81 @@ digest-pinned base image, and exports that cannot carry spreadsheet
 formulas. Locally the stack speaks plain HTTP on the loopback
 interface; transport encryption is the edge's job and arrives with the
 cloud phases.
+
+
+### How Phase 1 was built: the plan, fixed before code
+
+Phase 1 was divided into twelve ordered subphases, planned in full in
+advance and built one at a time. A subphase is built in small commits
+on its own branch and then stops: a human reads the diff, runs the
+demo, and reads the tests, and only after that review is the pull
+request merged with the required checks green, so the merge itself is
+the public record of the review. No approval is required on the pull
+request, because there is no second person to give one and a
+self-approval would be theater; the gates are the checks and the
+deliberate merge. There is no testing phase at the end, because every
+subphase ships its own tests, and no hardening phase in substance,
+because each control arrives with the thing it protects; the final
+subphase is proof, not retrofit.
+
+![The cycle every subphase travels: plan, build, demo and tests, human review, pull request merged](diagrams/subphase-cycle-sketch.svg)
+
+1. **Foundation.** Hash-pinned dependencies checked against canonical
+   sources, the software bill of materials, automated update review, a
+   digest-pinned container image, fail-fast configuration, migrations
+   from the first table, allowlist logging, health.
+2. **Operators.** Sign-in with a timing-equal path for unknown names,
+   revocable sessions, the three roles checked per route, the audit
+   spine writing in the same transaction as every action.
+3. **Ingestion one.** The credential report parser: bounded, in
+   memory, verified against its own claims, append-only, identities
+   keyed by the provider's immutable identifier, with its
+   property-based fuzz suite.
+4. **Ingestion two.** The authorization details parser: roles, trust
+   policies, groups as privilege sources, memberships, policy
+   documents, tags, and recreated-name detection.
+5. **Derivation and credential findings.** State from history at read
+   time, and the credential-hygiene findings with their tiers and the
+   minimum observation age.
+6. **Privilege findings.** Admin equivalence by capability, escalation
+   paths, external trust exposure, ownership and group findings,
+   membership drift, privilege attributed to its source.
+7. **Sample data.** The synthetic generator producing both file
+   formats across three snapshot generations and every archetype the
+   rules need; moved up from eleventh with the reason recorded in
+   D-034, because every subphase since the first parser had needed
+   demo input made by hand, and hand-made input was wrong three times.
+8. **Inventory and frontend.** The lists, the detail view with its
+   observation timeline, the dashboard, the as-of banner, and the
+   single page that renders every value as text.
+9. **Governance records.** Owner, purpose, flag, and attestation on
+   identities and groups, attributed, audited, clearable.
+10. **Review campaigns.** Scoped, deadlined review cycles with
+    per-item dispositions including insufficient evidence,
+    recommendations with their reasons, the change-since-last-
+    certification view, and no bulk certification by design.
+11. **Reports and exports.** Escaped CSV and JSON, the self-contained
+    risk report, and the per-campaign evidence export with its
+    population statement.
+12. **Proof, and the stranger drill.** Container hardening verified by
+    command, the mutation check with coverage measured to inform it,
+    the external checklist audits, figures verified against the
+    running system, the fresh-clone run on a machine with nothing but
+    Docker, and the documents re-read and shortened.
+
+The order had reasons. Identity before data, because every later route
+needs the role checks. Parsers before the engine, because reading the
+data before designing against it is the deepest lesson this project
+inherits. Credential findings before privilege findings, because the
+second carries the judgment and gets the hardest review. The frontend
+in the middle, so every later subphase demonstrates with clicks.
+Governance before campaigns, because the noun precedes the workflow.
+Sample data before the frontend, so demonstrations run against
+realistic data instead of input typed by hand. The plan bound the
+order, not the learning: a discovery mid-build became a decision, an
+amendment, or a backlog entry, visibly, so the difference between the
+plan as written and the build as it happened stays readable in
+[DECISIONS.md](DECISIONS.md).
 
 **Phase 2, local Kubernetes.** The image orchestrated on kind with
 Calico, so network policies are enforced rather than silently ignored;
@@ -538,12 +718,13 @@ Recorded so each absence is a decision rather than an oversight.
 
 ## How it is built
 
-The build is review-gated on purpose: [BUILD-PLAN.md](BUILD-PLAN.md)
-fixed the subphases and their order before any code, every change
-lands through a pull request whose checks include the writing rules
-and the status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the
-record of what the coding agent got wrong along the way, because that
-record is the point.
+The build is review-gated on purpose: the
+[plan above](#how-phase-1-was-built-the-plan-fixed-before-code) fixed
+the subphases and their order before any code, every change lands
+through a pull request whose checks include the writing rules and the
+status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the record of
+what the coding agent got wrong along the way, because that record is
+the point.
 
 The pipeline runs the suite with the coverage floor, strict typing,
 the mutation check, secret scanning in three layers, dependency audits
@@ -616,10 +797,6 @@ identical in code.
   rejected, and why, D-001 through D-042.
 - [SECURITY.md](SECURITY.md) is the reporting path and the controls
   tables, each control with the test that proves it.
-- [COMPLIANCE.md](COMPLIANCE.md) maps the published frameworks to what
-  answers them here, in both directions.
-- [RUNBOOK.md](RUNBOOK.md) is backup, restore, verification, and
-  retention.
 - [AGENTS.md](AGENTS.md) is the standards this project is built to.
 
 -------------------------------------------------------------------------------
@@ -675,7 +852,7 @@ gap remains, the documents say so.
 - **PCI DSS 4.0, ISO/IEC 27002:2022, NIST SP 800-53, CIS Controls
   v8**, and the audit practice around SOX and SOC 2, which together
   define the periodic, evidenced access review this tool serves; the
-  two-way mapping lives in [COMPLIANCE.md](COMPLIANCE.md).
+  two-way mapping is in [Compliance traceability](#compliance-traceability).
 - **Andrew Koenig** and the AntiPatterns authors, whose two-part test
   disciplines how this project writes down what not to do.
 
