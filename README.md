@@ -1090,10 +1090,12 @@ here: mechanisms, not intentions.
   rules, the truth gates, and the secret scan run at commit time on
   the agent's output exactly as they would on anyone's.
 - **The agent cannot land anything alone.** Main refuses direct
-  pushes; every change travels a branch and a pull request; eight
-  required checks must pass; and the merge is a human act. Phase and
-  subphase transitions are likewise human declarations, never the
-  agent's.
+  pushes; every change travels a branch and a pull request opened
+  under the agent's own identity (D-045), so the author of record and
+  the human who approves are different parties; eight required checks
+  and a required approving review must pass; and the merge is a human
+  act. Phase and subphase transitions are likewise human declarations,
+  never the agent's.
 - **The work is attributed, and the attribution states its own
   limits.** Every co-authored commit carries a trailer naming the
   assisting system, and the trailer says the model varies per turn
