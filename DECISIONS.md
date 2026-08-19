@@ -501,7 +501,7 @@ flaggable as unused until it has been watched fourteen days, because a
 new key that has not been used yet is new, not stale, and the false
 positive that cries wolf on day one costs the tool its credibility
 (the eligibility lesson from the prior art, credited in
-ACKNOWLEDGEMENTS.md). Staleness is always computed against the
+the acknowledgements in README.md). Staleness is always computed against the
 account's newest snapshot capture time, never the wall clock, so an
 old import shows its age instead of silently accruing findings.
 
@@ -520,7 +520,7 @@ access; a policy called FullAdminLegacy granting three read actions is
 not. The heuristics read what a document permits: every action on every
 resource, the wildcard breadth underneath that, identity-mutating
 operations, and the escalation combinations from the published research
-credited in ACKNOWLEDGEMENTS.md, including the pair where passing a role
+credited in the README's acknowledgements, including the pair where passing a role
 into a compute service is ordinary on either side and an escalation
 together. The escalation finding is reported only for identities that
 are not already administrators, because an administrator reaches every

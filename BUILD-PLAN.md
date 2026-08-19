@@ -2,7 +2,7 @@
 
 How each phase gets built, and the current phase's subphase
 decomposition. The destination and the scope live in
-[ROADMAP.md](ROADMAP.md).
+the roadmap section of [README.md](README.md).
 
 How the application gets built, decided before any of it is. Phase 1 is
 divided into ordered subphases, planned in full in advance, built one at

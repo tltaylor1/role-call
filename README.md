@@ -5,123 +5,48 @@ service accounts, and access keys that get created, granted permissions
 once, and forgotten. They outnumber the humans in most cloud accounts,
 and nobody offboards them.
 
-role-call imports identity snapshots, derives each identity's state from
-the observed history rather than storing a status that can drift, and
-gives each identity what a human needs before acting: an owner, when it
-was last used, how old its credentials are, how much privilege it holds
-and where that privilege comes from, and whether a governed name has been
-quietly recreated. The full comparison of granted against exercised
-permissions arrives with the live provider connection.
-The tool amplifies a human decision; it does not act on its own.
-
+role-call imports identity snapshots, derives each identity's state
+from the observed history rather than storing a status that can drift,
+and gives each identity what a human needs before acting: an owner,
+when it was last used, how old its credentials are, how much privilege
+it holds and where that privilege comes from, and whether a governed
+name has been quietly recreated. Review campaigns turn that record
+into decisions, one item at a time, with the evidence beside each one.
 It starts with Amazon Web Services (AWS) identity.
 
-## What done looks like
-
-Human accounts in a regulated company have a lifecycle: created for a
-named person, owned, reviewed on a schedule, and disabled at departure.
-The identities software uses have none of that, and they outnumber the
-humans many times over. The destination for role-call is a tool where
-every non-human identity is governed the way human accounts already
-are: a named owner, a stated purpose, a privilege picture beside its
-actual usage, a next review date, and evidence behind every one of
-those claims, so that the identity nobody can explain becomes visible
-the day it appears rather than the day it is abused.
-
 The operating principle is that people decide and the machine never
-does. Automation carries out what a person already decided, inside
-bounds that person set: a review window that closes on its own
-schedule, an approved re-elevation that the clock takes back, a
-drafted right-sizing change waiting as a diff for an owner to approve.
-Automation prepares, schedules, executes, and verifies. It does not
-grant, revoke, or certify on its own judgment, and every action it
-carries out traces to the person who decided it.
+does. The engine recommends and always names its reasons; automation
+prepares, schedules, and verifies; it does not grant, revoke, or
+certify on its own judgment, and every action traces to the person who
+decided it.
+
+**Contents:** [Status](#status) · [Setup and run](#setup-and-run) · [Using the app](#using-the-app) · [What version one does](#what-version-one-does) · [Repository map](#repository-map) · [Roadmap](#roadmap) · [Out of scope](#out-of-scope) · [How it is built](#how-it-is-built) · [Where to read next](#where-to-read-next) · [Acknowledgements](#acknowledgements) · [License](#license)
+
+-------------------------------------------------------------------------------
 
 ## Status
 
-**Phase 1 of 8: building, subphases 12 of 12 built** and merged. A fresh clone with Docker starts the stack,
-migrates the schema, serves sign-in with three roles behind a tested
-authorization matrix, imports identity snapshots append-only, and
-derives the inventory at read time with its credential and privilege
-findings, each naming the policy and group it came from. Identities
-and groups carry governance records: a typed owner, a purpose, flags,
-and attestations, attributed and audited. Review campaigns freeze a
-population, collect one decision per item with the evidence beside
-it, and export the record; the risk report, the escaped CSV, and the
-JSON export carry the same figures the page shows. The design documents below govern the
-build, [BUILD-PLAN.md](BUILD-PLAN.md) sets the subphases, and
-[ROADMAP.md](ROADMAP.md) states the current phase, with the status
-figures gated against the journey diagram so they cannot drift
-(D-031).
+**Phase 1 of 8: subphases 12 of 12 built** and merged, in the
+review-gated order [BUILD-PLAN.md](BUILD-PLAN.md) fixed before any
+code. A fresh clone with Docker starts the stack, migrates the schema,
+serves sign-in with three roles behind a tested authorization matrix,
+imports identity snapshots append-only, derives the inventory with its
+credential and privilege findings, carries governance records and
+review campaigns, and produces the risk report and the escaped
+exports. This figure is kept honest by a pipeline check against the
+journey diagram (D-031), so it cannot drift from the source.
 
-This is a learning project, built in public, by one person. The software
-is provided as is under the [Apache 2.0 license](LICENSE). Before relying
-on any of it, read the code and the
-[threat model](THREAT-MODEL.md), including its accepted risks. Nothing
-here is production software until the documents say so.
+This is a learning project, built in public, by one person. The
+software is provided as is under the
+[Apache 2.0 license](LICENSE). Before relying on any of it, read the
+code and the [threat model](THREAT-MODEL.md), including its accepted
+risks. Nothing here is production software until the documents say so.
 
-The build is review-gated on purpose: [BUILD-PLAN.md](BUILD-PLAN.md) sets
-the subphases and their order before any code, and
-[AI-USAGE.md](AI-USAGE.md) keeps the record of what the coding
-agent got wrong along the way, because that record is the point.
+-------------------------------------------------------------------------------
 
-## What version one will do
+## Setup and run
 
-Four operations, and nothing else:
-
-- An operator authenticates, into one of three roles.
-- An identity snapshot file is imported, recorded append-only, with
-  synthetic sample data shipped so a stranger with only Docker can run
-  the demo.
-- The operator views the enriched inventory and can produce a
-  self-contained risk report plus CSV and JSON exports.
-- The operator assigns owners, flags identities, and records
-  attestations, in role-call only; nothing is written to the cloud
-  account.
-
-## Where it is going
-
-Version one is the floor, not the product. The roadmap builds toward, in
-order:
-
-- **Deeper context.** Creator attribution and usage baselines beyond the
-  provider's 90 day event window, once the log infrastructure exists to
-  hold them, plus expected-profile checks: a known vendor integration
-  holding exactly its documented permissions is furniture, and the same
-  integration holding more is a finding.
-- **Report-only governance.** A quarantine that observes before it ever
-  enforces: mark an identity pending, watch its usage through a review
-  window, and let the owner decide with evidence. A what-if view answers
-  "had this been revoked a month ago, what would have broken."
-- **Human-decided remediation, machine-verified.** Deactivate and
-  restore, each behind a fresh proof of identity, each shown as a policy
-  diff before it happens, each verified against the provider afterward,
-  because clicked is not revoked until the provider says so.
-- **Temporary approved re-elevation.** An owner asks for a quarantined
-  identity back for a window, someone else approves, and the clock does
-  the offboarding. Just-in-time access, applied to non-human identities.
-- **More providers behind one identity model.** Okta and Entra after AWS,
-  as adapters over the same append-only ingestion, not as rewrites.
-
-The full sequence, with what each phase proves, is in
-[ROADMAP.md](ROADMAP.md).
-
-## Where to start
-
-- [ROADMAP.md](ROADMAP.md) is the phase plan, the confirmed scope, and
-  what is deliberately excluded.
-- [ARCHITECTURE.md](ARCHITECTURE.md) is the components, the data flow,
-  the trust boundaries, and the list of diagrams.
-- [THREAT-MODEL.md](THREAT-MODEL.md) is the ranked threats, each mapped
-  to its control, and the accepted risks.
-- [DECISIONS.md](DECISIONS.md) records what was chosen, what was
-  rejected, and why.
-- [AGENTS.md](AGENTS.md) is the standards this project is built to.
-
-## Running it
-
-The stack runs with sign-in, imports, and the inventory; the rest
-arrives subphase by subphase.
+Requires Docker with the compose plugin, and nothing else.
 
 ```
 cp .env.example .env
@@ -130,12 +55,15 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Then open http://127.0.0.1:8000 and sign in with the administrator
-from your .env. The page has an import section; import the sample
-account that ships
-in [sample-data](sample-data): three snapshot generations, both file
-formats, with the capture time in each file's name. Import them oldest
-first, then read /identities and /groups.
+Open http://127.0.0.1:8000 and sign in with the administrator from
+your .env. The compose file refuses to start while a key is missing,
+and no password or secret is written anywhere in this repository; you
+create all of them locally.
+
+Then import the sample account that ships in
+[sample-data](sample-data): three snapshot generations, both file
+formats, the capture time in each file's name. Import them oldest
+first from the Imports view, then read the inventory.
 
 The sample account is synthetic and deterministic, generated by
 `python -m rolecall.sample_data`, and it is built to trigger every
@@ -143,3 +71,314 @@ finding the engine can produce, including the ones that need history:
 an identity that stops being used, a group that gains a member, and a
 name that comes back under a new identifier. A test regenerates it and
 fails if the shipped files and the generator disagree.
+
+To stop, `docker compose down`; add `-v` to also delete the database
+and start clean. Backup, restore, and retention procedures are in
+[RUNBOOK.md](RUNBOOK.md).
+
+-------------------------------------------------------------------------------
+
+<!-- vale BuildGuidelines.Audience = NO -->
+<!-- Scoped exception: "reviewer" below names the product's role, the
+     person who performs an access review inside the application. It
+     does not describe this document's audience. -->
+
+## Using the app
+
+Three roles. A reviewer reads everything and records attestations and
+review decisions. An operator additionally imports snapshots and sets
+governance: owners, purposes, flags. An administrator additionally
+manages the application's local users. Every route answers to that
+matrix, and a test walks every row.
+
+**Inventory.** The dashboard counts identities by their worst finding
+tier; the table filters by name, type, and tier. Every figure is
+derived at read time from the observation history, against the newest
+snapshot's capture time, never the wall clock, so a month-old import
+shows month-old staleness honestly. The as-of line at the top states
+what the page knows.
+
+**Identity detail.** The observation timeline, the findings with the
+policy or group each one came from, and the governance section: a
+typed owner (a team by default, because an individual owner stops
+answering the day they leave), purpose, flags, and attestations, each
+attributed, each cleared rather than edited, with the history beneath.
+Assigning an owner answers the unowned finding; a disagreement between
+the assigned owner and the provider tag is surfaced rather than
+silently resolved.
+
+**Groups.** Privilege sources with members, owners, and their own
+findings: an empty privileged group is a standing grant waiting for
+its next member, and membership drift since the previous snapshot is
+what a review actually reviews.
+
+**Campaigns.** A campaign freezes its scope into items at creation,
+each item carrying the evidence as it stood and the engine's
+recommendation with its reasons. Decisions are one item, one person:
+certify, revoke recommended, insufficient evidence naming what was
+missing, or delegated naming who holds it now. There is no bulk
+certification anywhere, a decision is final within its campaign, and
+close refuses while any item is unanswered. The rollup collects
+insufficient-evidence notes across campaigns, and the evidence export
+carries the population statement, coverage, and every decision with
+actor and time.
+
+**Reports.** The risk report is one self-contained file ranked by the
+engine, safe to open from disk years later; the CSV escapes every
+formula-leading cell; the JSON export carries the same figures the
+page shows, because all three read from the same computation.
+
+<!-- vale BuildGuidelines.Audience = YES -->
+
+-------------------------------------------------------------------------------
+
+## What version one does
+
+Four operations, and nothing else:
+
+- An operator authenticates, into one of three roles.
+- An identity snapshot file is imported, recorded append-only, with
+  synthetic sample data shipped so a stranger with only Docker can run
+  the demo.
+- The operator views the enriched inventory and produces the
+  self-contained risk report plus CSV and JSON exports.
+- The operator governs in role-call only: owners, purposes, flags,
+  attestations, and review campaigns. Nothing is written to the cloud
+  account.
+
+That set exercises authentication, authorization across three roles,
+input validation, derived state, audit logging, and the enrichment
+model, and it keeps the tool's own cloud credential read-only. Adding
+more operations would not add a property that is not already
+demonstrated.
+
+-------------------------------------------------------------------------------
+
+## Repository map
+
+| Path | Role |
+|---|---|
+| `rolecall/main.py` | Application assembly: routes, security headers, the static shell |
+| `rolecall/roles.py` | The role matrix, single source: who may call what |
+| `rolecall/deps.py` | Authentication, authorization, and the write budget, as dependencies |
+| `rolecall/ingest/` | The two snapshot parsers: bounded, in memory, distrusting their own preconditions |
+| `rolecall/models.py` | The tables; append-only observation history as structure |
+| `rolecall/derive.py` | State from history at read time; the freshest value per field |
+| `rolecall/findings.py` | Credential findings, each explaining itself with its OWASP anchor |
+| `rolecall/policy_analysis.py` | What a policy document grants, read by capability |
+| `rolecall/privilege.py` | The privilege picture with source attribution; shadow admin detection |
+| `rolecall/governance.py` | The human layer: typed owners, purposes, flags, attestations |
+| `rolecall/campaigns.py` | Recommendations with reasons, and the delta since last certification |
+| `rolecall/assessment.py` | The one computation the page, the campaigns, and the exports all read |
+| `rolecall/reports.py` | The ranked report and the escaped exports |
+| `rolecall/routes/` | The route handlers, every one in the matrix or named public |
+| `rolecall/audit.py` | The audit spine: the record commits with the action |
+| `rolecall/sample_data.py` | The deterministic sample account generator |
+| `frontend/` | One page, no build step; every value rendered as text |
+| `migrations/` | The schema from the first table |
+| `sample-data/` | The generated demo account, committed and checked |
+| `tests/` | The attack checklist; the matrix walked row by row |
+| `scripts/` | The gates: docs-truth, digest parity, the mutation check |
+| `diagrams/` | Working sketches, including the journey diagram the status reads from |
+| `requirements*.in` / `*.txt` | Chosen packages, and the hash-pinned trees that install |
+| `Dockerfile` / `docker-compose.yml` | Digest-pinned base, non-root user, the composed stack |
+| `.github/workflows/` | The pipeline: tests, types, scanners, the container jobs |
+| `.pre-commit-config.yaml` | Secret scan, writing rules, and the truth gates at commit time |
+| `.env.example` | Documents required configuration without containing it |
+
+-------------------------------------------------------------------------------
+
+## Roadmap
+
+The destination is a tool where every non-human identity is governed
+the way human accounts already are: a named owner, a stated purpose, a
+privilege picture beside its actual usage, a next review date, and
+evidence behind every one of those claims, so the identity nobody can
+explain becomes visible the day it appears rather than the day it is
+abused.
+
+![The eight phases as a timeline, with the current position marked](diagrams/phase-journey-sketch.svg)
+
+**Phase 0, design.** Architecture, data flow, trust boundaries, the
+threat model, the confirmed scope, the diagram list. No code.
+
+**Phase 1, build the application.** The smallest system that genuinely
+governs identities, with the controls present from the first commit:
+authentication on every request, three roles checked per route, rate
+limits and a request budget, audit rows in the acting transaction,
+migrations from the first table, hash-pinned dependencies, a
+digest-pinned base image, and exports that cannot carry spreadsheet
+formulas. Locally the stack speaks plain HTTP on the loopback
+interface; transport encryption is the edge's job and arrives with the
+cloud phases.
+
+**Phase 2, local Kubernetes.** The image orchestrated on kind with
+Calico, so network policies are enforced rather than silently ignored;
+role-based access control, pod security standards, admission control.
+
+**Phase 3, cloud enclave as code.** The AWS environment as code, split
+into persistent foundation and ephemeral workload. The organization
+trail lands here, which is also when enrichment deepens: creator
+attribution and usage beyond the provider's 90 day window become
+possible only with logs to hold them.
+
+**Phase 4, managed Kubernetes.** The image promoted by digest into the
+enclave; the orchestration questions were already answered locally.
+
+**Phase 5, security-gated pipeline.** The running gates consolidated,
+the gaps closed, and the set proven by introducing a flaw deliberately
+and confirming the pipeline stops it.
+
+**Phase 6, runtime security and alerting.** Detection on the audit
+events the threat model names, alerts on new high-risk identities, and
+the first-hour response procedure written and exercised once.
+
+**Phase 7, human-triggered remediation.** The trust step change:
+a tightly scoped action credential, deactivate and restore behind
+step-up authentication, each action shown as a policy diff before it
+happens and verified against the provider afterward, because clicked
+is not revoked until the provider says so. Report-only quarantine and
+review windows arrive here, and this phase requires its own threat
+model revision before any code, because write access changes what the
+tool is.
+
+Beyond the phases, in order: expected-profile checks, where a known
+vendor integration holding exactly its documented permissions is
+furniture and the same integration holding more is a finding;
+temporary approved re-elevation, where someone else approves and the
+clock does the offboarding; and more providers, Okta and Entra, as
+adapters behind the same append-only ingestion rather than rewrites.
+
+Each phase ends in a state that runs and demonstrates on its own, with
+the diagrams updated, the decisions recorded, and the documents
+re-read and shortened.
+
+-------------------------------------------------------------------------------
+
+## Out of scope
+
+Recorded so each absence is a decision rather than an oversight.
+
+- **No writes to the cloud account until Phase 7.** Enrichment over
+  automation: the tool never holds a credential more powerful than its
+  current phase needs.
+- **One provider.** AWS first; building two providers before one is
+  governed well would add breadth without adding a property.
+- **Effective privilege through role chaining is not computed.**
+  Version one scores what a policy grants, not what assume-role chains
+  can reach, and says so on the page. Reachability is real graph work
+  that earns its own phase.
+- **No automated remediation, ever, by design.** A tool that revokes
+  on its own gets disabled the first time it breaks something.
+- **No live provider connection in version one.** Files first, because
+  the fresh-clone demo must run with Docker alone; the read-only pull
+  joins in the cloud phases behind the same ingestion.
+- **No real-time event stream in version one.** Snapshots are
+  imported; event-driven refresh arrives with the cloud phases.
+
+-------------------------------------------------------------------------------
+
+## How it is built
+
+The build is review-gated on purpose: [BUILD-PLAN.md](BUILD-PLAN.md)
+fixed the subphases and their order before any code, every change
+lands through a pull request whose checks include the writing rules
+and the status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the
+record of what the coding agent got wrong along the way, because that
+record is the point.
+
+The pipeline runs the suite with a coverage floor, strict typing, a
+mutation check that breaks one control at a time and requires the
+tests to notice, secret scanning in three layers, dependency audits
+against the hash-pinned trees, static analysis, workflow lint and
+audit, container lint, a base image scan, and link and writing checks
+across these documents. Each tool was vetted at adoption and recorded
+as a decision.
+
+-------------------------------------------------------------------------------
+
+## Where to read next
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) is the components, the data flow,
+  the trust boundaries, the route surface a test asserts, and the
+  diagram list.
+- [THREAT-MODEL.md](THREAT-MODEL.md) is the ranked threats, each
+  mapped to its control, and the accepted risks.
+- [DECISIONS.md](DECISIONS.md) records what was chosen, what was
+  rejected, and why, D-001 through D-041.
+- [SECURITY.md](SECURITY.md) is the reporting path and the controls
+  tables, each control with the test that proves it.
+- [COMPLIANCE.md](COMPLIANCE.md) maps the published frameworks to what
+  answers them here, in both directions.
+- [RUNBOOK.md](RUNBOOK.md) is backup, restore, verification, and
+  retention.
+- [AGENTS.md](AGENTS.md) is the standards this project is built to.
+
+-------------------------------------------------------------------------------
+
+## Acknowledgements
+
+The ideas here were learned from projects and publications that came
+first. Ideas are free to take; taking them namelessly is not how this
+project works. Where a lesson was taken, the source is named; where a
+gap remains, the documents say so.
+
+- **[Repokid](https://github.com/Netflix/repokid)** (Netflix). Finding
+  unused permissions is easy and removing them safely is the product;
+  its staged, reversible removal shapes the action phases, and its
+  eligibility idea became the minimum observation age.
+- **[Cloudsplaining](https://github.com/salesforce/cloudsplaining)**
+  (Salesforce). The single-file, risk-prioritized report as the
+  artifact people actually share.
+- **[PMapper](https://github.com/nccgroup/PMapper)** (NCC Group). The
+  demonstration that reach through assume-role chains exceeds what
+  policies say directly; version one states that limitation plainly as
+  a debt to PMapper's argument.
+- **[Cartography](https://github.com/lyft/cartography)** (Lyft).
+  Identity relationships as a graph with a common model across
+  sources, the shape later providers join through.
+- **[ConsoleMe](https://github.com/Netflix/consoleme)** (Netflix).
+  Ownership and request workflows as what turns an inventory into
+  governance.
+- **Rhino Security Labs' privilege escalation research** (2018). The
+  published catalogue of permission combinations that let a principal
+  raise its own privilege; the escalation heuristics detect the
+  combinations it named.
+- **[SkyArk](https://github.com/cyberark/SkyArk)** (CyberArk). Shadow
+  admin detection: privilege judged by what a policy can do, not what
+  it is called.
+- **[Prowler](https://github.com/prowler-cloud/prowler)** and the
+  credential report tradition, the check taxonomy the findings
+  vocabulary builds on.
+- **[Aardvark](https://github.com/Netflix-Skunkworks/aardvark)**
+  (Netflix, archived). The adapter lesson: consume the provider's
+  native successor rather than maintaining a scraper.
+- **[diagram-design](https://github.com/cathrynlavery/diagram-design)**
+  (Cathryn Lavery, MIT). The working sketches follow drawing
+  principles adapted from its editorial doctrine: the complexity
+  budget, restraint with emphasis, and the rule that a diagram is done
+  when nothing can be removed.
+- **[OWASP](https://owasp.org/)**, whose lists shaped the design well
+  beyond the one the findings anchor to: the Non-Human Identities Top
+  10 (2025) supplies the finding identifiers, and the Web Application,
+  API Security, CI/CD Security, Kubernetes, Docker, and LLM
+  Applications lists were each walked item by item against the design,
+  several controls existing because that walk caught their absence.
+- **PCI DSS 4.0, ISO/IEC 27002:2022, NIST SP 800-53, CIS Controls
+  v8**, and the audit practice around SOX and SOC 2, which together
+  define the periodic, evidenced access review this tool serves; the
+  two-way mapping lives in [COMPLIANCE.md](COMPLIANCE.md).
+- **Andrew Koenig** and the AntiPatterns authors, whose two-part test
+  disciplines how this project writes down what not to do.
+
+Nothing here claims novelty for its parts. The parts are assembled
+from the projects above, the standards named, and lessons from earlier
+builds; what this project adds is the combination, the governance loop
+as open source, and the record of how it was built.
+
+-------------------------------------------------------------------------------
+
+## License
+
+[Apache 2.0](LICENSE). The software is provided as is; read the code
+and the [threat model](THREAT-MODEL.md) before relying on it.
