@@ -58,3 +58,10 @@ class LoginRateLimiter:
 
 # One limiter per process, shared by the login route.
 LOGIN_LIMITER = LoginRateLimiter()
+
+# The write throttle (D-041): imports and campaign creation do real
+# work per request (parsing, assessment of the whole account), so an
+# authenticated session gets a generous but bounded budget. The same
+# sliding-window mechanism; here every request counts, not only
+# failures, and the ceiling is far above any human pace.
+WRITE_LIMITER = LoginRateLimiter(max_failures=30, window_seconds=60)

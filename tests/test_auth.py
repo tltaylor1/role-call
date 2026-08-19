@@ -10,7 +10,13 @@ from sqlalchemy.orm import Session
 from rolecall import security
 from rolecall.models import AuditEvent, AuthSession, utcnow
 from rolecall.roles import Role
-from tests.conftest import TEST_PASSWORD, auth_header, login, make_user
+from tests.conftest import (
+    ROLE_USERS,
+    TEST_PASSWORD,
+    auth_header,
+    login,
+    make_user,
+)
 
 
 def test_login_returns_token_and_role(client: TestClient, db: Session) -> None:
@@ -94,3 +100,19 @@ def test_login_events_reach_the_audit_table(client: TestClient, db: Session) -> 
     ).scalar_one()
     assert success.actor_username == "test.operator"
     assert success.actor_user_id is not None
+
+
+def test_a_fabricated_token_is_rejected_even_beside_a_live_session(
+    client: TestClient, db: Session
+) -> None:
+    """Found by the mutation check: with token hashing broken to a
+    constant, every made-up token matched whatever session existed, and
+    nothing here noticed. This holds the actual property: only the
+    issued token opens the session it belongs to."""
+    make_user(db, Role.operator)
+    login(client, ROLE_USERS[Role.operator])
+    import secrets
+
+    forged = secrets.token_urlsafe(32)
+    r = client.get("/auth/me", headers=auth_header(forged))
+    assert r.status_code == 401

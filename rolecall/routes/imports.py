@@ -16,7 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from rolecall.db import get_session
-from rolecall.deps import AuthContext, require_roles
+from rolecall.deps import AuthContext, ThrottledWrite, require_roles
 from rolecall.ingest import authorization_details as authz
 from rolecall.ingest.credential_report import (
     MAX_FILE_BYTES,
@@ -58,6 +58,7 @@ def import_report(
     captured_at: Annotated[datetime, Form()],
     db: Annotated[Session, Depends(get_session)],
     auth: Annotated[AuthContext, require_roles("POST /imports/credential-report")],
+    _budget: ThrottledWrite,
 ) -> ImportResponse:
     data = file.file.read(MAX_FILE_BYTES + 1)
     if len(data) > MAX_FILE_BYTES:
@@ -95,6 +96,7 @@ def import_authorization(
     captured_at: Annotated[datetime, Form()],
     db: Annotated[Session, Depends(get_session)],
     auth: Annotated[AuthContext, require_roles("POST /imports/authorization-details")],
+    _budget: ThrottledWrite,
 ) -> ImportResponse:
     data = file.file.read(authz.MAX_FILE_BYTES + 1)
     if len(data) > authz.MAX_FILE_BYTES:

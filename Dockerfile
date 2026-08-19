@@ -4,7 +4,7 @@
 # is pinned in .github/workflows/ci.yml, and the two move together:
 # automated update tools only see this file, so the workflow pin is
 # updated by hand in the same commit.
-FROM python@sha256:4fad23465a06cc5149a541fbec6f87e234a64dc0550f6bfdd2d290d8f03240df
+FROM python@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
 
 # The application runs as a user that owns nothing but its own code.
 RUN useradd --create-home --shell /usr/sbin/nologin rolecall
@@ -23,5 +23,7 @@ COPY alembic.ini ./
 USER rolecall
 
 # Migrate, then serve. A failed migration stops the container rather
-# than serving against a schema it does not understand.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn rolecall.main:app --host 0.0.0.0 --port 8000"]
+# than serving against a schema it does not understand. The keep-alive
+# timeout is part of the stated request budget (D-041): idle
+# connections do not hold workers.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn rolecall.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 5"]

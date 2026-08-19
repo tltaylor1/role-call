@@ -47,6 +47,23 @@ ROUTE_ROLES: dict[str, frozenset[Role]] = {
     "DELETE /governance/{record_id}": frozenset(
         {Role.operator, Role.administrator}
     ),
+    # Creating and closing a campaign shape the review; deciding an
+    # item is the review, so disposition is open to every role, one
+    # item at a time, with no bulk operation anywhere (D-039).
+    "POST /campaigns": frozenset({Role.operator, Role.administrator}),
+    "GET /campaigns": ALL_ROLES,
+    "GET /campaigns/rollup": ALL_ROLES,
+    "GET /campaigns/{campaign_id}": ALL_ROLES,
+    "POST /campaigns/{campaign_id}/items/{item_id}/disposition": ALL_ROLES,
+    "POST /campaigns/{campaign_id}/close": frozenset(
+        {Role.operator, Role.administrator}
+    ),
+    # Reads over the same assessment the inventory shows; a reviewer
+    # who may see the page may carry it away.
+    "GET /export.csv": ALL_ROLES,
+    "GET /export.json": ALL_ROLES,
+    "GET /report.html": ALL_ROLES,
+    "GET /campaigns/{campaign_id}/evidence": ALL_ROLES,
 }
 
 # Routes that are reachable without a session, each with its reason.

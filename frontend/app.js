@@ -72,6 +72,10 @@ async function signIn(username, password) {
   return body.role;
 }
 
+const VIEWS = [
+  "inventory", "detail", "groups", "campaigns", "campaign-detail", "imports",
+];
+
 function signOut() {
   if (token) api("/auth/logout", { method: "POST" }).catch(() => {});
   token = null;
@@ -79,13 +83,28 @@ function signOut() {
   currentRole = null;
   detailId = null;
   selectedGroup = null;
-  for (const id of ["inventory", "detail", "groups", "imports", "nav", "asof"]) hide(id);
+  for (const id of VIEWS) hide(id);
+  hide("nav");
+  hide("asof");
   show("signin");
 }
 
 function switchView(view) {
-  for (const id of ["inventory", "detail", "groups", "imports"]) hide(id);
+  for (const id of VIEWS) hide(id);
   show(view);
+}
+
+// Downloads carry the session header, so they go through fetch and a
+// temporary object URL rather than a plain link the token cannot ride.
+async function download(path, filename) {
+  const response = await api(path);
+  if (!response.ok) return;
+  const url = URL.createObjectURL(await response.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 async function loadInventory() {
@@ -389,10 +408,184 @@ $("signin-form").addEventListener("submit", async (e) => {
   }
 });
 
+async function loadCampaigns() {
+  switchView("campaigns");
+  $("campaign-form").hidden = currentRole === "reviewer";
+  $("campaign-result").hidden = true;
+  const rows = await (await api("/campaigns")).json();
+  const tbody = $("campaign-rows");
+  tbody.replaceChildren();
+  for (const c of rows) {
+    tbody.appendChild(row(
+      [c.name, c.scope, c.due_at, c.disposed + " of " + c.total,
+       c.recurrence, c.closed_at ? "closed" : "open"],
+      () => loadCampaignDetail(c.id)));
+  }
+  const rollup = await (await api("/campaigns/rollup")).json();
+  const rtbody = $("rollup-rows");
+  rtbody.replaceChildren();
+  if (!rollup.length) {
+    rtbody.appendChild(row(["none recorded", "", "", "", ""]));
+  }
+  for (const entry of rollup) {
+    rtbody.appendChild(row([
+      entry.campaign, entry.display_name, entry.note,
+      entry.disposed_by, entry.disposed_at,
+    ]));
+  }
+}
+
+// One card per item: the recommendation with its reasons, the delta
+// since the last certification, and either the decision that was made
+// or the controls to make one. One item, one decision, no bulk path.
+function itemCard(campaign, item) {
+  const card = document.createElement("div");
+  card.className = "finding";
+  const title = document.createElement("span");
+  title.className = "finding-tier";
+  title.textContent = item.display_name + " (" + item.target_type + ") "
+    + "recommendation: " + item.recommendation.replace(/_/g, " ");
+  card.appendChild(title);
+
+  const reasons = document.createElement("ul");
+  for (const reason of item.recommendation_reasons) {
+    const li = document.createElement("li");
+    li.textContent = reason;
+    reasons.appendChild(li);
+  }
+  card.appendChild(reasons);
+
+  if (item.delta.length) {
+    const heading = document.createElement("span");
+    heading.className = "finding-tier";
+    heading.textContent = "changed since last certification";
+    card.appendChild(heading);
+    const delta = document.createElement("ul");
+    for (const line of item.delta) {
+      const li = document.createElement("li");
+      li.textContent = line;
+      delta.appendChild(li);
+    }
+    card.appendChild(delta);
+  }
+
+  if (item.disposition) {
+    const decided = document.createElement("p");
+    decided.textContent = "decided: " + item.disposition.replace(/_/g, " ")
+      + (item.disposition_note ? " (" + item.disposition_note + ")" : "")
+      + ", by " + item.disposed_by + " on " + item.disposed_at;
+    card.appendChild(decided);
+    return card;
+  }
+  if (campaign.closed_at) return card;
+
+  const note = document.createElement("input");
+  note.placeholder = "note (what was missing, or who holds it)";
+  note.maxLength = 500;
+  note.className = "disposition-note";
+  card.appendChild(note);
+  const actions = document.createElement("div");
+  for (const disposition of [
+    "certify", "revoke_recommended", "insufficient_evidence", "delegated",
+  ]) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = disposition.replace(/_/g, " ");
+    button.addEventListener("click", async () => {
+      const body = { disposition };
+      if (note.value.trim()) body.note = note.value.trim();
+      const result = $("campaign-detail-result");
+      const response = await api(
+        "/campaigns/" + campaign.id + "/items/" + item.id + "/disposition",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      if (response.ok) {
+        result.hidden = true;
+        loadCampaignDetail(campaign.id);
+      } else {
+        const data = await response.json();
+        result.textContent = "rejected: " + detailText(data.detail);
+        result.hidden = false;
+      }
+    });
+    actions.appendChild(button);
+  }
+  card.appendChild(actions);
+  return card;
+}
+
+async function loadCampaignDetail(id) {
+  const c = await (await api("/campaigns/" + id)).json();
+  switchView("campaign-detail");
+  $("campaign-name").textContent = c.name;
+  $("campaign-facts").textContent = "scope " + c.scope + ", due " + c.due_at
+    + ", " + c.disposed + " of " + c.total + " decided"
+    + (c.closed_at ? ", closed by " + c.closed_by + " on " + c.closed_at
+       : ", open")
+    + (c.next_due ? ", next cycle due " + c.next_due : "");
+  $("campaign-detail-result").hidden = true;
+  const close = $("campaign-close");
+  close.hidden = currentRole === "reviewer" || c.closed_at !== null;
+  close.onclick = async () => {
+    const response = await api("/campaigns/" + c.id + "/close",
+                               { method: "POST" });
+    if (response.ok) loadCampaignDetail(c.id);
+    else {
+      const data = await response.json();
+      const result = $("campaign-detail-result");
+      result.textContent = "rejected: " + detailText(data.detail);
+      result.hidden = false;
+    }
+  };
+  $("campaign-evidence").onclick = () =>
+    download("/campaigns/" + c.id + "/evidence",
+             "campaign-" + c.id + "-evidence.json");
+  const items = $("campaign-items");
+  items.replaceChildren();
+  for (const item of c.items) items.appendChild(itemCard(c, item));
+}
+
+$("campaign-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = new FormData(e.target);
+  const result = $("campaign-result");
+  const response = await api("/campaigns", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: form.get("name"),
+      scope: form.get("scope"),
+      due_at: form.get("due_at"),
+      recurrence: form.get("recurrence"),
+    }),
+  });
+  if (response.ok) {
+    result.hidden = true;
+    e.target.reset();
+    loadCampaigns();
+  } else {
+    const data = await response.json();
+    result.textContent = "rejected: " + detailText(data.detail);
+    result.hidden = false;
+  }
+});
+
+$("campaign-back").addEventListener("click", loadCampaigns);
+$("download-report").addEventListener("click",
+  () => download("/report.html", "role-call-report.html"));
+$("download-csv").addEventListener("click",
+  () => download("/export.csv", "role-call.csv"));
+$("download-json").addEventListener("click",
+  () => download("/export.json", "role-call.json"));
+
 $("nav").addEventListener("click", (e) => {
   const view = e.target.dataset.view;
   if (view === "inventory") loadInventory();
   else if (view === "groups") loadGroups();
+  else if (view === "campaigns") loadCampaigns();
   else if (view === "imports") loadImports();
 });
 $("signout").addEventListener("click", signOut);

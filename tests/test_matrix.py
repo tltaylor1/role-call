@@ -104,18 +104,99 @@ CALL_PLANS: dict[str, tuple[str, str, dict[str, object]]] = {
         {"json": {"value": "matrix attestation"}},
     ),
     "DELETE /governance/{record_id}": ("delete", "/governance/999999", {}),
+    "POST /campaigns": (
+        "post",
+        "/campaigns",
+        {
+            "json": {
+                "name": "matrix cycle",
+                "scope": "everything",
+                "due_at": "2026-09-30T00:00:00+00:00",
+            }
+        },
+    ),
+    "GET /campaigns": ("get", "/campaigns", {}),
+    "GET /campaigns/rollup": ("get", "/campaigns/rollup", {}),
+    "GET /campaigns/{campaign_id}": ("get", "/campaigns/999999", {}),
+    "POST /campaigns/{campaign_id}/items/{item_id}/disposition": (
+        "post",
+        "/campaigns/999999/items/999999/disposition",
+        {"json": {"disposition": "certify"}},
+    ),
+    "POST /campaigns/{campaign_id}/close": (
+        "post",
+        "/campaigns/999999/close",
+        {},
+    ),
+    "GET /export.csv": ("get", "/export.csv", {}),
+    "GET /export.json": ("get", "/export.json", {}),
+    "GET /report.html": ("get", "/report.html", {}),
+    "GET /campaigns/{campaign_id}/evidence": (
+        "get",
+        "/campaigns/999999/evidence",
+        {},
+    ),
 }
 
 
+def flatten_routes(routes: object) -> list[APIRoute]:
+    """The framework wraps included routers lazily, and iterating
+    app.routes alone silently sees none of their routes; this drift
+    test was vacuous for every governed route until the flattening
+    below was added. The count canary in the drift test keeps the next
+    framework change from making it vacuous again."""
+    out: list[APIRoute] = []
+    for route in routes:  # type: ignore[attr-defined]
+        if type(route).__name__ == "_IncludedRouter":
+            out.extend(flatten_routes(route.original_router.routes))
+        elif isinstance(route, APIRoute):
+            out.append(route)
+    return out
+
+
+def route_keys() -> set[str]:
+    return {
+        f"{method} {route.path}"
+        for route in flatten_routes(app.routes)
+        for method in route.methods - {"HEAD", "OPTIONS"}
+    }
+
+
 def test_every_route_is_governed_or_named_public() -> None:
-    for route in app.routes:
-        if not isinstance(route, APIRoute):
-            continue
-        for method in route.methods - {"HEAD", "OPTIONS"}:
-            key = f"{method} {route.path}"
-            assert key in ROUTE_ROLES or key in PUBLIC_ROUTES, (
-                f"route {key} is neither in ROUTE_ROLES nor PUBLIC_ROUTES"
-            )
+    keys = route_keys()
+    # The canary: if enumeration ever collapses again, this fails
+    # before the per-route loop silently passes on nothing.
+    assert len(keys) >= len(ROUTE_ROLES), (
+        "route enumeration sees fewer routes than the matrix governs; "
+        "the flattening no longer matches the framework"
+    )
+    for key in keys:
+        assert key in ROUTE_ROLES or key in PUBLIC_ROUTES, (
+            f"route {key} is neither in ROUTE_ROLES nor PUBLIC_ROUTES"
+        )
+    # Both directions: a matrix row whose route is gone is stale.
+    for key in set(ROUTE_ROLES) | set(PUBLIC_ROUTES):
+        assert key in keys, f"matrix or public row without a route: {key}"
+
+
+def test_routes_match_the_documented_enumeration() -> None:
+    """The architecture document states the route surface in a fenced
+    block, and this test holds the application to it, the
+    figures-verified doctrine applied to routes."""
+    import re
+    from pathlib import Path
+
+    text = Path(__file__).parent.parent.joinpath("ARCHITECTURE.md").read_text()
+    match = re.search(r"```routes\n(.*?)```", text, re.DOTALL)
+    assert match, "ARCHITECTURE.md no longer carries the ```routes block"
+    documented = {
+        line.strip() for line in match.group(1).splitlines() if line.strip()
+    }
+    assert documented == route_keys(), (
+        "the documented route enumeration disagrees with the "
+        f"application: only-documented={sorted(documented - route_keys())} "
+        f"only-live={sorted(route_keys() - documented)}"
+    )
 
 
 def test_every_matrix_row_has_a_call_plan() -> None:

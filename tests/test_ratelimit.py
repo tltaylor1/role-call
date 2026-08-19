@@ -95,3 +95,34 @@ def test_window_slides(monkeypatch: object) -> None:
         assert limiter.allowed("k")
     finally:
         rl.time.monotonic = real_monotonic  # type: ignore[assignment]
+
+
+def test_the_write_budget_bounds_heavy_writes(client, db) -> None:
+    """Imports and campaign creation carry a per-user budget (D-041):
+    thirty writes a minute admits any human pace and refuses a loop."""
+    from rolecall.ratelimit import WRITE_LIMITER
+    from rolecall.roles import Role
+    from tests.conftest import ROLE_USERS, auth_header, login, make_user
+
+    make_user(db, Role.operator)
+    token = login(client, ROLE_USERS[Role.operator])
+    key = f"write:{ROLE_USERS[Role.operator]}"
+    for _ in range(WRITE_LIMITER.max_failures):
+        WRITE_LIMITER.record_failure(key)
+    r = client.post(
+        "/campaigns",
+        headers=auth_header(token),
+        json={"name": "over budget", "scope": "everything",
+              "due_at": "2026-09-30T00:00:00+00:00"},
+    )
+    assert r.status_code == 429
+    assert "budget" in r.json()["detail"]
+    WRITE_LIMITER.clear()
+    r = client.post(
+        "/campaigns",
+        headers=auth_header(token),
+        json={"name": "within budget", "scope": "everything",
+              "due_at": "2026-09-30T00:00:00+00:00"},
+    )
+    # 422 not 429: the budget admits it, and the empty scope refuses it.
+    assert r.status_code == 422

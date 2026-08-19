@@ -152,6 +152,45 @@ report, the view, and the exports can never rank the same account three
 ways. The CSV and JSON exports carry the same fields with spreadsheet
 formula escaping applied to every cell that could carry one.
 
+## The route surface
+
+The complete surface, stated so it can be counted. A test asserts this
+block against the application's actual route table, so this list and
+the API cannot silently disagree; the health routes and the page shell
+are public, and every other route answers to the role matrix.
+
+```routes
+GET /
+GET /health
+GET /health/database
+POST /auth/login
+GET /auth/me
+POST /auth/logout
+GET /admin/users
+POST /admin/users
+POST /imports/credential-report
+POST /imports/authorization-details
+GET /imports
+GET /identities
+GET /identities/{identity_id}
+GET /groups
+POST /identities/{identity_id}/governance
+POST /groups/{group_id}/governance
+POST /identities/{identity_id}/attest
+POST /groups/{group_id}/attest
+DELETE /governance/{record_id}
+POST /campaigns
+GET /campaigns
+GET /campaigns/rollup
+GET /campaigns/{campaign_id}
+POST /campaigns/{campaign_id}/items/{item_id}/disposition
+POST /campaigns/{campaign_id}/close
+GET /export.csv
+GET /export.json
+GET /report.html
+GET /campaigns/{campaign_id}/evidence
+```
+
 ## Diagrams to draw
 
 Working sketches exist for five so far (the system context, the data

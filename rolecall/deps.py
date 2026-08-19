@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from rolecall.db import get_session
 from rolecall.models import AuthSession, User
+from rolecall.ratelimit import WRITE_LIMITER
 from rolecall.roles import ROUTE_ROLES
 from rolecall.security import hash_token
 
@@ -54,6 +55,22 @@ def _authenticate(
 
 
 CurrentAuth = Annotated[AuthContext, Depends(_authenticate)]
+
+
+def _throttle_writes(auth: CurrentAuth) -> AuthContext:
+    """The write budget (D-041): heavy authenticated writes are bounded
+    per user. 429 states the rule and repeats nothing the caller sent."""
+    key = f"write:{auth.user.username}"
+    if not WRITE_LIMITER.allowed(key):
+        raise HTTPException(
+            status_code=429,
+            detail="write budget exceeded; wait a minute and continue",
+        )
+    WRITE_LIMITER.record_failure(key)
+    return auth
+
+
+ThrottledWrite = Annotated[AuthContext, Depends(_throttle_writes)]
 
 
 def require_roles(route_key: str) -> params.Depends:

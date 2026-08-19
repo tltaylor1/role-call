@@ -127,6 +127,24 @@ manufactured entry would defeat the reason this file exists.
   false teach the eye to skip the alarm, and a gate nobody believes is
   not a gate.
 
+- **The route drift test had gone silently vacuous.** A framework
+  update began wrapping included routers lazily, and the test that
+  asserts every route is governed or named public was iterating a
+  collection that no longer contained them: it was checking three
+  routes and passing. Nothing failed, which is the danger; the gate
+  reported green while guarding nothing. Found while extending the
+  test to compare against the documented route enumeration, fixed by
+  flattening the wrapped routers, and now held by a count canary that
+  fails loudly if enumeration ever collapses again. A test must assert
+  what it can see before asserting what it sees is right.
+- **The mutation check earned its keep on its first run.** Seven
+  controls were each broken deliberately to prove the suite notices;
+  six failed as claimed and one survived: with token hashing broken to
+  a constant, every fabricated token matched whatever session existed,
+  and no test noticed, because every test presented either a real
+  token or none. The missing test now exists, and the check that found
+  the gap runs in the pipeline.
+
 Each entry changed a rule, a checklist, or a design, which is the point:
 the catches compound, the mistakes do not. This last one changed the
 attribution itself, and its lesson is the whole file's thesis turned on
