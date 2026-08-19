@@ -157,6 +157,20 @@ manufactured entry would defeat the reason this file exists.
   executed is not yet a procedure, and the claim of
   verification is itself a figure that needs verifying.
 
+- **The agent's own tooling broke its own promise on its first run.**
+  The script that pushes branches under the agent's identity carried a
+  comment saying tokens are never written to disk, and its first
+  execution wrote the token into the local branch configuration,
+  because the push used the upstream-setting flag and the upstream URL
+  contained the credential. Caught by reading the push output rather
+  than trusting the comment; the token was scrubbed from the local
+  file, revoked at the provider even though it had under an hour to
+  live, and the script now pushes without setting an upstream from
+  that URL. Nothing reached the repository: the file involved is
+  git's local configuration, which no commit carries. The lesson is
+  the runbook lesson again, one layer down: a comment describing
+  behavior is a claim, and only the first run verifies it.
+
 Each entry changed a rule, a checklist, or a design, which is the point:
 the catches compound, the mistakes do not. This last one changed the
 attribution itself, and its lesson is the whole file's thesis turned on
