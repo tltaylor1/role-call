@@ -771,7 +771,7 @@ alarm (D-037).
 The weekly clock exists for the scanners whose subject changes while
 the code does not: a fix shipping for the base image or a new
 advisory against a pinned dependency is found on schedule instead of
-waiting to fail whichever pull request comes next.
+waiting to fail whichever pull request comes next (D-043).
 
 Eight of these checks are required by the branch ruleset, so there is
 no path to main around them; the ruleset also requires pull requests
