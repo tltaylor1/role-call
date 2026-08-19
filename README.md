@@ -39,7 +39,7 @@ decided it.
 - [Compliance traceability](#compliance-traceability)
 - [Threat model](#threat-model)
 - [The container is part of the attack surface](#the-container-is-part-of-the-attack-surface)
-- [Roadmap](#roadmap)
+- [Where the application goes](#where-the-application-goes)
 - [Out of scope](#out-of-scope)
 - [How it is built](#how-it-is-built)
 - [What done means here](#what-done-means-here)
@@ -64,7 +64,7 @@ a review-gated order fixed before any code
 
 **Phase 1 of 8 is complete, subphases 12 of 12 built** and merged,
 in a review-gated order fixed before any code
-([the plan](#how-phase-1-was-built-the-plan-fixed-before-code)).
+([the plan](#how-the-application-was-built-the-plan-fixed-before-code)).
 A fresh clone with Docker starts the stack, migrates the schema,
 serves sign-in with three roles behind a tested authorization matrix,
 imports identity snapshots append-only, derives the inventory with its
@@ -1066,7 +1066,7 @@ Recorded so each absence is a decision rather than an oversight.
 ## How it is built
 
 The build is review-gated on purpose: the
-[plan above](#how-phase-1-was-built-the-plan-fixed-before-code) fixed
+[plan above](#how-the-application-was-built-the-plan-fixed-before-code) fixed
 the subphases and their order before any code, every change lands
 through a pull request whose checks include the writing rules and the
 status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the record of
