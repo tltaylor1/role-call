@@ -1,6 +1,11 @@
 # Local development stack. Both images are digest-pinned. No credential
 # lives in this file: the database password comes from .env, which git
 # ignores; .env.example documents the shape.
+#
+# Least privilege applies to the container boundary, not only to code
+# (D-042). Both services run with a read-only root filesystem, no
+# capability escalation, and bounded memory and processor use; every
+# claim is verifiable by command, and the commands are in the README.
 services:
   db:
     image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
@@ -13,11 +18,25 @@ services:
       interval: 2s
       timeout: 2s
       retries: 15
-    ports:
-      # Loopback only: migration authoring runs Alembic from the host.
-      - "127.0.0.1:5432:5432"
+    # No published port: only the app container can reach the database.
+    # Migration authoring from the host attaches with
+    # `docker compose exec db psql` or a temporary override; a standing
+    # listener is a standing surface.
     volumes:
       - dbdata:/var/lib/postgresql/data
+    # The postgres entrypoint drops to its own user but needs these
+    # five to take ownership of a fresh data volume and get there;
+    # everything else is dropped.
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID, FOWNER, DAC_OVERRIDE]
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    mem_limit: 512m
+    cpus: 1.0
 
   app:
     build: .
@@ -30,6 +49,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Serving HTTP as an unprivileged user needs no capability at all,
+    # no writable code path, and no privilege escalation route. /tmp is
+    # memory, so nothing an attacker writes survives a restart.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    mem_limit: 512m
+    cpus: 1.0
 
 volumes:
   dbdata:
