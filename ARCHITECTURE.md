@@ -193,9 +193,9 @@ GET /campaigns/{campaign_id}/evidence
 
 ## Diagrams to draw
 
-Working sketches exist for five so far (the system context, the data
-flow, the trust ladder, the phase journey, and the subphase cycle), as sketch-suffixed files in the diagrams
-directory, with the rest sketched as the design work needs them. The
+Working sketches exist for six so far (the system context, the data
+flow, the trust ladder, the phase journey, the subphase cycle, and
+the pipeline), as sketch-suffixed files in the diagrams directory, with the rest sketched as the design work needs them. The
 finished diagrams below are all still to be drawn by hand, and they
 replace the sketches as they complete.
 

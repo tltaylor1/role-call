@@ -874,3 +874,29 @@ nothing an attacker writes to the application container survives a
 restart. Every claim in this decision is verifiable by command against
 the running stack, and the commands are printed in the README, because
 a hardening claim without its probe is a hope with a straight face.
+
+## D-043: The pipeline runs on a clock as well as on change
+
+The checks workflow gains a weekly scheduled run beside its pull
+request and merge triggers. The reason is that two of its gates judge
+subjects that move while the code sits still: the base image scan
+watches for fixes shipping against the pinned digest, and the
+dependency audits watch for new advisories against pinned trees. A
+pipeline that runs only on change discovers those the next time
+someone proposes an unrelated pull request, which is late, and that
+pull request then fails on findings it did not cause, which is the
+alarm blaming the wrong thing.
+
+A scheduled failure lands on the main branch's workflow view, blocking
+nobody, and its remedy is the same as always: a pull request moving
+the digest or the pin, which the gate then judges. The schedule sits
+on Tuesday, offset from the Monday runs of the analysis and scorecard
+workflows, so one bad platform morning cannot blank every signal at
+once.
+
+The rejected alternative was leaving discovery to pull request
+cadence, which had been the quiet status quo. It worked while
+subphases landed daily; with Phase 1 closed and the pace now set by
+review rather than construction, quiet weeks become normal, and a
+watcher that only watches when someone happens to knock is not a
+watcher.

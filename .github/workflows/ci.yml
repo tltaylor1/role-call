@@ -12,6 +12,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  # The weekly run exists for the scanners whose subject changes while
+  # the code does not: a critical fix shipping for the base image, or a
+  # new advisory against a pinned dependency, gets found on a clock
+  # instead of waiting for the next pull request to take the blame.
+  schedule:
+    - cron: "37 9 * * 2"
 
 # A branch push and its pull request used to run this twice, which
 # doubled the exposure to a network blip on a tool download and taught
