@@ -88,6 +88,7 @@ refer to [THREAT-MODEL.md](THREAT-MODEL.md).
 | The evidence export states population, coverage, and every decision with actor and time | 8 | tests/test_reports.py |
 | A per-user write budget on imports and campaign creation; keep-alive bounded in the serve command (D-041) | 9 | tests/test_ratelimit.py |
 | The documented route surface asserted against the live route table, in both directions | 2 | tests/test_matrix.py |
+| Read-only root filesystems, dropped capabilities, no privilege escalation, bounded resources, and no host-published database port (D-042) | 1, 9 | verifiable by the commands in the README, run against the live stack at adoption |
 
 ## Controls still planned
 

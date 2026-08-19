@@ -849,3 +849,28 @@ canary so the next framework change fails loudly instead of passing
 silently, and the incident is the strongest argument this subphase
 will make for asserting what a test actually sees.
 <!-- vale BuildGuidelines.Audience = YES -->
+
+## D-042: Least privilege at the container boundary, verifiable by command
+
+The compose stack now runs both services with a read-only root
+filesystem, no privilege escalation route, dropped capabilities, and
+bounded memory and processor use, and the database publishes no host
+port at all: only the application container can reach it. Migration
+authoring against the real database attaches through the compose
+runtime when it needs to, because a standing listener for an
+occasional task is a standing surface for everything else.
+
+The application container drops every capability, since serving HTTP
+as an unprivileged user needs none. The database container drops
+everything and adds back the five its entrypoint genuinely uses to
+take ownership of a fresh data volume and step down to its own user:
+change ownership, set user and group, file owner operations, and the
+discretionary access override that lets it traverse the volume before
+owning it. That list was found by dropping everything and reading the
+failure, which is the honest way to learn what a process needs.
+
+Temporary filesystems back the paths that must accept writes, so
+nothing an attacker writes to the application container survives a
+restart. Every claim in this decision is verifiable by command against
+the running stack, and the commands are printed in the README, because
+a hardening claim without its probe is a hope with a straight face.
