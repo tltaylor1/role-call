@@ -5,8 +5,9 @@ ignorecase: true
 tokens:
   # Words that only appear when writing about who is judging the work. "candidate"
   # is excluded deliberately: "a candidate for automation" is a legitimate use,
-  # and the job sense is caught by the surrounding terms below.
-  - 'reviewers?'
+  # and the job sense is caught by the surrounding terms below. "reviewer" came
+  # off the list once the product itself gained a reviewer role and review
+  # campaigns; the remaining terms still have no legitimate product sense.
   - 'hiring'
   - 'recruiters?'
   - 'interviewers?'

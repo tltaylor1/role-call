@@ -256,11 +256,6 @@ service), which the runbook states as a deployment requirement rather
 than assuming. If a future field ever carries a secret, this decision is
 revisited before that field exists.
 
-<!-- vale BuildGuidelines.Audience = NO -->
-<!-- Scoped exception: "reviewer" below names the product's user, the
-     person who performs an access review, which is the standard term in
-     every framework this work follows. It does not describe this
-     document's audience, which is what the rule exists to prevent. -->
 ## D-021: Version one gains the review campaign, shaped by the reviewer
 
 The published codifications of this work (PCI DSS 4.0 requirements 7.2.4
@@ -298,8 +293,6 @@ This decision also names the method it came from: the design phase takes
 the reviewer's and the auditor's itemized needs as first-class inputs
 beside the threat model, user first and security first together, and the
 framework references run in both directions through the README's compliance section.
-<!-- vale BuildGuidelines.Audience = YES -->
-
 ## D-022: Ruff is the linter, and commented-out code is a finding
 
 Ruff was vetted at build time as subphase 1.1 planned: one binary, no
@@ -737,20 +730,10 @@ fields are three fields of typos. One typed field now, and the split
 becomes worth revisiting when an integration arrives that can validate
 at least one of them.
 
-<!-- vale BuildGuidelines.Audience = NO -->
-<!-- Scoped exception: "reviewer" below names the product's role, the
-     person who performs an access review inside the application. It
-     does not describe this document's audience. -->
 Attestation is open to all three roles, while owner, purpose, and flag
 writes stay with the operator and administrator, because stating "I
 looked at this and it is still needed" is exactly the reviewer's act,
 and changing who answers for an identity is not.
-<!-- vale BuildGuidelines.Audience = YES -->
-
-<!-- vale BuildGuidelines.Audience = NO -->
-<!-- Scoped exception: "reviewer" below names the product's role, the
-     person performing the access review inside the application. It
-     does not describe this document's audience. -->
 ## D-039: The campaign freezes its population, and nobody certifies in bulk
 
 A review campaign resolves its scope into items once, at creation,
@@ -848,8 +831,6 @@ three routes and passing. The flattened enumeration carries a count
 canary so the next framework change fails loudly instead of passing
 silently, and the incident is the strongest argument this subphase
 will make for asserting what a test actually sees.
-<!-- vale BuildGuidelines.Audience = YES -->
-
 ## D-042: Least privilege at the container boundary, verifiable by command
 
 The compose stack now runs both services with a read-only root

@@ -51,6 +51,8 @@ decided it.
 
 ## Status
 
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tltaylor1/role-call/badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
+
 **Phase 1 of 8 is complete, subphases 12 of 12 built** and merged,
 in a review-gated order fixed before any code
 ([the plan](#how-phase-1-was-built-the-plan-fixed-before-code)).
@@ -335,11 +337,6 @@ own threat model revision first.
 
 -------------------------------------------------------------------------------
 
-<!-- vale BuildGuidelines.Audience = NO -->
-<!-- Scoped exception: "reviewer" below names the product's role, the
-     person who performs an access review inside the application. It
-     does not describe this document's audience. -->
-
 ## Using the app
 
 Four people, and the design answers their questions in their order.
@@ -468,8 +465,6 @@ that ever ran in the page could read it; the accepted cost is that a
 refresh signs you out. The content policy forbids inline script and
 style, and the page needs neither.
 
-<!-- vale BuildGuidelines.Audience = YES -->
-
 -------------------------------------------------------------------------------
 
 ## What version one does
@@ -556,12 +551,10 @@ users, audit_events
   flag, or an attestation, on an identity or a group (D-019),
   attributed and audited, stored rather than derived because it IS the
   human input.
-<!-- vale BuildGuidelines.Audience = NO -->
 - A **review campaign** scopes a set of identities and groups to a set
   of reviewers with a due date (D-021); its items hold each
   disposition, including insufficient evidence, and the campaign
   closes into an evidence export.
-<!-- vale BuildGuidelines.Audience = YES -->
 - Everything shown about an identity's state, current, stale, unused,
   unowned, over-privileged, is derived by the engine from observations
   plus governance records at read time. No status column exists
@@ -678,12 +671,6 @@ fresh rather than committing it is in
 
 -------------------------------------------------------------------------------
 
-<!-- vale BuildGuidelines.Audience = NO -->
-<!-- Scoped exception: "reviewer" below names the product's user, the
-     person who performs an access review, which is the standard term in
-     every framework this work follows. It does not describe this
-     document's audience. -->
-
 ## Compliance traceability
 
 The published frameworks that codify what this tool does, mapped in
@@ -712,8 +699,6 @@ edition before anything claims conformance.
 | D-016 immutable identifier keying | OWASP NHI reuse risk: a recreated principal must not inherit standing |
 | D-019 identities act, sources grant, both governed | ISO 5.18 and universal access review practice certify group memberships, so the group must hold owners and attestations |
 | D-021 the review campaign scope | PCI 7.2.4 and 7.2.5, ISO 5.18, AC-2, and audit practice all define the periodic, evidenced review as the unit of governance |
-<!-- vale BuildGuidelines.Audience = YES -->
-
 -------------------------------------------------------------------------------
 
 ## Threat model
@@ -1047,7 +1032,11 @@ in the repository's code scanning view.
 **scorecard** runs on main and weekly, rating this repository's own
 security posture from outside, and publishes the score to the public
 scorecard service where it can be read without trusting this
-repository's word. Its findings deliberately stay out of code
+repository's word; the badge at the top of this document is served
+live from that service, so the displayed score cannot drift from the
+published one. The checks scoring zero are recorded choices or
+structural facts: no second person reviewing changes (D-028),
+repository age, and fuzzing not yet adopted. Its findings deliberately stay out of code
 scanning: several are recorded accepted risks no pull request can
 fix, and an alarm that is always red teaches the eye to skip the
 alarm (D-037).
