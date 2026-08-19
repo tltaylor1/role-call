@@ -900,3 +900,25 @@ subphases landed daily; with Phase 1 closed and the pace now set by
 review rather than construction, quiet weeks become normal, and a
 watcher that only watches when someone happens to knock is not a
 watcher.
+
+## D-044: Commits are signed, and the repository grades itself
+
+Two changes from one question: would this application pass the
+provenance bar it applies to its own dependencies. It would not, and
+the honest response is to fix what is cheap and record what is not.
+
+Commit signing starts now. Commits are signed with a dedicated SSH
+key, registered with the hosting account as a signing key, so
+authorship stops resting on account control alone. The key carries no
+passphrase, a deliberate trade: a signing key on a controlled
+workstation that prompts on every commit gets worked around, and a
+control that gets worked around protects nothing. History before this
+decision stays unsigned, because rewriting published history to
+backfill signatures would destroy the very record the signatures
+exist to protect; the boundary is stated instead of hidden.
+
+The rest of the self-assessment lives in SECURITY.md as its own
+section, because a repository that demands canonical sources, pinned
+artifacts, and verifiable claims from every dependency owes its
+readers the same examination of itself: what passes, what fails, and
+why each failure is accepted or scheduled rather than denied.
