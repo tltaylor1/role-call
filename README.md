@@ -24,7 +24,7 @@ decided it.
 
 - [Status](#status)
 - [Setup and run](#setup-and-run)
-- [Operating it](#operating-it)
+- [Backup, restore, and retention](#backup-restore-and-retention)
 - [The gates a request passes](#the-gates-a-request-passes)
 - [Using the app](#using-the-app)
 - [What version one does](#what-version-one-does)
@@ -112,10 +112,11 @@ and start clean. Backup, restore, and retention are in
 
 -------------------------------------------------------------------------------
 
-## Operating it
+## Backup, restore, and retention
 
-Each procedure below was run against a live stack before it was
-written down.
+The care of a running instance, as distinct from using it: each
+procedure below was run against a live stack before it was written
+down.
 
 **Backup.** The database is the only state; the containers hold
 nothing worth keeping. One command produces a dated, compressed dump:
