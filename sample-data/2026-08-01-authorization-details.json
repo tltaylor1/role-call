@@ -1,0 +1,347 @@
+{
+  "UserDetailList": [
+    {
+      "UserName": "ops-console",
+      "UserId": "AIDASAMPLEOPSCONSOLE",
+      "Arn": "arn:aws:iam::555555555555:user/ops-console",
+      "CreateDate": "2024-02-01T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "platform-team"
+        }
+      ]
+    },
+    {
+      "UserName": "legacy-backup",
+      "UserId": "AIDASAMPLELEGACYBACK",
+      "Arn": "arn:aws:iam::555555555555:user/legacy-backup",
+      "CreateDate": "2021-04-05T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "storage-team"
+        }
+      ]
+    },
+    {
+      "UserName": "ci-deployer",
+      "UserId": "AIDASAMPLECIDEPLOYER",
+      "Arn": "arn:aws:iam::555555555555:user/ci-deployer",
+      "CreateDate": "2023-01-15T00:00:00+00:00",
+      "GroupList": [
+        "automation"
+      ],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "platform-team"
+        }
+      ]
+    },
+    {
+      "UserName": "vendor-sync",
+      "UserId": "AIDASAMPLEVENDORSYNC",
+      "Arn": "arn:aws:iam::555555555555:user/vendor-sync",
+      "CreateDate": "2022-09-09T00:00:00+00:00",
+      "GroupList": [
+        "automation"
+      ],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [],
+      "Tags": []
+    },
+    {
+      "UserName": "data-pipeline",
+      "UserId": "AIDASAMPLEDATAPIPELI",
+      "Arn": "arn:aws:iam::555555555555:user/data-pipeline",
+      "CreateDate": "2023-06-01T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [
+        {
+          "PolicyName": "pipeline-runner",
+          "PolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Action%22%3A%20%5B%22iam%3APassRole%22%2C%20%22ec2%3ARunInstances%22%5D%2C%20%22Resource%22%3A%20%22%2A%22%7D%5D%7D"
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "data-team"
+        }
+      ]
+    },
+    {
+      "UserName": "report-reader",
+      "UserId": "AIDASAMPLEREPORTREAD",
+      "Arn": "arn:aws:iam::555555555555:user/report-reader",
+      "CreateDate": "2025-02-02T00:00:00+00:00",
+      "GroupList": [
+        "readers"
+      ],
+      "AttachedManagedPolicies": [
+        {
+          "PolicyName": "AmazonS3ReadOnlyAccess",
+          "PolicyArn": "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+        }
+      ],
+      "UserPolicyList": [],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "finance"
+        }
+      ]
+    },
+    {
+      "UserName": "cert-holder",
+      "UserId": "AIDASAMPLECERTHOLDER",
+      "Arn": "arn:aws:iam::555555555555:user/cert-holder",
+      "CreateDate": "2020-08-08T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "integrations"
+        }
+      ]
+    },
+    {
+      "UserName": "iam-helper",
+      "UserId": "AIDASAMPLEIAMHELPER0",
+      "Arn": "arn:aws:iam::555555555555:user/iam-helper",
+      "CreateDate": "2024-11-01T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [
+        {
+          "PolicyName": "user-tidier",
+          "PolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Action%22%3A%20%5B%22iam%3AUpdateUser%22%2C%20%22iam%3ATagUser%22%5D%2C%20%22Resource%22%3A%20%22arn%3Aaws%3Aiam%3A%3A555555555555%3Auser/%2A%22%7D%5D%7D"
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "platform-team"
+        }
+      ]
+    },
+    {
+      "UserName": "wide-writer",
+      "UserId": "AIDASAMPLEWIDEWRITER",
+      "Arn": "arn:aws:iam::555555555555:user/wide-writer",
+      "CreateDate": "2024-05-05T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [
+        {
+          "PolicyName": "bucket-owner",
+          "PolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Action%22%3A%20%22s3%3A%2A%22%2C%20%22Resource%22%3A%20%22%2A%22%7D%5D%7D"
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "data-team"
+        }
+      ]
+    },
+    {
+      "UserName": "except-all",
+      "UserId": "AIDASAMPLEEXCEPTALL0",
+      "Arn": "arn:aws:iam::555555555555:user/except-all",
+      "CreateDate": "2025-07-07T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [
+        {
+          "PolicyName": "almost-everything",
+          "PolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22NotAction%22%3A%20%22iam%3A%2A%22%2C%20%22Resource%22%3A%20%22%2A%22%7D%5D%7D"
+        }
+      ],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "platform-team"
+        }
+      ]
+    },
+    {
+      "UserName": "new-joiner",
+      "UserId": "AIDASAMPLENEWJOINER0",
+      "Arn": "arn:aws:iam::555555555555:user/new-joiner",
+      "CreateDate": "2026-07-10T00:00:00+00:00",
+      "GroupList": [
+        "automation"
+      ],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "platform-team"
+        }
+      ]
+    },
+    {
+      "UserName": "phoenix",
+      "UserId": "AIDASAMPLEPHOENIXNEW",
+      "Arn": "arn:aws:iam::555555555555:user/phoenix",
+      "CreateDate": "2026-07-20T00:00:00+00:00",
+      "GroupList": [],
+      "AttachedManagedPolicies": [],
+      "UserPolicyList": [],
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "platform-team"
+        }
+      ]
+    }
+  ],
+  "RoleDetailList": [
+    {
+      "RoleName": "app-runtime",
+      "RoleId": "AROASAMPLEAPPRUNTIME",
+      "Arn": "arn:aws:iam::555555555555:role/app-runtime",
+      "CreateDate": "2024-01-01T00:00:00+00:00",
+      "AssumeRolePolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Principal%22%3A%20%7B%22Service%22%3A%20%22ec2.amazonaws.com%22%7D%2C%20%22Action%22%3A%20%22sts%3AAssumeRole%22%7D%5D%7D",
+      "AttachedManagedPolicies": [
+        {
+          "PolicyName": "AmazonS3ReadOnlyAccess",
+          "PolicyArn": "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+        }
+      ],
+      "RolePolicyList": [],
+      "RoleLastUsed": {
+        "LastUsedDate": "2026-07-30T00:00:00+00:00",
+        "Region": "us-west-2"
+      },
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "platform-team"
+        }
+      ]
+    },
+    {
+      "RoleName": "partner-legacy",
+      "RoleId": "AROASAMPLEPARTNERLEG",
+      "Arn": "arn:aws:iam::555555555555:role/partner-legacy",
+      "CreateDate": "2019-06-01T00:00:00+00:00",
+      "AssumeRolePolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Principal%22%3A%20%22%2A%22%2C%20%22Action%22%3A%20%22sts%3AAssumeRole%22%7D%5D%7D",
+      "AttachedManagedPolicies": [],
+      "RolePolicyList": [],
+      "RoleLastUsed": {},
+      "Tags": []
+    },
+    {
+      "RoleName": "partner-open",
+      "RoleId": "AROASAMPLEPARTNEROPE",
+      "Arn": "arn:aws:iam::555555555555:role/partner-open",
+      "CreateDate": "2023-03-01T00:00:00+00:00",
+      "AssumeRolePolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Principal%22%3A%20%7B%22AWS%22%3A%20%22arn%3Aaws%3Aiam%3A%3A999999999999%3Aroot%22%7D%2C%20%22Action%22%3A%20%22sts%3AAssumeRole%22%7D%5D%7D",
+      "AttachedManagedPolicies": [],
+      "RolePolicyList": [],
+      "RoleLastUsed": {},
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "partnerships"
+        }
+      ]
+    },
+    {
+      "RoleName": "vendor-audit",
+      "RoleId": "AROASAMPLEVENDORAUDI",
+      "Arn": "arn:aws:iam::555555555555:role/vendor-audit",
+      "CreateDate": "2024-03-01T00:00:00+00:00",
+      "AssumeRolePolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Principal%22%3A%20%7B%22AWS%22%3A%20%22arn%3Aaws%3Aiam%3A%3A999999999999%3Aroot%22%7D%2C%20%22Action%22%3A%20%22sts%3AAssumeRole%22%2C%20%22Condition%22%3A%20%7B%22StringEquals%22%3A%20%7B%22sts%3AExternalId%22%3A%20%22a-shared-value%22%7D%7D%7D%5D%7D",
+      "AttachedManagedPolicies": [],
+      "RolePolicyList": [],
+      "RoleLastUsed": {
+        "LastUsedDate": "2026-07-15T00:00:00+00:00",
+        "Region": "us-west-2"
+      },
+      "Tags": [
+        {
+          "Key": "owner",
+          "Value": "security"
+        }
+      ]
+    }
+  ],
+  "GroupDetailList": [
+    {
+      "GroupName": "automation",
+      "GroupId": "AGPASAMPLEAUTOMATION",
+      "Arn": "arn:aws:iam::555555555555:group/automation",
+      "AttachedManagedPolicies": [
+        {
+          "PolicyName": "AdministratorAccess",
+          "PolicyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
+        }
+      ],
+      "GroupPolicyList": []
+    },
+    {
+      "GroupName": "break-glass",
+      "GroupId": "AGPASAMPLEBREAKGLASS",
+      "Arn": "arn:aws:iam::555555555555:group/break-glass",
+      "AttachedManagedPolicies": [],
+      "GroupPolicyList": [
+        {
+          "PolicyName": "emergency-access",
+          "PolicyDocument": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Action%22%3A%20%22%2A%22%2C%20%22Resource%22%3A%20%22%2A%22%7D%5D%7D"
+        }
+      ]
+    },
+    {
+      "GroupName": "readers",
+      "GroupId": "AGPASAMPLEREADERS000",
+      "Arn": "arn:aws:iam::555555555555:group/readers",
+      "AttachedManagedPolicies": [
+        {
+          "PolicyName": "AmazonS3ReadOnlyAccess",
+          "PolicyArn": "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+        }
+      ],
+      "GroupPolicyList": []
+    }
+  ],
+  "Policies": [
+    {
+      "PolicyName": "AdministratorAccess",
+      "Arn": "arn:aws:iam::aws:policy/AdministratorAccess",
+      "PolicyVersionList": [
+        {
+          "IsDefaultVersion": true,
+          "Document": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Action%22%3A%20%22%2A%22%2C%20%22Resource%22%3A%20%22%2A%22%7D%5D%7D",
+          "VersionId": "v1"
+        }
+      ]
+    },
+    {
+      "PolicyName": "AmazonS3ReadOnlyAccess",
+      "Arn": "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
+      "PolicyVersionList": [
+        {
+          "IsDefaultVersion": true,
+          "Document": "%7B%22Version%22%3A%20%222012-10-17%22%2C%20%22Statement%22%3A%20%5B%7B%22Effect%22%3A%20%22Allow%22%2C%20%22Action%22%3A%20%5B%22s3%3AGet%2A%22%2C%20%22s3%3AList%2A%22%5D%2C%20%22Resource%22%3A%20%22%2A%22%7D%5D%7D",
+          "VersionId": "v1"
+        }
+      ]
+    }
+  ],
+  "IsTruncated": false
+}
