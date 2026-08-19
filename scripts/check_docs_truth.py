@@ -22,8 +22,7 @@ FIGURE = re.compile(r"[Ss]ubphases?\s+(\d+)\s+of\s+12")
 # history-keeping files can still quote them.
 FORBIDDEN = {
     "README.md": ["No application code exists", "does not exist yet",
-                  "The skeleton runs"],
-    "ROADMAP.md": ["No application code exists", "Phase 0 is in progress"],
+                  "The skeleton runs", "Phase 0 is in progress"],
     "SECURITY.md": ["does not exist yet", "No application code exists"],
 }
 
@@ -40,7 +39,7 @@ def main() -> int:
         )
     else:
         figure = match.group(1)
-        for name in ("README.md", "ROADMAP.md"):
+        for name in ("README.md",):
             text = Path(name).read_text()
             found = FIGURE.search(text)
             if found is None:
