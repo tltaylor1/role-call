@@ -1,0 +1,6 @@
+# The application's namespace. Pod Security Standards labels arrive in
+# subphase 2.4 with the rest of the admission story.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rolecall
