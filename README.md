@@ -731,13 +731,53 @@ status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the record of
 what the coding agent got wrong along the way, because that record is
 the point.
 
-The pipeline runs the suite with the coverage floor, strict typing,
-the mutation check, secret scanning in three layers, dependency audits
-against the hash-pinned trees, static analysis, workflow lint and
-audit, container lint, the base image scan, and link and writing
-checks across these documents. Each tool was vetted at adoption and
-recorded as a decision, and two of them found real defects here before
-they were merged.
+### The pipeline, explained
+
+Three workflows run the gates, and the diagram shows where each result
+lands:
+
+![The pipeline: triggers, the three workflows, the merge gate, and the delivered artifacts](diagrams/pipeline-gates-sketch.svg)
+
+**checks** runs on every pull request, on the merge to main, and
+weekly on a clock. Six jobs: `secrets` sweeps the full history with
+TruffleHog with verification on, so a found credential is tested
+against its provider to learn whether it is live; `writing` holds
+these documents to the writing rules and runs the docs-truth and
+digest-parity gates, so a stale status claim or a drifted image pin
+blocks the merge; `workflows` lints and security-audits the workflow
+files themselves, because a mistake in the files that gate everything
+else is the most expensive kind; `links` walks every cross-reference
+offline, fragments included; `application` runs the linter, strict
+typing, the 128 tests under the coverage floor, the mutation check,
+the migrations against a real PostgreSQL with drift detection, the
+dependency audits, and generates the software bill of materials as
+the run's artifact; and `container` lints the Dockerfile and scans
+the base image. Every tool the pipeline downloads is fetched from its
+canonical release and checksum-verified before it runs, so the
+pipeline's own supply chain meets the same bar as the application's.
+
+**codeql** runs deep static analysis over the Python and the workflow
+files, on every pull request, on main, and weekly; its findings land
+in the repository's code scanning view.
+
+**scorecard** runs on main and weekly, rating this repository's own
+security posture from outside, and publishes the score to the public
+scorecard service where it can be read without trusting this
+repository's word. Its findings deliberately stay out of code
+scanning: several are recorded accepted risks no pull request can
+fix, and an alarm that is always red teaches the eye to skip the
+alarm (D-037).
+
+The weekly clock exists for the scanners whose subject changes while
+the code does not: a fix shipping for the base image or a new
+advisory against a pinned dependency is found on schedule instead of
+waiting to fail whichever pull request comes next.
+
+Eight of these checks are required by the branch ruleset, so there is
+no path to main around them; the ruleset also requires pull requests
+and plain merge commits and blocks force pushes and deletion. Each
+tool was vetted at adoption and recorded as a decision, and two of
+them found real defects here before they were merged.
 
 Dependencies are the part of the codebase nobody here wrote, so each
 one was checked against its canonical source before adoption, and

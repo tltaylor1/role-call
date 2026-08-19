@@ -1,0 +1,74 @@
+<svg viewBox="0 0 920 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="the pipeline workflows and their gates, working sketch">
+  <!-- Working sketch under the diagram doctrine. Self-contained: system fonts, no external references. -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#57606a"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#b04f2e"/>
+    </marker>
+  </defs>
+
+  <rect width="920" height="440" fill="#f6f5f2"/>
+
+  <text x="40" y="36" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.5" fill="#57606a">THE PIPELINE, WORKING SKETCH</text>
+
+  <!-- triggers, attached to one rail -->
+  <rect x="40" y="90" width="130" height="44" rx="6" fill="rgba(87,96,106,0.08)" stroke="#8a939e"/>
+  <text x="105" y="109" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Pull request</text>
+  <text x="105" y="124" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">every change</text>
+
+  <rect x="40" y="190" width="130" height="44" rx="6" fill="rgba(87,96,106,0.08)" stroke="#8a939e"/>
+  <text x="105" y="209" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Merge to main</text>
+  <text x="105" y="224" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">the review receipt</text>
+
+  <rect x="40" y="290" width="130" height="44" rx="6" fill="rgba(87,96,106,0.08)" stroke="#8a939e"/>
+  <text x="105" y="309" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">Weekly clock</text>
+  <text x="105" y="324" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">for what changes while code does not</text>
+
+  <line x1="170" y1="112" x2="210" y2="112" stroke="#8a939e" stroke-width="1.5"/>
+  <line x1="170" y1="212" x2="210" y2="212" stroke="#8a939e" stroke-width="1.5"/>
+  <line x1="170" y1="312" x2="210" y2="312" stroke="#8a939e" stroke-width="1.5"/>
+  <line x1="210" y1="112" x2="210" y2="312" stroke="#8a939e" stroke-width="1.5"/>
+
+  <!-- workflows -->
+  <line x1="210" y1="128" x2="300" y2="128" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="300" y="86" width="240" height="84" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="420" y="110" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">checks</text>
+  <text x="420" y="127" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">secrets, writing, workflows, links,</text>
+  <text x="420" y="141" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">application, container</text>
+  <text x="420" y="157" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">six jobs, every tool checksum verified</text>
+
+  <line x1="210" y1="212" x2="300" y2="212" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="300" y="190" width="240" height="60" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="420" y="214" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">codeql</text>
+  <text x="420" y="231" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">deep static analysis, python and actions</text>
+
+  <line x1="210" y1="312" x2="300" y2="312" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="300" y="284" width="240" height="66" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="420" y="308" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">scorecard</text>
+  <text x="420" y="324" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">external posture rating,</text>
+  <text x="420" y="338" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">main and the clock only</text>
+
+  <!-- outputs -->
+  <line x1="540" y1="118" x2="640" y2="150" stroke="#b04f2e" stroke-width="1.5" marker-end="url(#arrow-accent)"/>
+  <line x1="540" y1="220" x2="640" y2="180" stroke="#b04f2e" stroke-width="1.5" marker-end="url(#arrow-accent)"/>
+
+  <!-- focal node: the one place everything must pass -->
+  <rect x="644" y="130" width="236" height="70" rx="6" fill="rgba(176,79,46,0.06)" stroke="#b04f2e"/>
+  <text x="762" y="156" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">The merge gate</text>
+  <text x="762" y="172" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">eight required checks,</text>
+  <text x="762" y="186" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">no path to main around them</text>
+
+  <line x1="540" y1="150" x2="640" y2="248" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="644" y="226" width="236" height="56" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="762" y="248" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">sbom artifact</text>
+  <text x="762" y="264" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">the dependency inventory, fresh per run</text>
+
+  <line x1="540" y1="322" x2="640" y2="336" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="644" y="310" width="236" height="56" rx="6" fill="#ffffff" stroke="#24292e"/>
+  <text x="762" y="332" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" fill="#24292e">published score</text>
+  <text x="762" y="348" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="9" fill="#57606a">readable outside, never a PR alarm (D-037)</text>
+
+  <text x="40" y="408" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">the container job blocks only on critical base image findings that have fixes; everything else it reports, so the gate stays answerable</text>
+</svg>
