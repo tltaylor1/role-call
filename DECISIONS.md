@@ -989,3 +989,31 @@ not the tools failing to look but the D-042 posture having arrived at
 the cluster already hardened; the admission policy kinds are skipped
 by the schema check because the public schema registry lags the API,
 and the live cluster validated those objects itself.
+
+## D-049: Agent permission changes are recorded as need, request, approval
+
+The agent's identity gained one permission, and the change is recorded
+in the shape every future one must follow: the need, demonstrated
+before requested; the request, scoped to exactly what the need shows;
+the approval, human, explicit, and in two parts, because the platform
+separates granting a permission on the app from accepting it on the
+installation, and that second consent means an installation never
+silently inherits whatever the app later asks for.
+
+The instance. Need: the agent proposes continuous integration changes,
+and its push carrying a workflow edit was refused by the platform for
+lacking the workflows permission, the least-privilege model
+demonstrating the gap rather than a design document asserting it.
+Request: workflows read and write, that permission alone, made in
+session with the refusal as evidence. Approval: granted on the app and
+accepted on the installation in two explicit clicks, then verified by
+reading the installation's live permission set from the API, which
+answered contents write, metadata read, pull requests write, workflows
+write, and nothing else.
+
+One more reason this arrangement earns its place, observed by the
+human reviewing under it on its first day: an approving review
+requires opening the changed files, where a merge button alone does
+not, and a review path that makes reading the diff the road to the
+button gets the diff read. The mechanism does not merely record the
+review; it produces it.
