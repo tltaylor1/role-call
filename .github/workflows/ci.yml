@@ -65,7 +65,7 @@ jobs:
         run: python3 scripts/check_digest_parity.py
       - name: forbid deferred-work markers
         run: |
-          ! grep -rnE "\b(TODO|FIXME|HACK|XXX)\b" --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude=AGENTS.md --exclude=.pre-commit-config.yaml .
+          ! grep -rnE "\b(TODO|FIXME|HACK|XXX)\b" --exclude-dir=.git --exclude-dir=.github --exclude-dir=.venv --exclude-dir=.tools --exclude=AGENTS.md --exclude=.pre-commit-config.yaml --exclude="calico-v*.yaml" .
 
   workflows:
     runs-on: ubuntu-latest

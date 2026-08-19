@@ -1,0 +1,22 @@
+# The local cluster the deployment phase runs on. One control-plane
+# node, image pinned by digest so the cluster that was reviewed is the
+# cluster that runs, the same rule the application containers follow.
+# The default network plugin is disabled because Calico replaces it:
+# network policies are a Phase 2 control, and the default plugin
+# ignores them silently, which is the failure this phase exists to
+# remove.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: rolecall
+networking:
+  disableDefaultCNI: true
+  podSubnet: 192.168.0.0/16
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5
+    extraPortMappings:
+      # The application service publishes here in subphase 2.2, on the
+      # loopback interface only, matching the compose posture.
+      - containerPort: 30080
+        hostPort: 8000
+        listenAddress: 127.0.0.1

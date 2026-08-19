@@ -51,10 +51,14 @@ decided it.
 
 ## Status
 
-**Phase 1 of 8 is complete, subphases 12 of 12 built** and merged,
-in a review-gated order fixed before any code
+**Phase 2 of 8, local Kubernetes, is in progress: subphases 1 of 5
+built.** The cluster stands: kind on a digest-pinned node image with
+Calico installed, brought up and torn down by scripts, so the network
+policies the next subphases add are enforced rather than silently
+ignored. Phase 1 is complete, all twelve subphases built and merged in
+a review-gated order fixed before any code
 ([the plan](#how-phase-1-was-built-the-plan-fixed-before-code)).
-Phase 2, local Kubernetes, has not begun. A fresh clone with Docker starts the stack, migrates the schema,
+A fresh clone with Docker starts the stack, migrates the schema,
 serves sign-in with three roles behind a tested authorization matrix,
 imports identity snapshots append-only, derives the inventory with its
 credential and privilege findings, carries governance records and

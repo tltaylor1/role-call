@@ -37,10 +37,12 @@ repos:
         pass_filenames: false
       # The standards ban deferred-work stubs; this makes the ban a mechanism.
       # AGENTS.md states the rule so it names the markers, and this file
-      # names them to match them, so both are excluded.
+      # names them to match them, so both are excluded; the vendored
+      # Calico manifest carries its upstream's own markers and is
+      # third-party text this repository does not edit.
       - id: no-deferred-work-markers
         name: forbid deferred-work markers
         entry: '\b(TODO|FIXME|HACK|XXX)\b'
         language: pygrep
         types: [text]
-        exclude: '^(AGENTS\.md|\.pre-commit-config\.yaml|\.github/workflows/ci\.yml)$'
+        exclude: '^(AGENTS\.md|\.pre-commit-config\.yaml|\.github/workflows/ci\.yml|deploy/kind/calico-v[0-9.]+\.yaml)$'

@@ -38,11 +38,11 @@
     <text x="845" y="198">Remediation</text>
   </g>
 
-  <!-- current position, the one accent; twelve twelfths past the P1
-       tick, every subphase of twelve complete -->
-  <polygon points="320,161 329,170 320,179 311,170" fill="#b04f2e"/>
-  <text x="320" y="118" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" fill="#b04f2e">PHASE 1 COMPLETE</text>
-  <text x="320" y="132" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#b04f2e">subphases 12 of 12 built</text>
+  <!-- current position, the one accent; one fifth past the P2 tick,
+       one subphase of five complete -->
+  <polygon points="341,161 350,170 341,179 332,170" fill="#b04f2e"/>
+  <text x="341" y="118" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" letter-spacing="1.2" fill="#b04f2e">PHASE 2, CURRENT</text>
+  <text x="341" y="132" text-anchor="middle" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#b04f2e">subphases 1 of 5 built</text>
 
   <text x="80" y="248" font-family="ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace" font-size="8" fill="#57606a">each phase ends in a state that runs and demonstrates on its own; the write phase, P7, is last on purpose</text>
 </svg>
