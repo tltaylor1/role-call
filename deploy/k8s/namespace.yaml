@@ -1,6 +1,14 @@
-# The application's namespace. Pod Security Standards labels arrive in
-# subphase 2.4 with the rest of the admission story.
+# The application's namespace, with Pod Security Standards enforced at
+# restricted: the strictest built-in admission profile, refusing any
+# pod that escalates, runs as root, keeps capabilities, or skips a
+# seccomp profile. The workload manifests already satisfy it (D-042
+# carried onto the cluster in 2.2); the label turns that compliance
+# from practice into admission-time refusal.
 apiVersion: v1
 kind: Namespace
 metadata:
   name: rolecall
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

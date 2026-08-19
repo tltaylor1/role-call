@@ -1,0 +1,42 @@
+# Admission: the pin discipline that governs the repository governs
+# the cluster. Every image must be digest-pinned, with one named
+# exception: the application's own image is built locally and loaded
+# into the cluster, never pulled, and imagePullPolicy Never makes any
+# registry substitution a loud failure; a local build has no registry
+# digest to pin (D-047 records the trade).
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: digest-pinned-images
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  validations:
+    - expression: >-
+        object.spec.containers.all(c,
+          c.image.contains('@sha256:') || c.image == 'rolecall:local')
+        && (!has(object.spec.initContainers) ||
+        object.spec.initContainers.all(c,
+          c.image.contains('@sha256:') || c.image == 'rolecall:local'))
+      message: >-
+        every image must be pinned by digest; the locally built
+        application image is the one recorded exception (D-047)
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: digest-pinned-images
+spec:
+  policyName: digest-pinned-images
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: [rolecall]

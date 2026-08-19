@@ -202,3 +202,18 @@ jobs:
         run: |
           BASE=$(grep -oP '^FROM \K.*' Dockerfile)
           "$RUNNER_TEMP/trivy" image --scanners vuln --pkg-types os --severity HIGH,CRITICAL "$BASE" || true
+      - name: install kubeconform and kube-linter, verified
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz
+          echo "9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883  kubeconform.tar.gz" | sha256sum -c -
+          tar -xzf kubeconform.tar.gz kubeconform
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o kube-linter.tar.gz https://github.com/stackrox/kube-linter/releases/download/v0.8.3/kube-linter-linux.tar.gz
+          echo "1a6d8419b11971372971fdbc22682b684ebfb7cf1c39591662d1b6ca736c41df  kube-linter.tar.gz" | sha256sum -c -
+          tar -xzf kube-linter.tar.gz kube-linter
+      - name: manifests match their schemas
+        # The admission policy kinds are skipped because the schema
+        # registry lags the API; the cluster itself validated them.
+        run: '"$RUNNER_TEMP/kubeconform" -summary -skip ValidatingAdmissionPolicy,ValidatingAdmissionPolicyBinding deploy/k8s/'
+      - name: manifest posture lint
+        run: '"$RUNNER_TEMP/kube-linter" lint deploy/k8s/'
