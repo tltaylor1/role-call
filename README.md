@@ -219,8 +219,9 @@ docker compose up --build
 ## Running it on Kubernetes
 
 The same image, the second runtime. Docker Compose trusts its files;
-Kubernetes refuses at a gate what a file forgot, and Phase 2 exists to
-make those refusals real on a laptop before any cloud is involved.
+Kubernetes refuses at a gate what a file forgot, and this deployment
+exists to make those refusals real on a laptop before any cloud is
+involved.
 
 ![What Docker provides and what Kubernetes adds](diagrams/runtime-split-sketch.svg)
 
@@ -585,7 +586,7 @@ demonstrated.
 | `sample-data/` | The generated demo account, committed and checked |
 | `tests/` | The attack checklist; the matrix walked row by row |
 | `scripts/` | The gates: docs-truth, digest parity, the mutation check |
-| `diagrams/` | Working sketches, including the journey diagram the status reads from |
+| `diagrams/` | Working sketches under the drawing doctrine |
 | `requirements*.in` / `*.txt` | Chosen packages, and the hash-pinned trees that install |
 | `Dockerfile` / `docker-compose.yml` | Digest-pinned base, non-root user, the composed stack |
 | `.github/workflows/` | The pipeline: tests, types, scanners, the container jobs, and the software bill of materials each run delivers |
@@ -896,7 +897,7 @@ do.
 
 -------------------------------------------------------------------------------
 
-## Roadmap
+## Where the application goes
 
 The destination is a tool where every non-human identity is governed
 the way human accounts already are: a named owner, a stated purpose, a
@@ -905,26 +906,27 @@ evidence behind every one of those claims, so the identity nobody can
 explain becomes visible the day it appears rather than the day it is
 abused.
 
-![The eight phases as a timeline, with the current position marked](diagrams/phase-journey-sketch.svg)
+The application's own roadmap, in order: expected-profile checks,
+where a known vendor integration holding exactly its documented
+permissions is furniture and the same integration holding more is a
+finding; creator attribution, arriving when the organization trail
+exists to feed it; the live provider connection as an adapter behind
+the same append-only ingestion; report-only quarantine with review
+windows; human-triggered, machine-verified remediation behind step-up
+authentication, because clicked is not revoked until the provider says
+so; temporary approved re-elevation, where someone else approves and
+the clock does the offboarding; and more providers, Okta and Entra,
+behind the common identity model rather than as rewrites.
 
-**Phase 0, design.** Architecture, data flow, trust boundaries, the
-threat model, the confirmed scope, the diagram list. No code.
+The platform journey around the application, local Kubernetes, the
+cloud enclave, the managed cluster, the gated pipeline, runtime
+detection, belongs to the
+[program](https://tltaylor1.github.io), not to this document.
 
-**Phase 1, build the application.** The smallest system that genuinely
-governs identities, with the controls present from the first commit:
-authentication on every request, three roles checked per route, rate
-limits and a request budget, audit rows in the acting transaction,
-migrations from the first table, hash-pinned dependencies, a
-digest-pinned base image, and exports that cannot carry spreadsheet
-formulas. Locally the stack speaks plain HTTP on the loopback
-interface; transport encryption is the edge's job and arrives with the
-cloud phases.
+### How the application was built: the plan, fixed before code
 
-
-### How Phase 1 was built: the plan, fixed before code
-
-Phase 1 was divided into twelve ordered subphases, planned in full in
-advance and built one at a time. A subphase is built in small commits
+The build was divided into twelve ordered subphases, planned in full
+in advance and built one at a time. A subphase is built in small commits
 on its own branch and then stops: a human reads the diff, runs the
 demo, and reads the tests, and only after that review is the pull
 request merged with the required checks green, so the merge itself is
@@ -1070,6 +1072,10 @@ through a pull request whose checks include the writing rules and the
 status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the record of
 what the coding agent got wrong along the way, because that record is
 the point.
+
+The program-level view across every repository is
+[PIPELINES](https://tltaylor1.github.io/PIPELINES.md) at the program's
+home; what follows is this repository's own.
 
 ### The pipeline, explained
 
@@ -1230,10 +1236,11 @@ identical in code.
 
 ## Diagrams to draw
 
-Working sketches exist for seven so far (the system context, the data
-flow, the trust ladder, the phase journey, the subphase cycle, the
-pipeline, and the runtime split), as sketch-suffixed files in the
-diagrams directory. The
+Working sketches exist for six here (the system context, the data
+flow, the trust ladder, the subphase cycle, the pipeline, and the
+runtime split), as sketch-suffixed files in the diagrams directory;
+the phase journey lives with the
+[program](https://tltaylor1.github.io). The
 finished diagrams below are all still to be drawn by hand, and they
 replace the sketches as they complete.
 
@@ -1258,9 +1265,7 @@ replace the sketches as they complete.
    product's story in one picture.
 9. **Campaign lifecycle.** A review cycle from creation through its
    item dispositions to close and evidence export.
-10. **The phase journey.** The eight phases on a timeline with the
-    current position marked.
-11. **The subphase cycle.** The loop every build subphase travels,
+10. **The subphase cycle.** The loop every build subphase travels,
     with human review as the gate.
 
 -------------------------------------------------------------------------------
