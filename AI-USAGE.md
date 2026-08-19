@@ -1,7 +1,8 @@
 # AI usage
 
-Built with an AI coding agent under written standards, and this file is
-the honest record of the arrangement.
+Built with an AI coding agent under written standards, and this file
+records the arrangement: what the agent got wrong, what caught it, and
+what each catch changed.
 
 ## The approach
 
