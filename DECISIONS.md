@@ -599,3 +599,39 @@ with stays at the end, inside the proof, because a fresh-clone run of
 the finished demo cannot happen before the demo is finished. The count
 stays at twelve, so the status figures and their gate stay valid, and
 the earlier subphases keep the numbers their transcripts already cite.
+
+## D-035: The sample account is generated, committed, and checked
+
+The demonstration data is produced by code in the repository, shipped
+as files beside it, and guarded by a test that regenerates and compares.
+Each of those three exists for a reason.
+
+Generated, because input made by hand was wrong three times in three
+subphases: an invented creation time, a false finding produced by that
+same mismatch, and a capture time dated in the future. The system
+caught all three and the author caught none, which is the argument for
+deriving fixtures rather than typing them.
+
+Committed, because a stranger with only Docker should not have to run a
+generator before seeing anything, and because files in the repository
+are readable in a browser by someone deciding whether to clone.
+
+Checked, because those two choices together are exactly the drift the
+derive-don't-store rule exists to prevent, and the answer is the
+one-source pattern the role matrix already uses: the generator is the
+source, the files are its output, and a test fails the build if they
+disagree.
+
+The generator is deterministic and refers to no clock: three fixed
+snapshot generations a month apart, every date a literal. That is only
+possible because staleness is measured against a snapshot's capture
+time rather than the wall clock (D-006), so the sample stays meaningful
+without maintenance, and it is what lets the comparison test exist at
+all.
+
+Completeness is the property that matters most and is asserted rather
+than hoped: a test imports the shipped files and fails unless every
+finding the engine can produce appears, because a demonstration that
+exercises half the rules teaches a reader that the other half are
+decorative. Two identities are deliberately quiet for the same reason:
+a tool that finds something everywhere has found nothing.

@@ -82,6 +82,16 @@ manufactured entry would defeat the reason this file exists.
   forward, not rewritten. The lesson joins the environment one: an edit
   is not made until the result is read back, and a tool that fails
   loudly on a missed match beats one that continues in silence.
+- **The sample data found two defects on its first run.** Importing
+  both file formats across three generations, which is what real use
+  looks like, is something no hand-made demonstration had ever done.
+  It exposed an identity upgraded to its real identifier being
+  duplicated by the next credential report, because the report could
+  no longer recognise it, and a privilege reading that took the newest
+  observation rather than the newest value, so an identity's
+  group-granted administrator access vanished whenever two sources
+  shared a capture time. Both were written weeks earlier and passed
+  every test until the fixture stopped being typed by hand.
 - **A destructive cleanup ran on a report of state instead of the
   state.** Told that three pull requests were merged, the agent deleted
   their branches without checking; none had merged, and the deletions
