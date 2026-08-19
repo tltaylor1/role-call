@@ -20,7 +20,7 @@ prepares, schedules, and verifies; it does not grant, revoke, or
 certify on its own judgment, and every action traces to the person who
 decided it.
 
-**Contents:** [Status](#status) · [Setup and run](#setup-and-run) · [Using the app](#using-the-app) · [What version one does](#what-version-one-does) · [Repository map](#repository-map) · [Roadmap](#roadmap) · [Out of scope](#out-of-scope) · [How it is built](#how-it-is-built) · [Where to read next](#where-to-read-next) · [Acknowledgements](#acknowledgements) · [License](#license)
+**Contents:** [Status](#status) · [Setup and run](#setup-and-run) · [Using the app](#using-the-app) · [What version one does](#what-version-one-does) · [Repository map](#repository-map) · [Verified, in numbers](#verified-in-numbers) · [The container is part of the attack surface](#the-container-is-part-of-the-attack-surface) · [Roadmap](#roadmap) · [Out of scope](#out-of-scope) · [How it is built](#how-it-is-built) · [What done means here](#what-done-means-here) · [Where to read next](#where-to-read-next) · [Acknowledgements](#acknowledgements) · [License](#license)
 
 -------------------------------------------------------------------------------
 
@@ -125,9 +125,24 @@ carries the population statement, coverage, and every decision with
 actor and time.
 
 **Reports.** The risk report is one self-contained file ranked by the
-engine, safe to open from disk years later; the CSV escapes every
-formula-leading cell; the JSON export carries the same figures the
-page shows, because all three read from the same computation.
+engine, safe to open from disk years later. Because it opens from
+disk, no server header protects it, so it is rendered by an engine
+that escapes every value by default and contains no script element at
+all. The CSV prefixes every formula-leading cell, because a cell that
+begins with an equals sign executes in the reader's spreadsheet with
+the reader's permissions, and identity names are controlled by the
+observed account's users. The JSON export carries the same figures the
+page shows, raw, because JSON consumers parse rather than interpret.
+All three read from the one computation the page reads.
+
+**The page itself** renders every API value through its text
+interface, never as markup, so a hostile identity name displays as a
+string instead of running as script; a parser-based scan of the page's
+code fails the build if a markup sink appears. The session token lives
+in a closure variable rather than browser storage, where any script
+that ever ran in the page could read it; the accepted cost is that a
+refresh signs you out. The content policy forbids inline script and
+style, and the page needs neither.
 
 <!-- vale BuildGuidelines.Audience = YES -->
 
@@ -186,6 +201,99 @@ demonstrated.
 | `.github/workflows/` | The pipeline: tests, types, scanners, the container jobs |
 | `.pre-commit-config.yaml` | Secret scan, writing rules, and the truth gates at commit time |
 | `.env.example` | Documents required configuration without containing it |
+
+-------------------------------------------------------------------------------
+
+## Verified, in numbers
+
+The figures below are the repository's own, each checkable by the
+command or test named beside it.
+
+**128 tests in 20 files**, each named for the property it defends. The
+load-bearing ones:
+
+- `test_matrix.py`: every one of the **29 routes** is either in the
+  role matrix or explicitly public, the documented route enumeration
+  in ARCHITECTURE.md matches the live route table in both directions,
+  and every matrix row is exercised with a real session per role,
+  allow and refuse both asserted.
+- `test_ingest.py`, `test_ingest_authz.py`, and two Hypothesis
+  property suites: hostile, truncated, and mixed-account files are
+  rejected whole; nothing the caller sent is echoed back.
+- `test_findings.py` and `test_privilege.py`: the **19 finding
+  codes**, each carrying its OWASP Non-Human Identities anchor;
+  admin equivalence judged by capability, not name.
+- `test_governance.py`: set, supersede, clear, and attest, attributed
+  and audited; an assigned owner answers the unowned finding; a
+  disagreement with the tag is surfaced.
+- `test_campaigns.py`: the population freezes, a decision is final
+  within its campaign, notes are required where meaning needs them,
+  close refuses gaps, the delta reads what changed.
+- `test_reports.py`: formula cells arrive neutralized, hostile markup
+  arrives escaped, report figures equal engine figures.
+- `test_frontend.py`: the page has no markup sink, no inline script,
+  and a hostile name survives as data end to end.
+- `test_auth.py` and `test_ratelimit.py`: indistinguishable login
+  failures, revocation, expiry, a forged token refused beside a live
+  session, and the write budget holding.
+
+**Coverage is 94 percent, floored at 90 in the pipeline.** The floor
+sits under the measured figure to catch erosion without inviting tests
+written to move a number.
+
+**Seven mutations, seven kills.** The mutation check breaks one
+control at a time and requires the tests that claim that control to
+fail:
+
+| Mutation | Result |
+|---|---|
+| Authorization check removed | killed by the matrix tests |
+| Audit rows silently dropped | killed by the governance tests |
+| Token hashing broken to a constant | killed, by a test this check forced into existence |
+| Rate limiter always allows | killed by the limiter tests |
+| Formula escaping removed from the CSV exit | killed by the report tests |
+| Assigned owners no longer answer the unowned finding | killed by the governance tests |
+| Campaigns close with undecided items | killed by the campaign tests |
+
+On its first run the third mutation survived: every test presented a
+real token or none, so a constant hash matched any fabricated token
+and nothing noticed. The missing test exists now, which is the check
+doing exactly what it is for.
+
+**42 recorded decisions, 6 migrations, 8 required checks.** Every
+merge to main passes secret scanning, writing rules and status-truth
+gates, workflow lint and audit, link checks, the application job with
+the coverage floor and mutation check, two static analysis passes, and
+the container job.
+
+-------------------------------------------------------------------------------
+
+## The container is part of the attack surface
+
+Least privilege applies to the container boundary, not only to code
+(D-042). Both services run with a read-only root filesystem, no
+privilege escalation route, bounded memory and processor use, and the
+database publishes no host port: only the application container can
+reach it. The application drops every Linux capability, because
+serving HTTP as an unprivileged user needs none; the database drops
+everything and adds back only the five its entrypoint uses to take
+ownership of a fresh volume. Writable paths are in-memory filesystems,
+so nothing written by an attacker survives a restart.
+
+Every claim above is verifiable against the running stack:
+
+```bash
+docker compose exec app id                                  # uid=1000(rolecall), not root
+docker compose exec app sh -c "echo x > /srv/rolecall/probe"  # fails: read-only file system
+docker compose exec app sh -c "grep CapEff /proc/1/status"  # all zeros
+docker inspect role-call-db-1 --format '{{.HostConfig.PortBindings}}'  # map[]
+```
+
+The image itself is built from a digest-pinned base, linted in the
+pipeline, and the base's operating system packages are scanned on
+every pull request, blocking on critical findings that have fixes,
+because there the fix is moving the digest, which a pull request can
+do.
 
 -------------------------------------------------------------------------------
 
@@ -288,13 +396,63 @@ and the status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the
 record of what the coding agent got wrong along the way, because that
 record is the point.
 
-The pipeline runs the suite with a coverage floor, strict typing, a
-mutation check that breaks one control at a time and requires the
-tests to notice, secret scanning in three layers, dependency audits
+The pipeline runs the suite with the coverage floor, strict typing,
+the mutation check, secret scanning in three layers, dependency audits
 against the hash-pinned trees, static analysis, workflow lint and
-audit, container lint, a base image scan, and link and writing checks
-across these documents. Each tool was vetted at adoption and recorded
-as a decision.
+audit, container lint, the base image scan, and link and writing
+checks across these documents. Each tool was vetted at adoption and
+recorded as a decision, and two of them found real defects here before
+they were merged.
+
+Dependencies are the part of the codebase nobody here wrote, so each
+one was checked against its canonical source before adoption, and
+installs are hash-pinned: a substituted artifact fails to install
+instead of running.
+
+| Package | Canonical source | Role |
+|---|---|---|
+| fastapi | github.com/fastapi/fastapi | web framework; typed validation as the default path |
+| uvicorn | github.com/Kludex/uvicorn | application server |
+| SQLAlchemy | sqlalchemy.org | the ORM; parameterization removes injection as a class |
+| psycopg | github.com/psycopg/psycopg | PostgreSQL driver |
+| alembic | github.com/sqlalchemy/alembic | schema migrations from the first table |
+| bcrypt | github.com/pyca/bcrypt | password hashing, used directly, maintained by the Python Cryptographic Authority |
+| pydantic-settings | github.com/pydantic/pydantic-settings | fail-fast configuration |
+| python-multipart | github.com/Kludex/python-multipart | upload parsing for the two import routes |
+| jinja2 | github.com/pallets/jinja | the report engine, escaping by default (D-040) |
+
+The development tree (pytest, Hypothesis, ruff, mypy, pip-audit,
+pytest-cov, pip-tools) is verified the same way and isolated in its
+own hash-pinned file.
+
+-------------------------------------------------------------------------------
+
+## What done means here
+
+Done is a claim, so it carries a definition. For this build:
+
+**Done means a stranger can run it, and every decision can be
+defended.**
+
+- It runs from a fresh clone using only this document and Docker, and
+  that drill was performed, not assumed.
+- Every control is a mechanism with a test named beside it, the
+  container claims are verifiable by the commands printed above, and
+  the mutation check proves the tests would notice the controls
+  breaking.
+- Every figure a document states is asserted against the running
+  system or gated against its source, so the documents cannot quietly
+  disagree with the code.
+- Every non-obvious choice carries its reason and its rejected
+  alternative in [DECISIONS.md](DECISIONS.md), including what was
+  deliberately left out.
+- No credential-shaped string exists anywhere in the repository or its
+  history, including demo and test material.
+
+Done does not mean finished: the roadmap above and the out-of-scope
+list are the record of what is deliberately absent, each with its
+reason, because an undocumented gap and a considered exclusion look
+identical in code.
 
 -------------------------------------------------------------------------------
 
