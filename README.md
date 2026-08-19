@@ -51,6 +51,8 @@ decided it.
 
 ## Status
 
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tltaylor1/role-call/badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
+
 **Phase 1 of 8 is complete, subphases 12 of 12 built** and merged,
 in a review-gated order fixed before any code
 ([the plan](#how-phase-1-was-built-the-plan-fixed-before-code)).
@@ -1047,7 +1049,11 @@ in the repository's code scanning view.
 **scorecard** runs on main and weekly, rating this repository's own
 security posture from outside, and publishes the score to the public
 scorecard service where it can be read without trusting this
-repository's word. Its findings deliberately stay out of code
+repository's word; the badge at the top of this document is served
+live from that service, so the displayed score cannot drift from the
+published one. The checks scoring zero are recorded choices or
+structural facts: no second person reviewing changes (D-028),
+repository age, and fuzzing not yet adopted. Its findings deliberately stay out of code
 scanning: several are recorded accepted risks no pull request can
 fix, and an alarm that is always red teaches the eye to skip the
 alarm (D-037).
