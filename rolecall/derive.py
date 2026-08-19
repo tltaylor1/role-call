@@ -42,6 +42,12 @@ class DerivedState:
     attached_policies: int
     inline_policies: int
     group_names: list[str]
+    # The raw privilege inputs, each taken from the freshest
+    # observation that carries it. Two sources can share a capture
+    # time, so "the newest row" is not the same as "the newest value".
+    tags: object = None
+    attached_raw: object = None
+    trust_policy: object = None
 
 
 def _days(later: datetime, earlier: datetime) -> int:
@@ -101,4 +107,7 @@ def derive(
         attached_policies=len(attached) if isinstance(attached, list) else 0,
         inline_policies=len(inline) if isinstance(inline, list) else 0,
         group_names=list(groups) if isinstance(groups, list) else [],
+        tags=freshest("tags"),
+        attached_raw=attached,
+        trust_policy=freshest("trust_policy"),
     )
