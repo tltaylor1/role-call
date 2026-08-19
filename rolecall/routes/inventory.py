@@ -183,13 +183,12 @@ def list_identities(
                     db, identity.account_id
                 )
             index, groups, _ = contexts[identity.account_id]
-            newest_observation = max(mine, key=lambda pair: pair[1])[0]
             picture = read_identity_privilege(
                 identity_key=identity.provider_identifier,
-                tags=newest_observation.tags,
-                attached=newest_observation.attached_policies,
-                group_names=newest_observation.group_names,
-                trust_policy=newest_observation.trust_policy,
+                tags=state.tags,
+                attached=state.attached_raw,
+                group_names=state.group_names,
+                trust_policy=state.trust_policy,
                 account_id=account,
                 index=index,
                 groups=groups,
@@ -238,13 +237,12 @@ def identity_detail(
     state.identity_type = identity.identity_type
     findings = evaluate(state)
     index, groups, _ = _privilege_context(db, identity.account_id)
-    newest_observation = max(mine, key=lambda pair: pair[1])[0]
     picture = read_identity_privilege(
         identity_key=identity.provider_identifier,
-        tags=newest_observation.tags,
-        attached=newest_observation.attached_policies,
-        group_names=newest_observation.group_names,
-        trust_policy=newest_observation.trust_policy,
+        tags=state.tags,
+        attached=state.attached_raw,
+        group_names=state.group_names,
+        trust_policy=state.trust_policy,
         account_id=account,
         index=index,
         groups=groups,
