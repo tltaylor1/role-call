@@ -307,7 +307,7 @@ plugin tree to audit, active maintenance, and rule families that cover
 correctness, import order, known bug patterns, outdated idioms, and
 security checks. The deciding rule family is ERA, which flags
 commented-out code. The standards already forbid deferred-work markers;
-commented-out code is the same debt wearing a disguise, and now a gate
+commented-out code is the same debt in another form, and now a gate
 catches it instead of a human eye. The alternative, flake8 with
 plugins, spreads the same coverage across a half-dozen separately
 maintained packages, which is more supply chain for the same result.
@@ -387,8 +387,8 @@ the right trade at this scale.
 
 The library route (slowapi wrapping limits) was vetted and declined:
 two more supply-chain entries, storage backends and decorators this
-application does not need, for one policy on one route. The hand-rolled
-limiter counts failures per username and per client address over a
+application does not need, for one policy on one route. The limiter
+written here counts failures per username and per client address over a
 sliding window; success clears the username key so a user who finally
 types the right password is not locked behind their own mistakes, and
 deliberately does not clear the address key, so a valid login cannot
@@ -498,8 +498,7 @@ critical, warning, notice, because severity taxonomies with more
 levels than a person has attention produce sorting, not action. The
 minimum observation age gates the unused finding: an identity is not
 flaggable as unused until it has been watched fourteen days, because a
-new key that has not been used yet is new, not stale, and the false
-positive that cries wolf on day one costs the tool its credibility
+new key that has not been used yet is new, not stale, and a false positive on day one costs the tool its credibility
 (the eligibility lesson from the prior art, credited in
 the acknowledgements in README.md). Staleness is always computed against the
 account's newest snapshot capture time, never the wall clock, so an
@@ -589,16 +588,16 @@ work sat sixth rather than first, because the risk retired earliest was
 the shape of the real data, and heuristics designed against imagined
 data would have been rewritten anyway.
 
-Where the ordering was wrong: sample data. The synthetic generator sat
-eleventh while every subphase from the first parser onward needed demo
-input, and input made by hand was wrong three separate times, each
-caught by the system rather than by its author. The generator moves to
-seventh, ahead of the frontend, so the remaining subphases demonstrate
-against realistic data. The stranger drill it used to share a subphase
-with stays at the end, inside the proof, because a fresh-clone run of
-the finished demo cannot happen before the demo is finished. The count
-stays at twelve, so the status figures and their gate stay valid, and
-the earlier subphases keep the numbers their transcripts already cite.
+Where the ordering was wrong: sample data. The synthetic generator
+sat eleventh while every subphase from the first parser onward needed
+demo input; the incident record in AI-USAGE.md carries what that cost
+and what caught it. The correction decided here: the generator moves
+to seventh, ahead of the frontend, so the remaining subphases
+demonstrate against realistic data; the stranger drill stays at the
+end, inside the proof, because a fresh-clone run of the finished demo
+cannot happen before the demo is finished; and the count stays at
+twelve, so the status figures and their gate stay valid and the
+earlier subphases keep the numbers their transcripts already cite.
 
 ## D-035: The sample account is generated, committed, and checked
 
@@ -779,7 +778,8 @@ the machine recommends with reasons and never decides (D-005).
 
 The engine's recommendation order is deliberate: too little
 observation history outranks everything, because a verdict built on
-four days of watching is a guess wearing a verdict; then revocation
+four days of watching is a guess presented as a
+verdict; then revocation
 signals; then the tier weight; then the quiet default.
 
 ## D-040: The report renders through an engine that escapes by default
@@ -873,7 +873,7 @@ Temporary filesystems back the paths that must accept writes, so
 nothing an attacker writes to the application container survives a
 restart. Every claim in this decision is verifiable by command against
 the running stack, and the commands are printed in the README, because
-a hardening claim without its probe is a hope with a straight face.
+a hardening claim without its probe is only a claim.
 
 ## D-043: The pipeline runs on a clock as well as on change
 

@@ -9,7 +9,8 @@ no operation anywhere that disposes more than one item, because a
 certification records that someone looked at that identity (D-039).
 And "insufficient evidence" is an honest first-class answer that names
 what was missing, because the alternative is a reviewer forced to
-certify what they could not see, which is how rubber stamps are made.
+certify what they could not see, which produces approvals nobody
+meant.
 """
 
 from dataclasses import dataclass
@@ -50,8 +51,8 @@ def recommend(
     """The engine's answer, always with its reasons, never the decision.
 
     Order matters: too little history outranks everything, because a
-    recommendation built on four days of observation is a guess wearing
-    a verdict. Then revocation signals, then the tier weight, then the
+    recommendation built on four days of observation is a guess presented
+    as a verdict. Then revocation signals, then the tier weight, then the
     quiet default.
     """
     if observed_days < MIN_OBSERVATION_DAYS:
@@ -96,7 +97,7 @@ def evidence_delta(
     """What changed since the last certification, in plain statements.
 
     This is what the reviewer actually reviews: re-reading everything a
-    quarter is how rubber-stamping happens, and the delta is the part
+    quarter produces approval without attention, and the delta is the part
     that needs a fresh decision.
     """
     if not isinstance(previous, dict) or not isinstance(current, dict):

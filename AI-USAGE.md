@@ -138,7 +138,7 @@ manufactured entry would defeat the reason this file exists.
   flattening the wrapped routers, and now held by a count canary that
   fails loudly if enumeration ever collapses again. A test must assert
   what it can see before asserting what it sees is right.
-- **The mutation check earned its keep on its first run.** Seven
+- **The mutation check did its job on its first run.** Seven
   controls were each broken deliberately to prove the suite notices;
   six failed as claimed and one survived: with token hashing broken to
   a constant, every fabricated token matched whatever session existed,
@@ -154,7 +154,7 @@ manufactured entry would defeat the reason this file exists.
   backup, restore, the throwaway-database drill with counts compared,
   was then actually run with the corrected commands before the folded
   text was allowed to repeat the claim. A procedure that was never
-  executed is a hope with a command prompt, and the claim of
+  executed is not yet a procedure, and the claim of
   verification is itself a figure that needs verifying.
 
 Each entry changed a rule, a checklist, or a design, which is the point:

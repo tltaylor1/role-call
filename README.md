@@ -23,12 +23,17 @@ decided it.
 ## Contents
 
 - [Status](#status)
+- [The idea in plain words](#the-idea-in-plain-words)
 - [Setup and run](#setup-and-run)
 - [Backup, restore, and retention](#backup-restore-and-retention)
 - [The gates a request passes](#the-gates-a-request-passes)
+- [Components and data flow](#components-and-data-flow)
+- [Trust boundaries](#trust-boundaries)
 - [Using the app](#using-the-app)
 - [What version one does](#what-version-one-does)
 - [Repository map](#repository-map)
+- [The data model shape](#the-data-model-shape)
+- [The route surface](#the-route-surface)
 - [Verified, in numbers](#verified-in-numbers)
 - [Compliance traceability](#compliance-traceability)
 - [Threat model](#threat-model)
@@ -37,6 +42,7 @@ decided it.
 - [Out of scope](#out-of-scope)
 - [How it is built](#how-it-is-built)
 - [What done means here](#what-done-means-here)
+- [Diagrams to draw](#diagrams-to-draw)
 - [Where to read next](#where-to-read-next)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -61,6 +67,27 @@ software is provided as is under the
 [Apache 2.0 license](LICENSE). Before relying on any of it, read the
 code and the [threat model](#threat-model), including its accepted
 risks. Nothing here is production software until the documents say so.
+
+-------------------------------------------------------------------------------
+
+## The idea in plain words
+
+You feed role-call snapshot files: a record of every identity in a
+cloud account at one moment. It keeps every snapshot and never edits
+an old one. When you open the inventory, it works out each identity's
+situation on the spot: compare the newest snapshot with the history,
+add what humans have recorded, and show the result. No status is ever
+stored, so no status can go stale or be quietly changed; the answer is
+recomputed from the evidence every time you ask.
+
+People supply what the files cannot: who owns this identity, which one
+is suspicious, which one was reviewed and found fine. Each of those
+records is saved with who said it and when, and the same database
+action that saves it also writes the audit line, so a decision cannot
+exist without its record. Reports and exports come from the same
+computation the screen shows, so they cannot disagree with it. And in
+version one the tool never connects to the cloud at all: files come
+in, reports go out, and nothing else moves.
 
 -------------------------------------------------------------------------------
 
@@ -211,7 +238,7 @@ gate exists because of a specific failure:
 - **Typed validation.** Is the request sane. Every body passes a
   typed model with bounds, and a rejected value is never echoed back,
   because an error message that repeats attacker input is a
-  reflection surface wearing a helpful face.
+reflection surface.
 - **The action, through the ORM.** The object-relational mapper, the
   library that turns Python objects into parameterized database
   queries, is the only path to the database, which removes SQL
@@ -244,12 +271,91 @@ failure happened, not what was typed.
 
 -------------------------------------------------------------------------------
 
+## Components and data flow
+
+| Component | Job |
+|---|---|
+| Frontend | A single page served by the application; renders every value as text through the document interface with no markup sink, holds the session token in memory rather than browser storage, and runs under a content policy that forbids inline script and style (D-036) |
+| Routes | The trust boundary; authentication checked on every request, every response shaped by a declared model |
+| Snapshot ingestion | Parses an imported identity snapshot file, bounded on every axis, in memory, append-only |
+| Derivation engine | Computes each identity's state and enrichment from the observation history at read time |
+| Governance records | The human layer: owners, flags, attestations, written with attribution and an audit row in one transaction |
+| Report builder | Produces the self-contained risk report and the escaped CSV and JSON exports |
+| Audit trail | Records every governance action, written with the action in one transaction |
+| PostgreSQL | Holds observations, governance records, and the audit trail; access controlled, with encryption at rest supplied by the deployment layer (D-020) |
+| The tool's own cloud credential | A read-only role in the target AWS account, arriving with the live pull phases; the identity that must be governed best |
+
+```mermaid
+flowchart LR
+    O[Operator browser] -- session token --> R[Routes]
+    R --> I[Snapshot ingestion]
+    I -- observations, append only --> P[(PostgreSQL)]
+    R --> D[Derivation engine]
+    P -- history --> D
+    D -- derived inventory --> R
+    R --> G[Governance records]
+    G -- action plus audit, one transaction --> P
+    R --> X[Report builder]
+    D --> X
+```
+
+An import records observations and touches nothing else. A view
+derives the inventory from the history and stores nothing. A
+governance action is the only ordinary write besides ingestion, and it
+commits with its audit row as one unit. The report builder consumes
+the same derived inventory the view does, so a report can never
+disagree with the screen.
+
+-------------------------------------------------------------------------------
+
+## Trust boundaries
+
+Three boundaries, in order of hostility:
+
+1. **The imported snapshot file.** The only input the application
+   accepts from outside, treated as hostile in every particular even
+   though it nominally comes from a cloud provider's own reporting:
+   bounded, parsed in memory, verified against its own claims, never
+   echoed.
+2. **The browser session.** Authenticated on every request; nothing
+   about a session is trusted from one request to the next. Identity
+   names, tags, and paths inside snapshot data are
+   attacker-influenceable and are rendered as text, never markup,
+   because the person most exposed to this data is the operator
+   reading it.
+3. **The exports.** Everything leaving the system passes an allowlist:
+   the response models for the API, formula escaping for the
+   spreadsheet forms, and deliberate field selection for the report,
+   because the inventory is a map of the account's weakest identities
+   and an export is that map on the move.
+
+Version one has no outbound connection to any provider. The cloud
+credential and its boundary arrive with the cloud phases and get their
+own threat model revision first.
+
+-------------------------------------------------------------------------------
+
 <!-- vale BuildGuidelines.Audience = NO -->
 <!-- Scoped exception: "reviewer" below names the product's role, the
      person who performs an access review inside the application. It
      does not describe this document's audience. -->
 
 ## Using the app
+
+Four people, and the design answers their questions in their order.
+
+- **The reviewer** certifies identities and groups: what is this,
+  whose is it, what can it do and where did that privilege come from,
+  is it used, what changed since last time, what do you recommend.
+  Everything on the decision screen exists to answer those without
+  leaving the page, and when the answer is not there, "insufficient
+  evidence, here is what was missing" is a recorded outcome that
+  steers what gets built next.
+- **The operator** imports snapshots, runs campaigns, and triages
+  findings.
+- **The auditor** consumes proof: the population statement, coverage,
+  each decision with its actor and time.
+- **The administrator** manages users and roles, and nothing else.
 
 Three roles. A reviewer reads everything and records attestations and
 review decisions. An operator additionally imports snapshots and sets
@@ -287,8 +393,8 @@ of a governed name is itself surfaced, because inheriting a dead
 identity's standing is exactly how a recreated principal would be
 laundered. An identity is not flaggable as unused until it has been
 observed for fourteen days, because a two-week-old key that has not
-been used yet is new, not stale, and the false positive that cries
-wolf on day one costs the tool its credibility.
+been used yet is new, not stale, and a false positive on day one
+costs the tool its credibility.
 
 Findings explain themselves and name their sources: which policy,
 held directly or through which group. Privilege is judged by what a
@@ -319,7 +425,7 @@ it, because it is a standing grant waiting for its next member with
 nobody reviewing it today. What changed since the previous snapshot,
 who joined and who left, is computed and shown, because the delta is
 what a review actually reviews; re-reading the full list every
-quarter is how rubber-stamping happens.
+quarter produces approval without attention.
 
 **Campaigns.** A campaign freezes its scope into items at creation,
 each item carrying the evidence as it stood and the engine's
@@ -422,6 +528,88 @@ demonstrated.
 
 -------------------------------------------------------------------------------
 
+## The data model shape
+
+```
+accounts --< snapshots --< observations >-- identities
+groups --< group_observations (snapshots also point here)
+snapshots --< policy_documents
+identities --< governance_records
+campaigns --< campaign_items
+users, audit_events
+```
+
+- An **identity** is one principal in one account, keyed by the
+  account plus the provider's immutable identifier, never the name or
+  ARN, which are display attributes (D-016). A recreated principal is
+  a new identity.
+- A **snapshot** is one imported file: one account at one point in
+  time, unique on that pair, so a re-import is rejected rather than
+  double-counted.
+- An **observation** is the append-only fact that a snapshot saw an
+  identity, carrying the attributes seen at that moment: credentials
+  and their ages, permission summaries, last-use marks. Groups get
+  their own observations, membership and policies per snapshot
+  (D-019), and each snapshot stores the managed policy documents it
+  saw in force.
+- A **governance record** is the human layer: an owner, a purpose, a
+  flag, or an attestation, on an identity or a group (D-019),
+  attributed and audited, stored rather than derived because it IS the
+  human input.
+<!-- vale BuildGuidelines.Audience = NO -->
+- A **review campaign** scopes a set of identities and groups to a set
+  of reviewers with a due date (D-021); its items hold each
+  disposition, including insufficient evidence, and the campaign
+  closes into an evidence export.
+<!-- vale BuildGuidelines.Audience = YES -->
+- Everything shown about an identity's state, current, stale, unused,
+  unowned, over-privileged, is derived by the engine from observations
+  plus governance records at read time. No status column exists
+  anywhere.
+
+-------------------------------------------------------------------------------
+
+## The route surface
+
+The complete surface, stated so it can be counted. A test asserts this
+block against the application's actual route table, so this list and
+the API cannot silently disagree; the health routes and the page shell
+are public, and every other route answers to the role matrix.
+
+```routes
+GET /
+GET /health
+GET /health/database
+POST /auth/login
+GET /auth/me
+POST /auth/logout
+GET /admin/users
+POST /admin/users
+POST /imports/credential-report
+POST /imports/authorization-details
+GET /imports
+GET /identities
+GET /identities/{identity_id}
+GET /groups
+POST /identities/{identity_id}/governance
+POST /groups/{group_id}/governance
+POST /identities/{identity_id}/attest
+POST /groups/{group_id}/attest
+DELETE /governance/{record_id}
+POST /campaigns
+GET /campaigns
+GET /campaigns/rollup
+GET /campaigns/{campaign_id}
+POST /campaigns/{campaign_id}/items/{item_id}/disposition
+POST /campaigns/{campaign_id}/close
+GET /export.csv
+GET /export.json
+GET /report.html
+GET /campaigns/{campaign_id}/evidence
+```
+
+-------------------------------------------------------------------------------
+
 ## Verified, in numbers
 
 The figures below are the repository's own, each checkable by the
@@ -432,7 +620,8 @@ load-bearing ones:
 
 - `test_matrix.py`: every one of the **29 routes** is either in the
   role matrix or explicitly public, the documented route enumeration
-  in ARCHITECTURE.md matches the live route table in both directions,
+  in the route surface section above matches the live route table in
+  both directions,
   and every matrix row is exercised with a real session per role,
   allow and refuse both asserted.
 - `test_ingest.py`, `test_ingest_authz.py`, and two Hypothesis
@@ -544,19 +733,6 @@ that reduces identity risk is itself a concentration of it, and its
 own handling is the core of the work.
 
 
-### Components
-
-| Component | Role |
-|---|---|
-| Operator browser | The human's session; holds a login token |
-| Application routes | The trust boundary every request passes through |
-| Snapshot ingestion | The only untrusted input surface: API pulls and imported report files |
-| Derivation engine | Computes status and enrichment from append-only observations |
-| Inventory store (PostgreSQL) | Holds the identity map; encryption at rest is required of the deployment layer (D-020) |
-| Audit trail | Records every governance action, written with the action in one transaction |
-| The tool's own cloud credential | A read-only role in the target Amazon Web Services (AWS) account, arriving with the live pull phases; the identity that must be governed best |
-
-
 ### Ranked threats
 
 Ordered by likelihood times impact. The STRIDE letter names the category.
@@ -592,9 +768,11 @@ Recorded so each is a decision with a reason, not a surprise.
   condition is noticed but not interpreted. Both can overstate a grant,
   and each finding resting on such a document says so in its own text
   rather than relying on a reader finding this paragraph.
-- **Creator attribution is limited to the event history window.** Until
-  the organization trail exists in Phase 3, "created by whom" reaches
-  back 90 days and no further. The field says when its evidence starts.
+- **Creator attribution does not exist in version one.** It arrives
+  with the live provider connection, and until the organization trail
+  exists in Phase 3 it will reach back 90 days and no further.
+  Recorded now so the absence reads as scheduled rather than
+  overlooked.
 - **Version one observes and records; it does not enforce.** An identity
   flagged in role-call keeps working in the cloud account until a human
   acts there. That is the enrichment-over-automation design, stated as a
@@ -946,11 +1124,44 @@ identical in code.
 
 -------------------------------------------------------------------------------
 
+## Diagrams to draw
+
+Working sketches exist for six so far (the system context, the data
+flow, the trust ladder, the phase journey, the subphase cycle, and the
+pipeline), as sketch-suffixed files in the diagrams directory. The
+finished diagrams below are all still to be drawn by hand, and they
+replace the sketches as they complete.
+
+1. **System context.** Operator, application, database, imported
+   files, exports out. The one-glance picture.
+2. **Data flow.** The sketch above, drawn properly: import, derive,
+   govern, report.
+3. **Trust boundaries.** The three boundaries with the controls at
+   each.
+4. **The data model.** The tables and their relationships.
+5. **Ingestion sequence.** A file's path from upload through bounds,
+   verification, observation rows, and the single commit.
+6. **Derivation concept.** How observations plus governance records
+   become the state on screen, the diagram that explains the
+   no-status-column decision.
+7. **Governance swimlane.** Operator, owner, and administrator across
+   the recertification flow, because cross-role handoffs are what
+   swimlanes show best.
+8. **The trust ladder.** The phased trust model as layers: read-only
+   observation, then report-only quarantine, then human-triggered
+   reversible action, then temporary approved re-elevation. The
+   product's story in one picture.
+9. **Campaign lifecycle.** A review cycle from creation through its
+   item dispositions to close and evidence export.
+10. **The phase journey.** The eight phases on a timeline with the
+    current position marked.
+11. **The subphase cycle.** The loop every build subphase travels,
+    with human review as the gate.
+
+-------------------------------------------------------------------------------
+
 ## Where to read next
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) is the components, the data flow,
-  the trust boundaries, the route surface a test asserts, and the
-  diagram list.
 - [DECISIONS.md](DECISIONS.md) records what was chosen, what was
   rejected, and why, D-001 through D-042.
 - [SECURITY.md](SECURITY.md) is the reporting path and the controls
