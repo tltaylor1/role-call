@@ -325,7 +325,7 @@ def membership_drift(
     group_name: str, previous: list[str], current: list[str]
 ) -> list[Finding]:
     """What changed since the last snapshot, which is what a reviewer
-    reviews; re-reading everything is what produces rubber-stamping."""
+    reviews; re-reading everything produces approval without attention."""
     added = sorted(set(current) - set(previous))
     removed = sorted(set(previous) - set(current))
     if not added and not removed:

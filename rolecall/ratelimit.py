@@ -1,4 +1,4 @@
-"""Sign-in rate limiting, hand-rolled on purpose (see D-027).
+"""Sign-in rate limiting, written here on purpose (see D-027).
 
 Failures are counted per key over a sliding window; success clears the
 username key so a legitimate user who finally types the right password

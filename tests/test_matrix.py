@@ -180,15 +180,15 @@ def test_every_route_is_governed_or_named_public() -> None:
 
 
 def test_routes_match_the_documented_enumeration() -> None:
-    """The architecture document states the route surface in a fenced
-    block, and this test holds the application to it, the
-    figures-verified doctrine applied to routes."""
+    """The README states the route surface in a fenced block, and this
+    test holds the application to it, the figures-verified doctrine
+    applied to routes."""
     import re
     from pathlib import Path
 
-    text = Path(__file__).parent.parent.joinpath("ARCHITECTURE.md").read_text()
+    text = Path(__file__).parent.parent.joinpath("README.md").read_text()
     match = re.search(r"```routes\n(.*?)```", text, re.DOTALL)
-    assert match, "ARCHITECTURE.md no longer carries the ```routes block"
+    assert match, "README.md no longer carries the ```routes block"
     documented = {
         line.strip() for line in match.group(1).splitlines() if line.strip()
     }

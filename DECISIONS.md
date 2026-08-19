@@ -86,8 +86,8 @@ was proven in an earlier build and is the core of this one.
 
 ## D-007: The stack is Python, FastAPI, and PostgreSQL under Docker Compose
 
-Typed request validation at the boundary, a real database service as the
-honest shape of a composed deliverable, and database access only through
+Typed request validation at the boundary, a real database service
+matching the shape the deliverable runs as, and database access only through
 the object-relational mapper (ORM), which parameterizes every query and
 removes injection as a class rather than defending it query by query.
 SQLite was rejected for the deliverable because the runnable stack is the
@@ -199,8 +199,8 @@ an operator imports snapshots and performs governance actions, and an
 administrator manages accounts and users. A single role was rejected
 because a governance tool's audit trail is only meaningful when the person
 who views a finding and the person who attests it can differ, and because
-an earlier build documented the one-role gap honestly rather than fixing
-it; this build starts past it. Authorization failures return 403 and are
+an earlier build documented the one-role gap rather than fixing it;
+this build starts past it. Authorization failures return 403 and are
 distinct from authentication failures from the first commit. Sample users
 for each role ship with the demo data.
 
@@ -307,7 +307,7 @@ plugin tree to audit, active maintenance, and rule families that cover
 correctness, import order, known bug patterns, outdated idioms, and
 security checks. The deciding rule family is ERA, which flags
 commented-out code. The standards already forbid deferred-work markers;
-commented-out code is the same debt wearing a disguise, and now a gate
+commented-out code is the same debt in another form, and now a gate
 catches it instead of a human eye. The alternative, flake8 with
 plugins, spreads the same coverage across a half-dozen separately
 maintained packages, which is more supply chain for the same result.
@@ -383,12 +383,12 @@ than sliding: a stolen token dies on schedule no matter how actively
 it is used. The cost, one database read per authenticated request, is
 the right trade at this scale.
 
-## D-027: The sign-in rate limiter is forty lines we own
+## D-027: The sign-in rate limiter is forty lines owned here
 
 The library route (slowapi wrapping limits) was vetted and declined:
 two more supply-chain entries, storage backends and decorators this
-application does not need, for one policy on one route. The hand-rolled
-limiter counts failures per username and per client address over a
+application does not need, for one policy on one route. The limiter
+written here counts failures per username and per client address over a
 sliding window; success clears the username key so a user who finally
 types the right password is not locked behind their own mistakes, and
 deliberately does not clear the address key, so a valid login cannot
@@ -498,8 +498,7 @@ critical, warning, notice, because severity taxonomies with more
 levels than a person has attention produce sorting, not action. The
 minimum observation age gates the unused finding: an identity is not
 flaggable as unused until it has been watched fourteen days, because a
-new key that has not been used yet is new, not stale, and the false
-positive that cries wolf on day one costs the tool its credibility
+new key that has not been used yet is new, not stale, and a false positive on day one costs the tool its credibility
 (the eligibility lesson from the prior art, credited in
 the acknowledgements in README.md). Staleness is always computed against the
 account's newest snapshot capture time, never the wall clock, so an
@@ -510,9 +509,9 @@ and an explanation containing the numbers that triggered it, because a
 finding that cannot explain itself is an accusation, and the review
 these findings feed runs on evidence.
 
-## D-033: Privilege read by capability, attributed, and honest about limits
+## D-033: Privilege read by capability, attributed, with limits stated
 
-The judgment subphase, and three choices carry it.
+The hardest-call subphase, and three choices carry it.
 
 Detection is capability-shaped, never name-shaped. A policy called
 ReadOnly that can rewrite its own default version is administrator
@@ -567,7 +566,7 @@ after it is dependency-ordered layering: identity before data because
 every route needs the role checks, parsers before the engine because
 reading real data before designing against it is the lesson this
 project inherited, credential findings before privilege findings
-because the second carries judgment. Two constraints ride on top:
+because the second carries the hardest calls. Two constraints ride on top:
 every subphase must end in something that runs and can be shown, and
 controls arrive with the thing they protect, which is why there is no
 hardening phase.
@@ -584,21 +583,21 @@ time, which for the middle subphases meant the documented API rather
 than a screen. An engineer who prefers slices would push
 here, and the push would be fair.
 
-Risk-driven sequencing was also inverted on purpose. The judgment-heavy
+Risk-driven sequencing was also inverted on purpose. The hardest-call
 work sat sixth rather than first, because the risk retired earliest was
 the shape of the real data, and heuristics designed against imagined
 data would have been rewritten anyway.
 
-Where the ordering was wrong: sample data. The synthetic generator sat
-eleventh while every subphase from the first parser onward needed demo
-input, and input made by hand was wrong three separate times, each
-caught by the system rather than by its author. The generator moves to
-seventh, ahead of the frontend, so the remaining subphases demonstrate
-against realistic data. The stranger drill it used to share a subphase
-with stays at the end, inside the proof, because a fresh-clone run of
-the finished demo cannot happen before the demo is finished. The count
-stays at twelve, so the status figures and their gate stay valid, and
-the earlier subphases keep the numbers their transcripts already cite.
+Where the ordering was wrong: sample data. The synthetic generator
+sat eleventh while every subphase from the first parser onward needed
+demo input; the incident record in AI-USAGE.md carries what that cost
+and what caught it. The correction decided here: the generator moves
+to seventh, ahead of the frontend, so the remaining subphases
+demonstrate against realistic data; the stranger drill stays at the
+end, inside the proof, because a fresh-clone run of the finished demo
+cannot happen before the demo is finished; and the count stays at
+twelve, so the status figures and their gate stay valid and the
+earlier subphases keep the numbers their transcripts already cite.
 
 ## D-035: The sample account is generated, committed, and checked
 
@@ -766,8 +765,8 @@ operation anywhere in the application that disposes more than one
 item, because a certification records that someone looked at that
 identity, and a button that certifies a hundred rows records that
 nobody did. A decision is final within its campaign; a changed mind is
-the next campaign's decision, which keeps the record honest about what
-was believed when.
+the next campaign's decision, which preserves what was believed
+when.
 
 Insufficient evidence is a first-class answer that must name what was
 missing, and the rollup collects those notes across campaigns: one
@@ -779,7 +778,8 @@ the machine recommends with reasons and never decides (D-005).
 
 The engine's recommendation order is deliberate: too little
 observation history outranks everything, because a verdict built on
-four days of watching is a guess wearing a verdict; then revocation
+four days of watching is a guess presented as a
+verdict; then revocation
 signals; then the tier weight; then the quiet default.
 
 ## D-040: The report renders through an engine that escapes by default
@@ -867,13 +867,13 @@ take ownership of a fresh data volume and step down to its own user:
 change ownership, set user and group, file owner operations, and the
 discretionary access override that lets it traverse the volume before
 owning it. That list was found by dropping everything and reading the
-failure, which is the honest way to learn what a process needs.
+failure, rather than by copying a recommendation.
 
 Temporary filesystems back the paths that must accept writes, so
 nothing an attacker writes to the application container survives a
 restart. Every claim in this decision is verifiable by command against
 the running stack, and the commands are printed in the README, because
-a hardening claim without its probe is a hope with a straight face.
+a hardening claim without its probe is only a claim.
 
 ## D-043: The pipeline runs on a clock as well as on change
 
@@ -905,7 +905,7 @@ watcher.
 
 Two changes from one question: would this application pass the
 provenance bar it applies to its own dependencies. It would not, and
-the honest response is to fix what is cheap and record what is not.
+the response is to fix what is cheap and record what is not.
 
 Commit signing starts now. Commits are signed with a dedicated SSH
 key, registered with the hosting account as a signing key, so
