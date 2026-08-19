@@ -74,6 +74,9 @@ refer to [THREAT-MODEL.md](THREAT-MODEL.md).
 | Audit rows in the acting transaction, attributed (D-011) | 8 | tests/test_auth.py, tests/test_ingest.py |
 | Validation and login failures echo nothing the caller sent | 2 | tests/test_validation.py, both property suites |
 | Identities keyed immutably; resurrection mints a new identity and is surfaced (D-016, D-029) | 11 | tests/test_ingest.py, tests/test_ingest_authz.py |
+| The page renders every value as text and contains no markup sink; a scan gates it (D-036) | 7 | tests/test_frontend.py |
+| Content policy forbids inline script and style; the page needs neither | 7 | tests/test_frontend.py |
+| The session token lives in memory, never in browser storage (D-036) | 6 | verified in the browser at the subphase review |
 
 ## Controls still planned
 

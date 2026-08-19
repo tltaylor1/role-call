@@ -635,3 +635,63 @@ finding the engine can produce appears, because a demonstration that
 exercises half the rules teaches a reader that the other half are
 decorative. Two identities are deliberately quiet for the same reason:
 a tool that finds something everywhere has found nothing.
+
+## D-036: The page renders text, holds its token in memory, and ships plain
+
+Three choices, and the first is the security control this subphase
+exists to install.
+
+Every value the page displays is written through the document's text
+interface, never through a markup sink. Identity names, tags, and
+policy text all arrive from imported files, which makes them attacker
+content by definition, and the answer is structural rather than
+vigilant: the page contains no sink for markup to reach, so escaping
+is not something a future edit can forget. A test scans the script for
+those sinks and fails the build if one appears, which turns the
+promise into a gate; the content policy forbids inline script and
+style, and a second test proves the page needs neither, so the policy
+can stay strict. Values are never sanitised on the way in or out,
+because a tool that quietly rewrites what it found has started lying
+about what it found; the hostile name is stored exactly, displayed
+exactly, and displayed as text.
+
+The session token lives in a closure variable and never in browser
+storage. The cost is real and accepted: a refresh signs the operator
+out. The benefit is that the token is not sitting in a place any
+future script can read, and this application's whole subject is
+credentials that outlive their purpose.
+
+No build step, no framework, no package manager for the page. The
+stated cost of the alternative is a second toolchain to pin, audit,
+and keep current beside the Python one, for a page that renders tables.
+The stated cost of this choice is that the page will stay plain, which
+is acceptable while the questions this tool answers, not the interface
+it answers them through, are what the project is about.
+
+## D-037: The posture score publishes, and stays out of code scanning
+
+The scorecard's findings were being uploaded into code scanning, where
+they became pull request alerts. The consequence showed up on the
+first pull request after the frontend landed: a check reporting a high
+severity security alert, which turned out to be the repository having
+no second person reviewing changes and no fuzzing subphase yet. Both are recorded
+accepted risks. Neither is a defect in the change under review, and no
+pull request can fix either.
+
+A gate that fails on findings the change cannot address is the alarm
+that is always red, and this project already refuses that pattern
+where scanners are concerned. So the score keeps publishing, where it
+is read from the public scorecard and cited in the security document,
+and nothing is written into code scanning. The five alerts already
+sitting there were dismissed with that reason recorded on each.
+
+The tool keeps its scoped permission for publishing and loses the one
+that wrote findings, which is least privilege applied to a workflow
+after learning what it actually needs.
+
+Two smaller pipeline decisions ride with it, both from the same run.
+Tool downloads retry, because a reset connection is a network event
+and not a build result. And the checks workflow runs on pull requests
+and on main rather than on every branch push, with a concurrency
+group, because the duplicate run taught nothing and doubled the
+exposure to exactly the network blip that failed this one.

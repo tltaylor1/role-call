@@ -254,10 +254,13 @@ def identity_detail(
             Identity.first_display_name == identity.first_display_name,
         )
     ).scalar_one() > 1
-    sources: dict[datetime, str] = {
-        captured: source
-        for captured, source in db.execute(
-            select(Snapshot.captured_at, Snapshot.source)
+    # Keyed by snapshot, never by capture time: the two sources import
+    # at the same instant, so a time-keyed lookup silently labels half
+    # the timeline with the other source's name.
+    sources: dict[int, str] = {
+        snapshot_id: source
+        for snapshot_id, source in db.execute(
+            select(Snapshot.id, Snapshot.source)
             .where(Snapshot.account_id == identity.account_id)
         ).all()
     }
@@ -279,7 +282,7 @@ def identity_detail(
         timeline=[
             ObservationView(
                 captured_at=captured.isoformat(),
-                source=str(sources.get(captured, "")),
+                source=sources.get(obs.snapshot_id, ""),
                 fields_present=sum(
                     1 for c in (
                         "password_enabled","mfa_active","key1_active",

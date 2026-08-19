@@ -15,6 +15,7 @@ WORKDIR /srv/rolecall
 COPY requirements.txt ./
 RUN pip install --no-cache-dir --require-hashes -r requirements.txt
 
+COPY frontend ./frontend
 COPY rolecall ./rolecall
 COPY migrations ./migrations
 COPY alembic.ini ./

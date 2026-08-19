@@ -9,16 +9,37 @@ caller sent; the detail goes to the server log, never the response.
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from rolecall.bootstrap import bootstrap_admin
 from rolecall.config import get_settings
 from rolecall.db import database_reachable, get_engine
 from rolecall.logs import configure_logging, log_event
 from rolecall.routes import admin, auth, imports, inventory
+
+# The page is served from this application and fetches nothing from
+# anywhere else, so the policy can forbid every external origin and
+# every inline script. Inline is forbidden deliberately: it is the
+# sink a stored value would have to reach to execute, and the frontend
+# has no inline script or style for it to hide in.
+SECURITY_HEADERS = {
+    "Content-Security-Policy": (
+        "default-src 'self'; script-src 'self'; style-src 'self'; "
+        "img-src 'self'; connect-src 'self'; font-src 'self'; "
+        "object-src 'none'; frame-ancestors 'none'; base-uri 'none'; "
+        "form-action 'self'"
+    ),
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "Cross-Origin-Opener-Policy": "same-origin",
+}
+
+FRONTEND = Path(__file__).resolve().parent.parent / "frontend"
 
 
 def create_app() -> FastAPI:
@@ -41,6 +62,8 @@ def create_app() -> FastAPI:
     ) -> Response:
         started = time.monotonic()
         response = await call_next(request)
+        for header, value in SECURITY_HEADERS.items():
+            response.headers.setdefault(header, value)
         log_event(
             "request",
             method=request.method,
@@ -80,6 +103,14 @@ def create_app() -> FastAPI:
     app.include_router(admin.router)
     app.include_router(imports.router)
     app.include_router(inventory.router)
+
+    # The shell and its assets are public; every value they display
+    # arrives over the authenticated API.
+    @app.get("/", include_in_schema=False)
+    def index() -> FileResponse:
+        return FileResponse(FRONTEND / "index.html")
+
+    app.mount("/static", StaticFiles(directory=FRONTEND), name="static")
     return app
 
 

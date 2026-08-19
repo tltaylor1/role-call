@@ -56,7 +56,7 @@ Four people, and the design answers their questions in their order.
 
 | Component | Job |
 |---|---|
-| Frontend | A single page served by the application; renders every value as text, holds the session token in memory |
+| Frontend | A single page served by the application; renders every value as text through the document interface with no markup sink, holds the session token in memory rather than browser storage, and runs under a content policy that forbids inline script and style (D-036) |
 | Routes | The trust boundary; authentication checked on every request, every response shaped by a declared model |
 | Snapshot ingestion | Parses an imported identity snapshot file, bounded on every axis, in memory, append-only |
 | Derivation engine | Computes each identity's state and enrichment from the observation history at read time |
