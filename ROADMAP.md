@@ -16,11 +16,13 @@ later phase completes it.
 
 Phase 1 is in progress: the application is being built in review-gated
 subphases whose order and content [BUILD-PLAN.md](BUILD-PLAN.md) fixed
-in advance. Subphases 8 of 12 are built and merged: the foundation, the
+in advance. Subphases 9 of 12 are built and merged: the foundation, the
 operators and audit spine, both ingestion surfaces, the derivation
 engine, the credential and privilege findings, the synthetic
-sample account that exercises all of them, and the page that shows the
-inventory, the findings, and the observation history. Phase 0's design
+sample account that exercises all of them, the page that shows the
+inventory, the findings, and the observation history, and the
+governance records that put a typed owner, a purpose, flags, and
+attestations on identities and groups. Phase 0's design
 artifacts are complete: the decisions in [DECISIONS.md](DECISIONS.md),
 the threat model, the architecture, the confirmed scope below, and the
 diagram list at the end of the architecture document. This figure is
