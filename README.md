@@ -107,8 +107,9 @@ subphases before this became a rule; a test regenerates it and fails
 if the shipped files and the generator disagree.
 
 To stop, `docker compose down`; add `-v` to also delete the database
-and start clean. Backup, restore, and retention are in
-[Operating it](#operating-it), next.
+and start clean. The care of a running instance is in
+[Backup, restore, and retention](#backup-restore-and-retention),
+next.
 
 -------------------------------------------------------------------------------
 
