@@ -903,3 +903,35 @@ section, because a repository that demands canonical sources, pinned
 artifacts, and verifiable claims from every dependency owes its
 readers the same examination of itself: what passes, what fails, and
 why each failure is accepted or scheduled rather than denied.
+
+## D-045: The agent proposes under its own identity
+
+The work was always authored by the agent and reviewed by a person,
+but the platform could not see it: everything ran under the one human
+account, which made that account the recorded author of changes it
+actually reviewed, and made a required approving review impossible,
+since an account cannot approve its own pull request. The recorded
+compensation was D-028's zero-approval ruleset, honest but weaker than
+the reality it stood in for.
+
+The agent now holds a GitHub App identity, owned by the human account
+and installed on this repository alone, with two permissions: contents
+and pull requests. Pull requests are opened by that identity; the
+human's approval becomes a required, recorded review by a party other
+than the author, which is what it always was in fact. The ruleset
+moves from zero required approvals to one.
+
+The trade accepted knowingly: a standing private key on the
+workstation, held outside every repository with owner-only
+permissions, revocable in one click from the account, minting
+one-hour tokens that are never written to disk. Against it, the
+narrowing: the agent's routine operations previously rode a user
+token scoped to every repository the account owns; the app reaches
+one repository with two permissions.
+
+Two boundaries stay stated. Commit authorship and signing are
+unchanged, so the gain is at the proposal and review layer, not a
+rewrite of the commit record. And this adds no second person: the
+self-assessment's more-than-one-set-of-eyes row still fails, because
+making one review legible does not make it two. The rare pull request
+the human authors himself is handled case by case when one exists.
