@@ -1185,6 +1185,18 @@ pin moves; the generated one cannot disagree with the tree that was
 actually installed. GitHub's dependency graph offers its own export
 built from the same pinned file.
 
+Releases carry the same discipline outward (D-050). The version
+scheme reads from the roadmap: v0.N means the work through phase N is
+complete. Each release starts from a signed tag, carries a source
+archive, the sample account, the bill of materials, and checksums,
+and every artifact has a build provenance attestation verifiable
+against the platform's transparency log rather than this repository's
+word:
+
+```bash
+gh attestation verify sbom-v0.2.0.json -R tltaylor1/role-call
+```
+
 -------------------------------------------------------------------------------
 
 ## What done means here
