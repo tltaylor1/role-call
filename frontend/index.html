@@ -70,6 +70,41 @@
       <ul id="detail-findings"></ul>
       <h3>Privilege sources</h3>
       <ul id="detail-sources"></ul>
+      <h3>Governance</h3>
+      <ul id="gov-active"></ul>
+      <form id="gov-form" hidden>
+        <label>Kind
+          <select name="kind">
+            <option value="owner">owner</option>
+            <option value="purpose">purpose</option>
+            <option value="flag">flag</option>
+          </select>
+        </label>
+        <label>Value <input name="value" maxlength="500" required></label>
+        <label>Owner type
+          <select name="owner_type">
+            <option value="team">team</option>
+            <option value="business_unit">business unit</option>
+            <option value="individual">individual</option>
+            <option value="vendor">vendor</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </label>
+        <button type="submit">Set</button>
+      </form>
+      <form id="attest-form">
+        <label>Attestation <input name="value" value="still needed" maxlength="500" required></label>
+        <button type="submit">Attest</button>
+      </form>
+      <p id="gov-result" role="status" hidden></p>
+      <h4>Governance history</h4>
+      <table>
+        <thead><tr>
+          <th>kind</th><th>value</th><th>by</th><th>at</th>
+          <th>cleared</th><th>cleared by</th>
+        </tr></thead>
+        <tbody id="gov-history"></tbody>
+      </table>
       <h3>Observations</h3>
       <table>
         <thead><tr><th>captured</th><th>source</th><th>fields</th></tr></thead>
@@ -82,10 +117,34 @@
       <table>
         <thead><tr>
           <th>group</th><th>account</th><th>members</th>
-          <th>privileged</th><th>findings</th>
+          <th>privileged</th><th>owner</th><th>flags</th><th>findings</th>
         </tr></thead>
         <tbody id="group-rows"></tbody>
       </table>
+      <h3 id="group-gov-title" hidden></h3>
+      <ul id="group-gov-active"></ul>
+      <form id="group-gov-form" hidden>
+        <label>Kind
+          <select name="kind">
+            <option value="owner">owner</option>
+            <option value="purpose">purpose</option>
+            <option value="flag">flag</option>
+            <option value="attestation">attestation</option>
+          </select>
+        </label>
+        <label>Value <input name="value" maxlength="500" required></label>
+        <label>Owner type
+          <select name="owner_type">
+            <option value="team">team</option>
+            <option value="business_unit">business unit</option>
+            <option value="individual">individual</option>
+            <option value="vendor">vendor</option>
+            <option value="unknown">unknown</option>
+          </select>
+        </label>
+        <button type="submit">Set</button>
+      </form>
+      <p id="group-gov-result" role="status" hidden></p>
     </section>
 
     <section id="imports" hidden>

@@ -32,6 +32,21 @@ ROUTE_ROLES: dict[str, frozenset[Role]] = {
     "GET /identities": ALL_ROLES,
     "GET /identities/{identity_id}": ALL_ROLES,
     "GET /groups": ALL_ROLES,
+    # Governance writes change the record, so owner, purpose, and flag
+    # are the operator's and administrator's acts. Attestation is every
+    # role's act, because "I looked and it is still needed" is exactly
+    # what a reviewer is for.
+    "POST /identities/{identity_id}/governance": frozenset(
+        {Role.operator, Role.administrator}
+    ),
+    "POST /groups/{group_id}/governance": frozenset(
+        {Role.operator, Role.administrator}
+    ),
+    "POST /identities/{identity_id}/attest": ALL_ROLES,
+    "POST /groups/{group_id}/attest": ALL_ROLES,
+    "DELETE /governance/{record_id}": frozenset(
+        {Role.operator, Role.administrator}
+    ),
 }
 
 # Routes that are reachable without a session, each with its reason.

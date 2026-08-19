@@ -9,6 +9,9 @@
 
 let token = null;
 let currentUser = null;
+let currentRole = null;
+let detailId = null;
+let selectedGroup = null;
 
 const $ = (id) => document.getElementById(id);
 const show = (id) => $(id).hidden = false;
@@ -65,6 +68,7 @@ async function signIn(username, password) {
   const body = await response.json();
   token = body.token;
   currentUser = username;
+  currentRole = body.role;
   return body.role;
 }
 
@@ -72,6 +76,9 @@ function signOut() {
   if (token) api("/auth/logout", { method: "POST" }).catch(() => {});
   token = null;
   currentUser = null;
+  currentRole = null;
+  detailId = null;
+  selectedGroup = null;
   for (const id of ["inventory", "detail", "groups", "imports", "nav", "asof"]) hide(id);
   show("signin");
 }
@@ -120,7 +127,10 @@ function renderIdentities(rows) {
     if (text && !r.display_name.toLowerCase().includes(text)) continue;
     if (type && r.identity_type !== type) continue;
     if (tier && identityTier(r) !== tier) continue;
-    const flags = r.name_reused ? "name reused" : "";
+    const flags = [
+      r.name_reused ? "name reused" : "",
+      r.flagged ? "flagged" : "",
+    ].filter(Boolean).join(", ");
     const tr = row(
       [r.display_name, r.identity_type, r.account,
        r.critical, r.warning, r.notice, flags],
@@ -139,14 +149,26 @@ function fact(dl, label, value) {
   dl.append(dt, dd);
 }
 
+// "platform-team (team, assigned)" or "sre (tag)"; a tag owner is a
+// string with no claim about what kind of thing the string names.
+function ownerDescription(d) {
+  if (!d.owner) return "unowned";
+  const bits = [d.owner_type, d.owner_source]
+    .filter(Boolean)
+    .map((b) => b.replace("_", " "))
+    .join(", ");
+  return bits ? d.owner + " (" + bits + ")" : d.owner;
+}
+
 async function loadDetail(id) {
   const d = await (await api("/identities/" + id)).json();
+  detailId = id;
   switchView("detail");
   $("detail-name").textContent = d.display_name + "  (" + d.identity_type + ")";
   const facts = $("detail-facts");
   facts.replaceChildren();
   fact(facts, "account", d.account);
-  fact(facts, "owner", d.owner);
+  fact(facts, "owner", ownerDescription(d));
   fact(facts, "provisional", d.provisional);
   fact(facts, "name reused", d.name_reused);
   fact(facts, "as of", d.as_of);
@@ -185,6 +207,8 @@ async function loadDetail(id) {
     sources.appendChild(li);
   }
 
+  renderDetailGovernance(d);
+
   const timeline = $("detail-timeline");
   timeline.replaceChildren();
   for (const o of d.timeline) {
@@ -192,16 +216,133 @@ async function loadDetail(id) {
   }
 }
 
+// One list item per governance record: the statement, its author, and
+// for the roles that may, a clear button. Everything is a text node.
+function governanceItem(r, onCleared) {
+  const li = document.createElement("li");
+  const text = document.createElement("span");
+  text.textContent = r.kind + ": " + r.value
+    + (r.owner_type ? " (" + r.owner_type.replace("_", " ") + ")" : "")
+    + ", set by " + r.actor + " on " + r.created_at;
+  li.appendChild(text);
+  if (currentRole !== "reviewer") {
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.textContent = "clear";
+    clear.addEventListener("click", async () => {
+      await api("/governance/" + r.id, { method: "DELETE" });
+      onCleared();
+    });
+    li.append(" ", clear);
+  }
+  return li;
+}
+
+function renderDetailGovernance(d) {
+  const active = $("gov-active");
+  active.replaceChildren();
+  const activeRecords = d.governance.filter((r) => !r.cleared_at);
+  if (!activeRecords.length) {
+    const li = document.createElement("li");
+    li.textContent = "no governance records";
+    active.appendChild(li);
+  }
+  for (const r of activeRecords) {
+    active.appendChild(governanceItem(r, () => loadDetail(d.id)));
+  }
+  // Reviewers attest; changing owner, purpose, or flag is the
+  // operator's act, matching the route matrix.
+  $("gov-form").hidden = currentRole === "reviewer";
+  $("gov-result").hidden = true;
+  const history = $("gov-history");
+  history.replaceChildren();
+  for (const r of d.governance) {
+    history.appendChild(row([
+      r.kind, r.value, r.actor, r.created_at,
+      r.cleared_at || "", r.cleared_by || "",
+    ]));
+  }
+}
+
+function detailText(detail) {
+  if (Array.isArray(detail)) {
+    return detail.map((entry) => String(entry.msg || "")).join("; ");
+  }
+  return String(detail);
+}
+
+async function submitGovernance(path, payload, resultId, reload) {
+  const result = $(resultId);
+  result.hidden = false;
+  result.textContent = "saving...";
+  try {
+    const response = await api(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (response.ok) {
+      result.hidden = true;
+      reload();
+    } else {
+      const data = await response.json();
+      result.textContent = "rejected: " + detailText(data.detail);
+    }
+  } catch {
+    result.textContent = "the change could not be saved";
+  }
+}
+
 async function loadGroups() {
   switchView("groups");
+  selectedGroup = null;
+  hide("group-gov-title");
+  $("group-gov-form").hidden = true;
+  $("group-gov-active").replaceChildren();
+  $("group-gov-result").hidden = true;
   const rows = await (await api("/groups")).json();
+  window._groups = rows;
   const tbody = $("group-rows");
   tbody.replaceChildren();
   for (const g of rows) {
     const summary = g.findings.map((f) => f.code).join(", ") || "none";
     tbody.appendChild(row(
-      [g.name, g.account, g.members, g.privileged ? "yes" : "no", summary]));
+      [g.name, g.account, g.members, g.privileged ? "yes" : "no",
+       g.owner || "unowned", g.flagged ? "flagged" : "", summary],
+      g.id === null ? undefined : () => selectGroup(g)));
   }
+}
+
+async function reloadGroupsKeepSelection(id) {
+  await loadGroups();
+  const g = (window._groups || []).find((x) => x.id === id);
+  if (g) selectGroup(g);
+}
+
+function selectGroup(g) {
+  selectedGroup = g;
+  const title = $("group-gov-title");
+  title.textContent = "Governance: " + g.name;
+  title.hidden = false;
+  const active = $("group-gov-active");
+  active.replaceChildren();
+  const records = g.governance.filter((r) => !r.cleared_at);
+  if (!records.length) {
+    const li = document.createElement("li");
+    li.textContent = "no governance records";
+    active.appendChild(li);
+  }
+  for (const r of records) {
+    active.appendChild(governanceItem(r, () => reloadGroupsKeepSelection(g.id)));
+  }
+  const form = $("group-gov-form");
+  form.hidden = false;
+  const kind = form.querySelector('[name="kind"]');
+  for (const option of kind.options) {
+    option.hidden = currentRole === "reviewer" && option.value !== "attestation";
+  }
+  if (currentRole === "reviewer") kind.value = "attestation";
+  kind.dispatchEvent(new Event("change"));
 }
 
 async function loadImports() {
@@ -259,6 +400,57 @@ $("back").addEventListener("click", loadInventory);
 for (const id of ["filter-text", "filter-type", "filter-tier"]) {
   $(id).addEventListener("input", () => renderIdentities(window._identities || []));
 }
+
+// The owner type only means something on an owner record; the routes
+// refuse it elsewhere, and the form does not offer it elsewhere.
+function wireOwnerTypeVisibility(formId) {
+  const form = $(formId);
+  const kind = form.querySelector('[name="kind"]');
+  const ownerLabel = form.querySelector('[name="owner_type"]').closest("label");
+  const sync = () => { ownerLabel.hidden = kind.value !== "owner"; };
+  kind.addEventListener("change", sync);
+  sync();
+}
+wireOwnerTypeVisibility("gov-form");
+wireOwnerTypeVisibility("group-gov-form");
+
+$("gov-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = new FormData(e.target);
+  const kind = form.get("kind");
+  const payload = { kind, value: form.get("value") };
+  if (kind === "owner") payload.owner_type = form.get("owner_type");
+  await submitGovernance(
+    "/identities/" + detailId + "/governance", payload, "gov-result",
+    () => loadDetail(detailId));
+  e.target.querySelector('[name="value"]').value = "";
+});
+
+$("attest-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = new FormData(e.target);
+  await submitGovernance(
+    "/identities/" + detailId + "/attest", { value: form.get("value") },
+    "gov-result", () => loadDetail(detailId));
+});
+
+$("group-gov-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!selectedGroup) return;
+  const form = new FormData(e.target);
+  const kind = form.get("kind");
+  const id = selectedGroup.id;
+  const path = kind === "attestation"
+    ? "/groups/" + id + "/attest"
+    : "/groups/" + id + "/governance";
+  const payload = kind === "attestation"
+    ? { value: form.get("value") }
+    : { kind, value: form.get("value") };
+  if (kind === "owner") payload.owner_type = form.get("owner_type");
+  await submitGovernance(path, payload, "group-gov-result",
+    () => reloadGroupsKeepSelection(id));
+  e.target.querySelector('[name="value"]').value = "";
+});
 
 $("import-form").addEventListener("submit", async (e) => {
   e.preventDefault();

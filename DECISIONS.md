@@ -695,3 +695,55 @@ and not a build result. And the checks workflow runs on pull requests
 and on main rather than on every branch push, with a concurrency
 group, because the duplicate run taught nothing and doubled the
 exposure to exactly the network blip that failed this one.
+
+## D-038: The owner is typed, and teams are the default
+
+Governance records arrive as an append-only human layer: owner,
+purpose, flag, and attestation, on identities and groups, each record
+attributed to the person who wrote it and closed rather than edited
+when it is superseded or cleared, which is the observation model
+applied to human statements.
+
+The owner is not a string. It carries a type: team, business unit,
+individual, vendor, or unknown. The reasoning starts from this tool's
+own opening finding. An individual owner is the orphan in waiting: the
+person leaves, nothing in the provider changes, and the identity keeps
+its keys and its privilege with nobody accountable, which is improper
+offboarding, the finding class the engine leads with. A tool that
+encourages individual ownership manufactures its own top finding, so
+the interface and the documentation treat a team as the normal answer.
+An individual owner on a privileged identity is reported as a notice
+that states the exposure and leaves the judgment to the reader.
+
+Review practice still wants a named person who signed. That need is
+met without giving up the durable owner, because the two were never
+the same thing: the owner is who answers for the identity over time,
+and the attestor is who looked on a given date, which the attestation
+record and the audit row already capture with attribution.
+
+An assigned owner outranks the owner tag, because the assignment is
+the deliberate human input this table exists to hold, while the tag is
+an observation like every other imported field. The unowned finding is
+answered by an assignment, which makes it clearable inside role-call
+rather than only by re-tagging the provider. A disagreement between
+the assigned owner and the tag is surfaced as its own notice naming
+both values, because a silent winner would hide exactly the staleness
+a governance tool exists to show.
+
+The rejected shape is the three-field enterprise answer: cost centre,
+application identifier, and engineering team. They answer different
+questions and real organizations track all three, but with no
+directory or configuration source to validate against, three free-text
+fields are three fields of typos. One typed field now, and the split
+becomes worth revisiting when an integration arrives that can validate
+at least one of them.
+
+<!-- vale BuildGuidelines.Audience = NO -->
+<!-- Scoped exception: "reviewer" below names the product's role, the
+     person who performs an access review inside the application. It
+     does not describe this document's audience. -->
+Attestation is open to all three roles, while owner, purpose, and flag
+writes stay with the operator and administrator, because stating "I
+looked at this and it is still needed" is exactly the reviewer's act,
+and changing who answers for an identity is not.
+<!-- vale BuildGuidelines.Audience = YES -->
