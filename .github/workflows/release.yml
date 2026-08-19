@@ -1,0 +1,51 @@
+# The release workflow (D-050). A signed version tag starts it; it
+# builds the artifacts, generates the software bill of materials from
+# the same hash-pinned tree every other job uses, checksums everything,
+# publishes the GitHub release, and attests build provenance for every
+# artifact through GitHub's attestation service, so a consumer can
+# verify what was released and how it was built without trusting this
+# repository's word:
+#   gh attestation verify <artifact> -R tltaylor1/role-call
+name: release
+
+permissions:
+  contents: read
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      # Creating the release writes contents; the attestation needs the
+      # identity token and the attestation store, and nothing here
+      # needs anything else.
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: install the audit tooling, hashes enforced
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --no-cache-dir --require-hashes -r requirements-dev.txt
+      - name: build the artifacts
+        run: |
+          mkdir -p dist
+          git archive --format=tar.gz --prefix="role-call-$GITHUB_REF_NAME/" -o "dist/role-call-src-$GITHUB_REF_NAME.tar.gz" "$GITHUB_REF_NAME"
+          tar -czf "dist/sample-data-$GITHUB_REF_NAME.tar.gz" sample-data
+          "$RUNNER_TEMP/venv/bin/pip-audit" --require-hashes -r requirements.txt --format cyclonedx-json --output "dist/sbom-$GITHUB_REF_NAME.json"
+          (cd dist && sha256sum ./* > SHA256SUMS)
+      - name: attest build provenance for every artifact
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*
+      - name: publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --notes-from-tag --title "$GITHUB_REF_NAME"

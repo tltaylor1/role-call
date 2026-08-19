@@ -109,7 +109,7 @@ each failure recorded rather than denied (D-044):
 
 | Its own requirement | Does this repository pass? |
 |---|---|
-| A canonical, pinnable released artifact | No. There are no tags, no releases, and no published package; a consumer can pin a commit hash, which is immutable but is the workaround, not the discipline. Release discipline with build provenance attestations is scheduled for the pipeline phase. |
+| A canonical, pinnable released artifact | Largely. Releases exist from D-050: signed tags, checksummed artifacts, and build provenance attestations verifiable against the platform's transparency log. Still absent by choice: a registry-published package or image, behind its own decision for the day a consumer wants to pull rather than build. |
 | Cryptographic authorship | Partially. Commits are signed with a registered SSH key from D-044 onward; history before that is unsigned and rests on account control, stated rather than hidden, because backfilling signatures would mean rewriting published history. |
 | A maintained upstream with more than one set of eyes | No. One maintainer, no independent review, recorded as the deliberate zero-approval ruleset (D-028) and visible in the published scorecard rather than claimed away. |
 | Generation provenance | Coarse. The commit trailer names the assisting system but cannot name the exact model per commit, because the harness varies it; the dependency tree resolves to exact artifacts, the authorship record does not. |

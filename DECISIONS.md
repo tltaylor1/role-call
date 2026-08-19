@@ -1017,3 +1017,30 @@ requires opening the changed files, where a merge button alone does
 not, and a review path that makes reading the diff the road to the
 button gets the diff read. The mechanism does not merely record the
 review; it produces it.
+
+## D-050: Releases exist, versioned by phase, attested by the platform
+
+The version scheme reads from the roadmap: v0.N means the work through
+phase N is complete, with a third number for fixes between, and v1.0.0
+is reserved for the day the version one scope deploys somewhere real.
+A version a reader can decode against the phase list beats a counter
+that means nothing without a changelog.
+
+A release starts with a signed tag, the same key that signs every
+commit (D-044), so the pointer to the release carries the same
+authorship proof as its history. The workflow builds a source archive
+from the tag, packages the sample account, generates the software bill
+of materials from the same hash-pinned tree every pipeline job uses,
+checksums all of it, publishes the release, and attests build
+provenance for every artifact through the platform's attestation
+service. A consumer verifies with one command, printed in the README,
+and the verification answers from the platform's transparency log, not
+from this repository's own claims.
+
+This answers the self-assessment's first failing row: role-call
+demanded a canonical, pinnable released artifact of every dependency
+while offering none itself. It now offers one. What it still does not
+offer is a registry-published package or container image; publishing
+the image is a new public surface with its own maintenance duty, and
+it stays deliberately behind its own decision for the day a consumer
+exists who wants to pull rather than build.
