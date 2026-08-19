@@ -15,7 +15,7 @@ import re
 import sys
 from pathlib import Path
 
-FIGURE = re.compile(r"[Ss]ubphases?\s+(\d+)\s+of\s+12")
+FIGURE = re.compile(r"[Ss]ubphases?\s+(\d+)\s+of\s+(\d+)")
 
 # Phrases that were publicly false once; they may never appear in these
 # files again. Scoped to the status-bearing documents on purpose, so
@@ -34,20 +34,21 @@ def main() -> int:
     match = FIGURE.search(source)
     if match is None:
         failures.append(
-            "the journey diagram no longer states 'subphases N of 12'; "
+            "the journey diagram no longer states 'subphases N of M'; "
             "the status source is gone"
         )
     else:
-        figure = match.group(1)
+        figure = match.groups()
         for name in ("README.md",):
             text = Path(name).read_text()
             found = FIGURE.search(text)
             if found is None:
                 failures.append(f"{name} does not state the subphase figure")
-            elif found.group(1) != figure:
+            elif found.groups() != figure:
                 failures.append(
-                    f"{name} says {found.group(1)} of 12; the journey "
-                    f"diagram, the source, says {figure} of 12"
+                    f"{name} says {found.group(1)} of {found.group(2)}; "
+                    f"the journey diagram, the source, says "
+                    f"{figure[0]} of {figure[1]}"
                 )
 
     for name, phrases in FORBIDDEN.items():
