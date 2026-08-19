@@ -7,7 +7,7 @@ the honest record of the arrangement.
 
 The agent works against [AGENTS.md](AGENTS.md) from the first commit, so
 the constraints precede the code. Design documents came before any
-application code, and the build itself follows [BUILD-PLAN.md](BUILD-PLAN.md):
+application code, and the build itself followed the plan in the roadmap section of [README.md](README.md):
 ordered subphases, each closed by human review before the next begins.
 Commits the agent co-authors carry a trailer naming the exact model, so
 the provenance of the code is readable from history the same way the
@@ -144,6 +144,17 @@ manufactured entry would defeat the reason this file exists.
   and no test noticed, because every test presented either a real
   token or none. The missing test now exists, and the check that found
   the gap runs in the pipeline.
+
+- **The runbook claimed a verification that had not happened.** The
+  operating procedures stated that each was run against a live stack
+  before being written down, and folding them into the README exposed
+  the tell: the commands named a service that does not exist in the
+  compose file, so they had never been executed. The full cycle,
+  backup, restore, the throwaway-database drill with counts compared,
+  was then actually run with the corrected commands before the folded
+  text was allowed to repeat the claim. A procedure that was never
+  executed is a hope with a command prompt, and the claim of
+  verification is itself a figure that needs verifying.
 
 Each entry changed a rule, a checklist, or a design, which is the point:
 the catches compound, the mistakes do not. This last one changed the

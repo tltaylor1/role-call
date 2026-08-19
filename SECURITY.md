@@ -96,8 +96,8 @@ Mapped threat-by-threat in [THREAT-MODEL.md](THREAT-MODEL.md):
 deployment-layer encryption at rest (D-020) arrives with the
 deployment phases, and step-up authentication arrives with the first
 action that changes a cloud account, which version one deliberately
-does not contain. The backup, restore, and retention procedures are in
-[RUNBOOK.md](RUNBOOK.md).
+does not contain. The backup, restore, and retention procedures are in the operating
+section of [README.md](README.md), each run against a live stack.
 
 ## Supported versions
 
