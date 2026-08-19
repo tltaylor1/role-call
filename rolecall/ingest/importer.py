@@ -98,11 +98,17 @@ def import_credential_report(
     db.add(snapshot)
     db.flush()
 
-    known = {
-        identity.provider_identifier: identity
-        for identity in db.execute(
-            select(Identity).where(Identity.account_id == account.id)
-        ).scalars()
+    existing = db.execute(
+        select(Identity).where(Identity.account_id == account.id)
+    ).scalars().all()
+    known = {identity.provider_identifier: identity for identity in existing}
+    # An identity upgraded to its real identifier keeps the key this
+    # file can compute, so a later report finds it rather than minting
+    # a duplicate beside it.
+    by_provisional = {
+        identity.provisional_key: identity
+        for identity in existing
+        if identity.provisional_key
     }
     new_count = 0
     seen_this_snapshot: set[str] = set()
@@ -115,18 +121,22 @@ def import_credential_report(
             skipped += 1
             continue
         seen_this_snapshot.add(row.provisional_key)
-        identity = known.get(row.provisional_key)
+        identity = by_provisional.get(row.provisional_key) or known.get(
+            row.provisional_key
+        )
         if identity is None:
             identity = Identity(
                 account_id=account.id,
                 provider_identifier=row.provisional_key,
                 provisional=True,
+                provisional_key=row.provisional_key,
                 identity_type="root" if row.is_root else "user",
                 first_display_name=row.display_name,
             )
             db.add(identity)
             db.flush()
             known[row.provisional_key] = identity
+            by_provisional[row.provisional_key] = identity
             new_count += 1
         db.add(
             Observation(
@@ -264,6 +274,7 @@ def import_authorization_details(
         if provisional is not None and provisional.provisional:
             provisional.provider_identifier = real_id
             provisional.provisional = False
+            provisional.provisional_key = pk
             identities.pop(pk)
             identities[real_id] = provisional
             upgraded += 1
@@ -272,6 +283,7 @@ def import_authorization_details(
             account_id=account.id,
             provider_identifier=real_id,
             provisional=False,
+            provisional_key=pk,
             identity_type=kind,
             first_display_name=name,
         )

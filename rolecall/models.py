@@ -98,6 +98,13 @@ class Identity(Base):
     # content (D-029), upgraded when a source that knows arrives.
     provider_identifier: Mapped[str] = mapped_column(String(128), index=True)
     provisional: Mapped[bool] = mapped_column(default=False)
+    # The key the credential report can compute from immutable content
+    # alone. Kept after an upgrade to the real identifier, so a later
+    # credential report recognises the identity instead of creating a
+    # second one beside it.
+    provisional_key: Mapped[str | None] = mapped_column(
+        String(128), index=True, default=None
+    )
     identity_type: Mapped[str] = mapped_column(String(16))
     first_display_name: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(
