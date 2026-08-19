@@ -30,6 +30,11 @@ jobs:
           results_file: results.sarif
           results_format: sarif
           publish_results: true
-      - uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
-        with:
-          sarif_file: results.sarif
+      # The result is published to the public scorecard and read from
+      # there. It is deliberately NOT uploaded into code scanning: these
+      # are posture facts about the repository, several of them recorded
+      # accepted risks (no second reviewer, fuzzing not yet at its
+      # subphase), and uploading them made every pull request fail on
+      # findings no pull request can fix. An alarm that is always red
+      # teaches the eye to skip the alarm, which is the one thing a
+      # security gate cannot afford (D-037).

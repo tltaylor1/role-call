@@ -667,3 +667,31 @@ and keep current beside the Python one, for a page that renders tables.
 The stated cost of this choice is that the page will stay plain, which
 is acceptable while the questions this tool answers, not the interface
 it answers them through, are what the project is about.
+
+## D-037: The posture score publishes, and stays out of code scanning
+
+The scorecard's findings were being uploaded into code scanning, where
+they became pull request alerts. The consequence showed up on the
+first pull request after the frontend landed: a check reporting a high
+severity security alert, which turned out to be the repository having
+no second person reviewing changes and no fuzzing subphase yet. Both are recorded
+accepted risks. Neither is a defect in the change under review, and no
+pull request can fix either.
+
+A gate that fails on findings the change cannot address is the alarm
+that is always red, and this project already refuses that pattern
+where scanners are concerned. So the score keeps publishing, where it
+is read from the public scorecard and cited in the security document,
+and nothing is written into code scanning. The five alerts already
+sitting there were dismissed with that reason recorded on each.
+
+The tool keeps its scoped permission for publishing and loses the one
+that wrote findings, which is least privilege applied to a workflow
+after learning what it actually needs.
+
+Two smaller pipeline decisions ride with it, both from the same run.
+Tool downloads retry, because a reset connection is a network event
+and not a build result. And the checks workflow runs on pull requests
+and on main rather than on every branch push, with a concurrency
+group, because the duplicate run taught nothing and doubled the
+exposure to exactly the network blip that failed this one.

@@ -10,7 +10,16 @@ permissions:
 
 on:
   push:
+    branches: [main]
   pull_request:
+
+# A branch push and its pull request used to run this twice, which
+# doubled the exposure to a network blip on a tool download and taught
+# nothing extra. Branches are gated by their pull request; main is
+# gated on the merge.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   secrets:
@@ -24,7 +33,7 @@ jobs:
       - name: install trufflehog, verified
         run: |
           cd "$RUNNER_TEMP"
-          curl -sSfL -o th.tar.gz https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.0/trufflehog_3.97.0_linux_amd64.tar.gz
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o th.tar.gz https://github.com/trufflesecurity/trufflehog/releases/download/v3.97.0/trufflehog_3.97.0_linux_amd64.tar.gz
           echo "62224de2f9dd7cd418800feb953760a302ed2f82a7c547fe1146a4874fb179e4  th.tar.gz" | sha256sum -c -
           tar -xzf th.tar.gz trufflehog
       - name: scan the full history with verification on
@@ -39,7 +48,7 @@ jobs:
       - name: install vale, verified
         run: |
           cd "$RUNNER_TEMP"
-          curl -sSfL -o vale.tar.gz https://github.com/errata-ai/vale/releases/download/v3.17.0/vale_3.17.0_Linux_64-bit.tar.gz
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o vale.tar.gz https://github.com/errata-ai/vale/releases/download/v3.17.0/vale_3.17.0_Linux_64-bit.tar.gz
           echo "a903f1f60c3293fac643e0137f599a462881cc691ee19d6120dcfc786f1be86d  vale.tar.gz" | sha256sum -c -
           tar -xzf vale.tar.gz vale
       - name: writing rules
@@ -61,7 +70,7 @@ jobs:
       - name: install actionlint, verified
         run: |
           cd "$RUNNER_TEMP"
-          curl -sSfL -o al.tar.gz https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o al.tar.gz https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
           echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  al.tar.gz" | sha256sum -c -
           tar -xzf al.tar.gz actionlint
       - name: lint the workflows
@@ -71,7 +80,7 @@ jobs:
       - name: install zizmor, verified
         run: |
           cd "$RUNNER_TEMP"
-          curl -sSfL -o zz.tar.gz https://github.com/zizmorcore/zizmor/releases/download/v1.29.0/zizmor-x86_64-unknown-linux-gnu.tar.gz
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o zz.tar.gz https://github.com/zizmorcore/zizmor/releases/download/v1.29.0/zizmor-x86_64-unknown-linux-gnu.tar.gz
           echo "dd96df044a6e8538d5f423790f453bdd03d49e5b2bcc38214acc41a2f1297839  zz.tar.gz" | sha256sum -c -
           tar -xzf zz.tar.gz
       - name: audit the workflows
@@ -86,7 +95,7 @@ jobs:
       - name: install lychee, verified
         run: |
           cd "$RUNNER_TEMP"
-          curl -sSfL -o ly.tar.gz https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz
+          curl -sSfL --retry 3 --retry-delay 2 --retry-connrefused -o ly.tar.gz https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz
           echo "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a  ly.tar.gz" | sha256sum -c -
           tar -xzf ly.tar.gz
       # Offline on purpose: the pipeline checks the cross-references
