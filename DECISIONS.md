@@ -924,7 +924,11 @@ moves from zero required approvals to one.
 The trade accepted knowingly: a standing private key on the
 workstation, held outside every repository with owner-only
 permissions, revocable in one click from the account, minting
-one-hour tokens that are never written to disk. Against it, the
+one-hour tokens supplied to git through a credential helper from
+memory, never as part of a URL, because the first run proved a
+credentialed URL leaks into local configuration through the upstream
+flag; a commit-time gate now watches that file (the incident and the
+ruling are in AI-USAGE.md). Against it, the
 narrowing: the agent's routine operations previously rode a user
 token scoped to every repository the account owns; the app reaches
 one repository with two permissions.
@@ -935,3 +939,53 @@ rewrite of the commit record. And this adds no second person: the
 self-assessment's more-than-one-set-of-eyes row still fails, because
 making one review legible does not make it two. The rare pull request
 the human authors himself is handled case by case when one exists.
+
+## D-046: The namespace denies by default, and names its three flows
+
+Network policy starts from nothing: a default-deny policy for both
+directions, then exactly the flows the system has. The application
+reaches the database and the resolver; the database accepts the
+application; the application's port accepts ingress, because the
+reachable boundary is the kind port mapping, which binds to loopback
+only, and the cluster cannot know which host addresses are friendly
+where the host already refuses everything nonlocal. The database gets
+no egress at all, because it initiates nothing.
+
+Each denial is proven by a probe, not assumed from the manifest: a
+non-application pod hanging against the database port, the application
+hanging against an address that is not the database, and the allowed
+path connecting, all run against the live cluster before this entry
+was written. Calico was installed in 2.1 precisely so these are
+enforcements rather than annotations the default plugin ignores.
+
+## D-047: Admission refuses what the files forgot
+
+Two layers at the gate. The namespace enforces the restricted Pod
+Security Standard, so a pod that escalates, runs as root, keeps
+capabilities, or skips its seccomp profile is refused at creation;
+the workload manifests already satisfied it, and the label converts
+that compliance from practice into refusal. A validating admission
+policy requires every image to be digest-pinned, extending the
+repository's pin discipline to the cluster, with one recorded
+exception: the application's own image is built locally and loaded
+into the cluster, never pulled, has no registry digest to pin, and
+imagePullPolicy Never makes any registry substitution a loud failure.
+
+Workload identity is minimized rather than managed: each workload gets
+a service account with no permissions and no mounted token, because
+the application needs nothing from the orchestrator, and a token that
+is not in the pod cannot be stolen from it. Both refusals and the
+token absence were verified against the live cluster, including the
+case that separates the layers: a fully compliant pod with an unpinned
+image, refused by the digest policy alone.
+
+## D-048: Manifests get the schema and posture treatment
+
+kubeconform validates every manifest against its API schema in the
+pipeline, and kube-linter reads the same files for posture. Both were
+vetted the standard way: fetched from canonical releases, checksummed,
+and run here before adoption. Both passed on first contact, which is
+not the tools failing to look but the D-042 posture having arrived at
+the cluster already hardened; the admission policy kinds are skipped
+by the schema check because the public schema registry lags the API,
+and the live cluster validated those objects itself.

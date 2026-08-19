@@ -37,6 +37,8 @@ spec:
       labels:
         app: rolecall
     spec:
+      serviceAccountName: app
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

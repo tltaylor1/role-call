@@ -34,6 +34,8 @@ spec:
       labels:
         app: db
     spec:
+      serviceAccountName: db
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 999

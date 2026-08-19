@@ -26,6 +26,7 @@ decided it.
 - [The idea in plain words](#the-idea-in-plain-words)
 - [Setup and run](#setup-and-run)
 - [Backup, restore, and retention](#backup-restore-and-retention)
+- [Running it on Kubernetes](#running-it-on-kubernetes)
 - [The gates a request passes](#the-gates-a-request-passes)
 - [Components and data flow](#components-and-data-flow)
 - [Trust boundaries](#trust-boundaries)
@@ -51,13 +52,13 @@ decided it.
 
 ## Status
 
-**Phase 2 of 8, local Kubernetes, is in progress: subphases 2 of 5
-built.** The cluster stands, kind on a digest-pinned node image with
-Calico installed, and the workload runs on it: the same digest-built
-image and database as the compose stack, pods hardened to the D-042
-posture and verified by command, with the health routes as liveness
-and readiness probes. Network policies arrive next, which is what
-Calico is there to enforce. Phase 1 is complete, all twelve subphases built and merged in
+**Phase 2 of 8, local Kubernetes: subphases 5 of 5 built.** The
+cluster runs the same digest-built image as the compose stack behind
+default-deny network policies with three named flows, the restricted
+pod security standard, an admission policy refusing unpinned images,
+and workload identities with nothing to steal; every claim has its
+probe in [Running it on Kubernetes](#running-it-on-kubernetes).
+Declaring the phase closed is a human call, recorded when made. Phase 1 is complete, all twelve subphases built and merged in
 a review-gated order fixed before any code
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tltaylor1/role-call/badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
 
@@ -212,6 +213,68 @@ snapshot, every governance record, and the audit history:
 docker compose down -v
 docker compose up --build
 ```
+
+-------------------------------------------------------------------------------
+
+## Running it on Kubernetes
+
+The same image, the second runtime. Docker Compose trusts its files;
+Kubernetes refuses at a gate what a file forgot, and Phase 2 exists to
+make those refusals real on a laptop before any cloud is involved.
+
+![What Docker provides and what Kubernetes adds](diagrams/runtime-split-sketch.svg)
+
+```
+scripts/cluster-up.sh
+export POSTGRES_PASSWORD=... ROLECALL_ADMIN_USERNAME=... ROLECALL_ADMIN_PASSWORD=...
+scripts/deploy-app.sh
+```
+
+The first script fetches kind and kubectl from their canonical
+releases, verifies their checksums, and brings up a cluster on a
+digest-pinned node image with Calico installed from a vendored,
+digest-verified manifest; the default network plugin is disabled
+because it ignores network policies silently. The second builds the
+image, loads it into the cluster so no registry is ever consulted,
+creates the secrets from your environment, refusing to run while one
+is missing, and waits for readiness. The page is at
+http://127.0.0.1:8000, published on the loopback interface only,
+matching the compose posture. `scripts/cluster-down.sh` removes it
+all.
+
+What the cluster enforces that compose cannot, each verifiable:
+
+- **Network policy, default deny.** Everything is refused except the
+  three flows the system has: operator to application, application to
+  database, and name resolution. Calico enforces; the probes prove:
+
+```bash
+.tools/kubectl -n rolecall exec deploy/app -- python -c "import socket; socket.create_connection(('db', 5432), timeout=5); print('allowed')"
+.tools/kubectl -n rolecall run probe --image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 --restart=Never --command -- sleep 300
+.tools/kubectl -n rolecall exec probe -- timeout 4 bash -c "echo > /dev/tcp/db/5432"   # hangs and dies: denied
+```
+
+- **Admission, two layers.** The namespace enforces the restricted Pod
+  Security Standard, and a validating admission policy refuses any
+  image not pinned by digest, with the locally built application image
+  as the one recorded exception (D-047). A privileged pod and an
+  unpinned image are both refused at creation, wording and all:
+
+```bash
+.tools/kubectl -n rolecall run unpinned --image=nginx:latest --restart=Never   # refused by pod security
+```
+
+- **No orchestrator identity to steal.** The workloads run under
+  service accounts with no permissions and no mounted token, because
+  the application needs nothing from the Kubernetes API:
+
+```bash
+.tools/kubectl -n rolecall exec deploy/app -- ls /var/run/secrets/kubernetes.io   # No such file or directory
+```
+
+The manifests are schema-validated and posture-linted in the pipeline
+by kubeconform and kube-linter, both fetched checksum-verified like
+every other tool.
 
 -------------------------------------------------------------------------------
 
@@ -1155,9 +1218,10 @@ identical in code.
 
 ## Diagrams to draw
 
-Working sketches exist for six so far (the system context, the data
-flow, the trust ladder, the phase journey, the subphase cycle, and the
-pipeline), as sketch-suffixed files in the diagrams directory. The
+Working sketches exist for seven so far (the system context, the data
+flow, the trust ladder, the phase journey, the subphase cycle, the
+pipeline, and the runtime split), as sketch-suffixed files in the
+diagrams directory. The
 finished diagrams below are all still to be drawn by hand, and they
 replace the sketches as they complete.
 
