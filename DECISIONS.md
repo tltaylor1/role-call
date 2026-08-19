@@ -924,7 +924,11 @@ moves from zero required approvals to one.
 The trade accepted knowingly: a standing private key on the
 workstation, held outside every repository with owner-only
 permissions, revocable in one click from the account, minting
-one-hour tokens that are never written to disk. Against it, the
+one-hour tokens supplied to git through a credential helper from
+memory, never as part of a URL, because the first run proved a
+credentialed URL leaks into local configuration through the upstream
+flag; a commit-time gate now watches that file (the incident and the
+ruling are in AI-USAGE.md). Against it, the
 narrowing: the agent's routine operations previously rode a user
 token scoped to every repository the account owns; the app reaches
 one repository with two permissions.

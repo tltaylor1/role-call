@@ -157,19 +157,25 @@ manufactured entry would defeat the reason this file exists.
   executed is not yet a procedure, and the claim of
   verification is itself a figure that needs verifying.
 
-- **The agent's own tooling broke its own promise on its first run.**
-  The script that pushes branches under the agent's identity carried a
-  comment saying tokens are never written to disk, and its first
-  execution wrote the token into the local branch configuration,
-  because the push used the upstream-setting flag and the upstream URL
-  contained the credential. Caught by reading the push output rather
-  than trusting the comment; the token was scrubbed from the local
-  file, revoked at the provider even though it had under an hour to
-  live, and the script now pushes without setting an upstream from
-  that URL. Nothing reached the repository: the file involved is
-  git's local configuration, which no commit carries. The lesson is
-  the runbook lesson again, one layer down: a comment describing
-  behavior is a claim, and only the first run verifies it.
+- **The agent's own tooling broke its own promise on its first run,
+  and the first remedy was the wrong kind.** The script that pushes
+  branches under the agent's identity carried a comment saying tokens
+  never touch disk; its first execution wrote the token into the local
+  branch configuration, because the push URL carried the credential
+  and the upstream flag recorded that URL. Nothing reached the
+  repository, the file is git's local configuration, which no commit
+  carries, and the token was revoked at the provider inside its
+  one-hour life. The initial response was scrubbing the file, and the
+  human's ruling on that response became the real lesson: needing to
+  scrub means the secret was already somewhere it should never have
+  been, and a remedy that depends on noticing is not a control. Two
+  mechanisms replaced it. The credential left the URL entirely, git
+  now receives it through a credential helper from memory, so no
+  upstream, log, or configuration write can ever carry it, removing
+  the class rather than the instance. And a commit-time gate now
+  watches the one file the secret scanner deliberately skips, the
+  local git configuration, so anything credential-shaped landing
+  there is a build failure, not a discovery.
 
 Each entry changed a rule, a checklist, or a design, which is the point:
 the catches compound, the mistakes do not. This last one changed the
