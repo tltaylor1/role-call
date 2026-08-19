@@ -217,6 +217,38 @@ class PolicyDocumentRecord(Base):
     document: Mapped[dict[str, object] | None] = mapped_column(JSON, default=None)
 
 
+class GovernanceRecord(Base):
+    """The human layer: what a person declared about an identity or a
+    group, kept the way observations are kept. Records are superseded
+    or cleared, never edited, so the history of who said what stands
+    the way the machine history does (D-006 applied to people)."""
+
+    __tablename__ = "governance_records"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    # "identity" or "group"; the id below is that table's primary key.
+    target_type: Mapped[str] = mapped_column(String(16), index=True)
+    target_id: Mapped[int] = mapped_column(index=True)
+    # owner | purpose | flag | attestation; owner and purpose hold one
+    # active record per target, flags and attestations accumulate.
+    kind: Mapped[str] = mapped_column(String(16))
+    value: Mapped[str] = mapped_column(String(500))
+    # Only for kind=owner: team | business_unit | individual | vendor |
+    # unknown. Teams are the default the routes encourage, because an
+    # individual owner is the orphan in waiting (D-038).
+    owner_type: Mapped[str | None] = mapped_column(String(16), default=None)
+    # Attribution survives user deletion, same shape as the audit spine.
+    actor_user_id: Mapped[int | None] = mapped_column(default=None)
+    actor_username: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow
+    )
+    cleared_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+    cleared_by: Mapped[str | None] = mapped_column(String(64), default=None)
+
+
 class AuditEvent(Base):
     __tablename__ = "audit_events"
 

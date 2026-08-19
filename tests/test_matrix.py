@@ -79,6 +79,31 @@ CALL_PLANS: dict[str, tuple[str, str, dict[str, object]]] = {
     "GET /identities": ("get", "/identities", {}),
     "GET /identities/{identity_id}": ("get", "/identities/999999", {}),
     "GET /groups": ("get", "/groups", {}),
+    # Identity 1 exists by the time these rows run: the import rows
+    # above land first and create it. The group and record rows point
+    # at nothing on purpose; a 404 there is still an authorization
+    # allow, which the escape below accepts for parameterized routes.
+    "POST /identities/{identity_id}/governance": (
+        "post",
+        "/identities/1/governance",
+        {"json": {"kind": "flag", "value": "matrix exercise"}},
+    ),
+    "POST /groups/{group_id}/governance": (
+        "post",
+        "/groups/999999/governance",
+        {"json": {"kind": "flag", "value": "matrix exercise"}},
+    ),
+    "POST /identities/{identity_id}/attest": (
+        "post",
+        "/identities/1/attest",
+        {"json": {"value": "matrix attestation"}},
+    ),
+    "POST /groups/{group_id}/attest": (
+        "post",
+        "/groups/999999/attest",
+        {"json": {"value": "matrix attestation"}},
+    ),
+    "DELETE /governance/{record_id}": ("delete", "/governance/999999", {}),
 }
 
 
@@ -125,9 +150,9 @@ def test_matrix_rows_are_enforced_for_every_role(
                 method.upper(), path, headers=auth_header(token), **call_kwargs  # type: ignore[arg-type]
             )
             if role in allowed:
-                # A 404 on the parameterized detail route is an allow:
+                # A 404 on a parameterized route is an allow:
                 # authorization passed and the lookup ran.
-                if response.status_code == 404 and "{identity_id}" in key:
+                if response.status_code == 404 and "{" in key:
                     continue
                 assert response.status_code < 400, (
                     f"{key} should admit {role}: {response.status_code}"

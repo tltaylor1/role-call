@@ -18,8 +18,16 @@ from rolecall.db import get_session
 from rolecall.deps import require_roles
 from rolecall.derive import derive
 from rolecall.findings import evaluate
+from rolecall.governance import (
+    active_owners_by_target,
+    active_records,
+    apply_owner_governance,
+    record_history,
+    resolve_owner,
+)
 from rolecall.models import (
     Account,
+    GovernanceRecord,
     Group,
     GroupObservation,
     Identity,
@@ -35,6 +43,7 @@ from rolecall.privilege import (
     membership_drift,
     read_identity_privilege,
 )
+from rolecall.routes.governance import RecordView, record_view
 
 router = APIRouter()
 
@@ -47,6 +56,8 @@ class IdentityView(BaseModel):
     provisional: bool
     observations: int
     name_reused: bool
+    flagged: bool
+    owner: str | None
     critical: int
     warning: int
     notice: int
@@ -76,8 +87,11 @@ class IdentityDetail(BaseModel):
     observed_days: int
     last_activity: str | None
     owner: str | None
+    owner_type: str | None
+    owner_source: str | None
     privilege_sources: list[str]
     findings: list[FindingView]
+    governance: list[RecordView]
     timeline: list[ObservationView]
 
 
@@ -168,16 +182,27 @@ def list_identities(
     for identity, _ in identities:
         key = (identity.account_id, identity.first_display_name)
         seen[key] = seen.get(key, 0) + 1
+    owners = active_owners_by_target(db, "identity")
+    flagged_ids = {
+        target_id
+        for (target_id,) in db.execute(
+            select(GovernanceRecord.target_id).where(
+                GovernanceRecord.target_type == "identity",
+                GovernanceRecord.kind == "flag",
+                GovernanceRecord.cleared_at.is_(None),
+            )
+        ).all()
+    }
     contexts: dict[int, tuple[PolicyIndex, dict[str, GroupFacts], dict[str, list[str]]]] = {}
     views = []
     for identity, account in identities:
         mine = pairs.get(identity.id, [])
         tiers = {"critical": 0, "warning": 0, "notice": 0}
+        effective = resolve_owner(owners.get(identity.id), None)
         if mine and identity.account_id in as_of_by_account:
             state = derive(mine, as_of_by_account[identity.account_id])
             state.identity_type = identity.identity_type
-            for finding in evaluate(state):
-                tiers[finding.tier] += 1
+            findings = evaluate(state)
             if identity.account_id not in contexts:
                 contexts[identity.account_id] = _privilege_context(
                     db, identity.account_id
@@ -193,7 +218,14 @@ def list_identities(
                 index=index,
                 groups=groups,
             )
-            for finding in evaluate_privilege(picture):
+            findings = findings + evaluate_privilege(picture)
+            # The same adjustment the detail route makes, so the list
+            # counts and the detail view cannot disagree.
+            effective = resolve_owner(owners.get(identity.id), picture.owner)
+            findings = apply_owner_governance(
+                findings, effective, picture.owner, picture.combined.privileged
+            )
+            for finding in findings:
                 tiers[finding.tier] += 1
         views.append(IdentityView(
             id=identity.id,
@@ -203,6 +235,8 @@ def list_identities(
             provisional=identity.provisional,
             observations=len(mine),
             name_reused=seen[(identity.account_id, identity.first_display_name)] > 1,
+            flagged=identity.id in flagged_ids,
+            owner=effective.name if effective else None,
             critical=tiers["critical"],
             warning=tiers["warning"],
             notice=tiers["notice"],
@@ -248,6 +282,18 @@ def identity_detail(
         groups=groups,
     )
     findings = findings + evaluate_privilege(picture)
+    assigned = next(
+        (
+            r
+            for r in active_records(db, "identity", identity.id)
+            if r.kind == "owner"
+        ),
+        None,
+    )
+    effective = resolve_owner(assigned, picture.owner)
+    findings = apply_owner_governance(
+        findings, effective, picture.owner, picture.combined.privileged
+    )
     reused = db.execute(
         select(func.count()).select_from(Identity).where(
             Identity.account_id == identity.account_id,
@@ -276,9 +322,14 @@ def identity_detail(
         last_activity=(
             state.last_activity.isoformat() if state.last_activity else None
         ),
-        owner=picture.owner,
+        owner=effective.name if effective else None,
+        owner_type=effective.owner_type if effective else None,
+        owner_source=effective.source if effective else None,
         privilege_sources=[source.describe() for source in picture.sources],
         findings=[FindingView(**vars(f)) for f in findings],
+        governance=[
+            record_view(r) for r in record_history(db, "identity", identity.id)
+        ],
         timeline=[
             ObservationView(
                 captured_at=captured.isoformat(),
@@ -297,32 +348,62 @@ def identity_detail(
 
 
 class GroupView(BaseModel):
+    id: int | None
     account: str
     name: str
     members: int
     privileged: bool
+    owner: str | None
+    flagged: bool
     findings: list[FindingView]
+    governance: list[RecordView]
 
 
 @router.get("/groups", dependencies=[require_roles("GET /groups")])
 def list_groups(db: Annotated[Session, Depends(get_session)]) -> list[GroupView]:
     """Groups as governed privilege sources (D-019): what each grants,
-    who is in it, and what changed since the previous snapshot."""
+    who is in it, what changed since the previous snapshot, and who
+    answers for it."""
     accounts = db.execute(select(Account)).scalars().all()
+    owners = active_owners_by_target(db, "group")
     views: list[GroupView] = []
     for account in accounts:
         index, groups, previous = _privilege_context(db, account.id)
+        ids = {
+            g.provider_identifier: g.id
+            for g in db.execute(
+                select(Group).where(Group.account_id == account.id)
+            ).scalars()
+        }
         for name, facts in sorted(groups.items()):
             reading, findings = evaluate_group(facts, index)
             if name in previous:
                 findings = findings + membership_drift(
                     name, previous[name], facts.members
                 )
+            group_id = ids.get(facts.key)
+            records = (
+                record_history(db, "group", group_id)
+                if group_id is not None
+                else []
+            )
+            effective = resolve_owner(
+                owners.get(group_id) if group_id is not None else None, None
+            )
+            findings = apply_owner_governance(
+                findings, effective, None, reading.privileged
+            )
             views.append(GroupView(
+                id=group_id,
                 account=account.provider_account_id,
                 name=name,
                 members=len(facts.members),
                 privileged=reading.privileged,
+                owner=effective.name if effective else None,
+                flagged=any(
+                    r.kind == "flag" and r.cleared_at is None for r in records
+                ),
                 findings=[FindingView(**vars(f)) for f in findings],
+                governance=[record_view(r) for r in records],
             ))
     return views
