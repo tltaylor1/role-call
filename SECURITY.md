@@ -100,6 +100,28 @@ action that changes a cloud account, which version one deliberately
 does not contain. The backup, restore, and retention procedures are in
 [README.md](README.md), each run against a live stack.
 
+## Held to its own bar
+
+This repository requires provenance of everything it consumes:
+canonical sources, hash-pinned artifacts, checksum-verified tools,
+maintained upstreams. Asked the same questions, it answers honestly
+(D-044):
+
+| Its own requirement | Does this repository pass? |
+|---|---|
+| A canonical, pinnable released artifact | No. There are no tags, no releases, and no published package; a consumer can pin a commit hash, which is immutable but is the workaround, not the discipline. Release discipline with build provenance attestations is scheduled for the pipeline phase. |
+| Cryptographic authorship | Partially. Commits are signed with a registered SSH key from D-044 onward; history before that is unsigned and rests on account control, stated rather than hidden, because backfilling signatures would mean rewriting published history. |
+| A maintained upstream with more than one set of eyes | No. One maintainer, no independent review, recorded as the deliberate zero-approval ruleset (D-028) and visible in the published scorecard rather than claimed away. |
+| Generation provenance | Coarse. The commit trailer names the assisting system but cannot name the exact model per commit, because the harness varies it; the dependency tree resolves to exact artifacts, the authorship record does not. |
+| A software bill of materials | Yes, delivered fresh by every pipeline run. |
+| Its own supply chain verified | Yes. Dependencies checked against canonical sources and hash-pinned, pipeline tools checksum-verified, actions pinned by commit, bases pinned by digest. |
+
+The failures are documented choices for a one-person learning
+project, each with its reason and, where one exists, its schedule.
+The row that matters is the difference between this table existing
+and not existing: an undocumented gap and a considered exclusion look
+identical from outside, and only the record distinguishes them.
+
 ## Supported versions
 
 Fixes land on the latest commit of the main branch. There are no
