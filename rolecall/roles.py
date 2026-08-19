@@ -40,5 +40,6 @@ PUBLIC_ROUTES: frozenset[str] = frozenset(
         "POST /auth/login",  # the way in
         "GET /health",  # liveness for the platform
         "GET /health/database",  # readiness for the platform
+        "GET /",  # the page shell, which carries no data
     }
 )
