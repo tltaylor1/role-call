@@ -40,6 +40,12 @@ repos:
       # names them to match them, so both are excluded; the vendored
       # Calico manifest carries its upstream's own markers and is
       # third-party text this repository does not edit.
+      - id: no-credentials-in-git-config
+        name: no credentials in git configuration
+        entry: bash scripts/check_git_config_credentials.sh
+        language: system
+        always_run: true
+        pass_filenames: false
       - id: no-deferred-work-markers
         name: forbid deferred-work markers
         entry: '\b(TODO|FIXME|HACK|XXX)\b'
