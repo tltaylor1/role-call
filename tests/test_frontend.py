@@ -6,7 +6,7 @@ scan is a gate rather than a habit: a future edit that reaches for a
 markup sink fails the build instead of a review.
 """
 
-import re
+from html.parser import HTMLParser
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -45,18 +45,65 @@ def test_the_page_has_no_markup_sink() -> None:
         assert sink not in code, f"the page reaches for {sink}"
 
 
+class MarkupScan(HTMLParser):
+    """A real parser rather than an expression that looks like one.
+
+    Matching tags with a regular expression is bypassable in ways this
+    check would never see, which a static analyser pointed out about
+    the first version of this test: a gate that a crafted tag can walk
+    past is not a gate. The parser handles the evasions by construction.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.inline_script: list[str] = []
+        self.handlers: list[str] = []
+        self.styles: list[str] = []
+        self._in_script = False
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        for name, _value in attrs:
+            if name.lower().startswith("on"):
+                self.handlers.append(f"{tag}[{name}]")
+            if name.lower() == "style":
+                self.styles.append(tag)
+        if tag.lower() == "script":
+            self._in_script = True
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "script":
+            self._in_script = False
+
+    def handle_data(self, data: str) -> None:
+        if self._in_script and data.strip():
+            self.inline_script.append(data.strip()[:40])
+
+
 def test_the_markup_has_no_inline_script_or_handler() -> None:
     """The content policy forbids inline execution; this proves the
     page does not need it, so the policy can stay strict."""
-    markup = (FRONTEND / "index.html").read_text()
-    # A script element may reference a file; it may not carry code.
-    inline = [
-        body for body in re.findall(r"<script[^>]*>([\s\S]*?)</script>", markup)
-        if body.strip()
-    ]
-    assert not inline, f"inline script block: {inline}"
-    assert not re.search(r"\son[a-z]+\s*=", markup, re.I), "inline event handler"
-    assert not re.search(r"\sstyle\s*=", markup, re.I), "inline style attribute"
+    scan = MarkupScan()
+    scan.feed((FRONTEND / "index.html").read_text())
+    assert not scan.inline_script, f"inline script: {scan.inline_script}"
+    assert not scan.handlers, f"inline event handler: {scan.handlers}"
+    assert not scan.styles, f"inline style attribute: {scan.styles}"
+
+
+def test_the_markup_scan_notices_what_it_is_looking_for() -> None:
+    """The gate is tested against the thing it exists to catch,
+    including the shapes a pattern match would have missed."""
+    for hostile in (
+        "<script>alert(1)</script>",
+        "<script >alert(1)</script >",
+        "<script\ntype='text/javascript'>alert(1)</script>",
+        "<div onclick='x()'>",
+        "<div style='color:red'>",
+    ):
+        scan = MarkupScan()
+        scan.feed(hostile)
+        assert scan.inline_script or scan.handlers or scan.styles, hostile
 
 
 def test_the_shell_is_served_with_its_headers(client: TestClient) -> None:
