@@ -1,0 +1,96 @@
+# The application on the cluster, the same image the compose stack
+# builds, hardened to the D-042 posture: non-root, read-only root
+# filesystem, every capability dropped, no privilege escalation,
+# bounded resources, /tmp in memory. The health routes the application
+# has carried since its first subphase become the liveness and
+# readiness probes; readiness uses the database round trip, so a pod
+# that cannot reach its data never receives traffic. The image is
+# built locally and loaded into the cluster by the deploy script, so
+# imagePullPolicy Never makes any registry fetch a loud failure
+# instead of a silent substitution.
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: rolecall
+spec:
+  type: NodePort
+  selector:
+    app: rolecall
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: rolecall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rolecall
+  template:
+    metadata:
+      labels:
+        app: rolecall
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: rolecall:local
+          imagePullPolicy: Never
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: ROLECALL_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rolecall-db
+                  key: ROLECALL_DATABASE_URL
+            - name: ROLECALL_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rolecall-admin
+                  key: ROLECALL_ADMIN_USERNAME
+            - name: ROLECALL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rolecall-admin
+                  key: ROLECALL_ADMIN_PASSWORD
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/database
+              port: 8000
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory

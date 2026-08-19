@@ -1,0 +1,102 @@
+# The database on the cluster, hardened to the same posture the
+# compose stack proved (D-042): non-root, read-only root filesystem,
+# every capability dropped, no privilege escalation, bounded resources.
+# Running as the postgres user from the start means the entrypoint
+# never needs the ownership capabilities the compose file grants; the
+# volume is made writable by fsGroup instead. The image digest is the
+# same one the compose file pins.
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: rolecall
+spec:
+  clusterIP: None
+  selector:
+    app: db
+  ports:
+    - port: 5432
+      name: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: rolecall
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: postgres
+          image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            # A subdirectory the postgres user creates itself: initdb
+            # must own its data directory to tighten its permissions,
+            # and the volume root belongs to the kubelet.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_USER
+              value: rolecall
+            - name: POSTGRES_DB
+              value: rolecall
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rolecall-db
+                  key: POSTGRES_PASSWORD
+          ports:
+            - containerPort: 5432
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "rolecall", "-d", "rolecall"]
+            periodSeconds: 2
+            timeoutSeconds: 2
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 250m
+            limits:
+              memory: 512Mi
+              cpu: "1"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: run
+              mountPath: /var/run/postgresql
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: run
+          emptyDir:
+            medium: Memory
+        - name: tmp
+          emptyDir:
+            medium: Memory
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

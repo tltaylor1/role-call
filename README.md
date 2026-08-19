@@ -51,11 +51,13 @@ decided it.
 
 ## Status
 
-**Phase 2 of 8, local Kubernetes, is in progress: subphases 1 of 5
-built.** The cluster stands: kind on a digest-pinned node image with
-Calico installed, brought up and torn down by scripts, so the network
-policies the next subphases add are enforced rather than silently
-ignored. Phase 1 is complete, all twelve subphases built and merged in
+**Phase 2 of 8, local Kubernetes, is in progress: subphases 2 of 5
+built.** The cluster stands, kind on a digest-pinned node image with
+Calico installed, and the workload runs on it: the same digest-built
+image and database as the compose stack, pods hardened to the D-042
+posture and verified by command, with the health routes as liveness
+and readiness probes. Network policies arrive next, which is what
+Calico is there to enforce. Phase 1 is complete, all twelve subphases built and merged in
 a review-gated order fixed before any code
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tltaylor1/role-call/badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
 
