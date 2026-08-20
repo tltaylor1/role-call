@@ -35,6 +35,21 @@ repos:
         entry: python3 scripts/check_digest_parity.py
         language: system
         pass_filenames: false
+      # The actions inventory gate: the README's table of pinned actions
+      # must match the workflows in both directions.
+      - id: actions-inventory
+        name: actions inventory check
+        entry: python3 scripts/check_actions_inventory.py
+        language: system
+        pass_filenames: false
+      # The writing rules apply to commit messages, which Vale never
+      # reads; one message carried a banned frame past every file gate
+      # before this existed.
+      - id: commit-message-writing
+        name: commit message writing rules
+        entry: bash scripts/check_commit_message.sh
+        language: system
+        stages: [commit-msg]
       # The standards ban deferred-work stubs; this makes the ban a mechanism.
       # AGENTS.md states the rule so it names the markers, and this file
       # names them to match them, so both are excluded; the vendored
