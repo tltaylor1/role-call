@@ -166,7 +166,7 @@ def test_resurrection_is_a_new_identity_and_visible(
     ).status_code == 201
     identities = db.execute(select(Identity)).scalars().all()
     assert len(identities) == 2  # D-016: a new principal, not an heir
-    listing = client.get("/identities", headers=auth_header(token)).json()
+    listing = client.get("/identities", headers=auth_header(token)).json()["rows"]
     assert all(i["name_reused"] for i in listing if i["display_name"] == "phoenix")
 
 

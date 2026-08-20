@@ -6,9 +6,9 @@ observation timeline with every finding explaining itself. The as-of
 time is the account's newest snapshot capture, never the wall clock.
 """
 
-from typing import Annotated
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -83,14 +83,71 @@ class IdentityDetail(BaseModel):
     timeline: list[ObservationView]
 
 
+class InventoryTiles(BaseModel):
+    """Account-wide counts by an identity's worst tier, independent of
+    any filter, so the dashboard reads the same on every page."""
+
+    identities: int
+    critical: int
+    warning: int
+    notice: int
+    quiet: int
+
+
+class InventoryPage(BaseModel):
+    tiles: InventoryTiles
+    matched: int
+    offset: int
+    limit: int
+    rows: list[IdentityView]
+
+
+def _worst_tier(tiers: dict[str, int]) -> str:
+    for tier in ("critical", "warning", "notice"):
+        if tiers[tier]:
+            return tier
+    return "quiet"
+
+
 @router.get("/identities", dependencies=[require_roles("GET /identities")])
 def list_identities(
     db: Annotated[Session, Depends(get_session)],
-) -> list[IdentityView]:
-    views = []
-    for a in assess_identities(db):
+    q: Annotated[str | None, Query(max_length=255)] = None,
+    identity_type: Annotated[
+        str | None, Query(alias="type", max_length=16)
+    ] = None,
+    tier: Literal["critical", "warning", "notice", "quiet"] | None = None,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> InventoryPage:
+    """A page of the inventory, bounded at any account size (issue 38).
+
+    State stays derived at read (D-006), so the assessment pass still
+    covers the account; what is bounded is what leaves it: filters
+    apply here rather than in the browser, at most one page of rows is
+    built and serialized, and the tiles come from the per-identity
+    tier counts the pass already holds, never from materialized rows.
+    """
+    assessed = assess_identities(db)
+    tier_by_id = {a.identity.id: _worst_tier(a.tier_counts()) for a in assessed}
+    tiles = InventoryTiles(
+        identities=len(assessed),
+        critical=sum(1 for t in tier_by_id.values() if t == "critical"),
+        warning=sum(1 for t in tier_by_id.values() if t == "warning"),
+        notice=sum(1 for t in tier_by_id.values() if t == "notice"),
+        quiet=sum(1 for t in tier_by_id.values() if t == "quiet"),
+    )
+    needle = q.lower() if q else None
+    matched = [
+        a for a in assessed
+        if (needle is None or needle in a.identity.first_display_name.lower())
+        and (identity_type is None or a.identity.identity_type == identity_type)
+        and (tier is None or tier_by_id[a.identity.id] == tier)
+    ]
+    rows = []
+    for a in matched[offset:offset + limit]:
         tiers = a.tier_counts()
-        views.append(IdentityView(
+        rows.append(IdentityView(
             id=a.identity.id,
             account=a.account,
             display_name=a.identity.first_display_name,
@@ -104,7 +161,9 @@ def list_identities(
             warning=tiers["warning"],
             notice=tiers["notice"],
         ))
-    return views
+    return InventoryPage(
+        tiles=tiles, matched=len(matched), offset=offset, limit=limit, rows=rows
+    )
 
 
 @router.get(

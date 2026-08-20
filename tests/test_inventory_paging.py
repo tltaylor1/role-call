@@ -1,0 +1,101 @@
+"""The inventory stays bounded at any account size (issue 38).
+
+The sample account's eighteen rows prove nothing about thousands, so
+these tests seed a few hundred through the real import path and hold
+the route to its promises: a capped page, filters on the server, and
+tiles that no filter changes.
+"""
+
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+from rolecall.roles import Role
+from rolecall.sample_data import GENERATIONS, file_set
+from tests.conftest import auth_header, login, make_user
+
+SCALE = 300
+
+
+def _seed(client: TestClient, db: Session) -> str:
+    token = login(client, make_user(db, Role.operator))
+    files = file_set(scale=SCALE)
+    day = GENERATIONS[0].strftime("%Y-%m-%d")
+    for route, name in (
+        ("credential-report", f"{day}-credential-report.csv"),
+        ("authorization-details", f"{day}-authorization-details.json"),
+    ):
+        response = client.post(
+            f"/imports/{route}",
+            files={"file": (name, files[name].encode(), "text/plain")},
+            data={"captured_at": GENERATIONS[0].isoformat()},
+            headers=auth_header(token),
+        )
+        assert response.status_code == 201, response.text
+    return token
+
+
+def test_the_response_is_bounded_at_hundreds_of_identities(
+    client: TestClient, db: Session
+) -> None:
+    token = _seed(client, db)
+    page = client.get("/identities", headers=auth_header(token)).json()
+    assert len(page["rows"]) == 100  # the default cap, not the account size
+    assert page["matched"] > SCALE
+    assert page["tiles"]["identities"] == page["matched"]
+    assert page["offset"] == 0 and page["limit"] == 100
+
+
+def test_the_limit_is_capped_and_the_offset_walks_every_row(
+    client: TestClient, db: Session
+) -> None:
+    token = _seed(client, db)
+    assert client.get(
+        "/identities?limit=501", headers=auth_header(token)
+    ).status_code == 422
+    seen: list[int] = []
+    offset = 0
+    while True:
+        page = client.get(
+            f"/identities?limit=150&offset={offset}", headers=auth_header(token)
+        ).json()
+        seen.extend(row["id"] for row in page["rows"])
+        if offset + len(page["rows"]) >= page["matched"]:
+            break
+        offset += 150
+    assert len(seen) == len(set(seen)) == page["matched"]
+
+
+def test_filters_apply_on_the_server(client: TestClient, db: Session) -> None:
+    token = _seed(client, db)
+    named = client.get(
+        "/identities?q=person-000&limit=500", headers=auth_header(token)
+    ).json()
+    assert 0 < named["matched"] < SCALE
+    assert all("person-000" in r["display_name"] for r in named["rows"])
+    critical = client.get(
+        "/identities?tier=critical&limit=500", headers=auth_header(token)
+    ).json()
+    assert all(r["critical"] > 0 for r in critical["rows"])
+    roots = client.get(
+        "/identities?type=root&limit=500", headers=auth_header(token)
+    ).json()
+    assert {r["identity_type"] for r in roots["rows"]} == {"root"}
+    assert client.get(
+        "/identities?tier=terrible", headers=auth_header(token)
+    ).status_code == 422
+
+
+def test_the_tiles_ignore_filters_and_partition_the_account(
+    client: TestClient, db: Session
+) -> None:
+    token = _seed(client, db)
+    unfiltered = client.get("/identities", headers=auth_header(token)).json()
+    filtered = client.get(
+        "/identities?q=svc-0000&tier=quiet", headers=auth_header(token)
+    ).json()
+    assert filtered["tiles"] == unfiltered["tiles"]
+    tiles = unfiltered["tiles"]
+    assert (
+        tiles["critical"] + tiles["warning"] + tiles["notice"] + tiles["quiet"]
+        == tiles["identities"]
+    )

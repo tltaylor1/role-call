@@ -155,7 +155,7 @@ def test_the_timeline_names_each_source_correctly(
             files={"file": (name, files[name].encode(), "text/plain")},
             data={"captured_at": captured.isoformat()},
         )
-    rows = client.get("/identities", headers=auth_header(token)).json()
+    rows = client.get("/identities", headers=auth_header(token)).json()["rows"]
     target = [r for r in rows if r["display_name"] == "ci-deployer"][0]
     detail = client.get(
         f"/identities/{target['id']}", headers=auth_header(token)
@@ -190,7 +190,7 @@ def test_hostile_names_survive_as_data_and_never_as_markup(
     assert "application/json" in listed.headers["content-type"]
     # The value is preserved exactly, because mangling data to make it
     # safe is how a tool starts lying about what it found.
-    names = [row["display_name"] for row in listed.json()]
+    names = [row["display_name"] for row in listed.json()["rows"]]
     assert PAYLOAD in names
     # And it is delivered as a JSON string, not as a document a browser
     # would parse as markup.
