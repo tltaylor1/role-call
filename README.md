@@ -1393,6 +1393,43 @@ gap remains, the documents say so.
 - **Andrew Koenig** and the AntiPatterns authors, whose two-part test
   disciplines how this project writes down what not to do.
 
+The tools deserve the same naming as the ideas. This repository is
+built, tested, and gated by open source it did not write: the
+application stands on [FastAPI](https://github.com/fastapi/fastapi),
+[Uvicorn](https://github.com/encode/uvicorn),
+[SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy),
+[Alembic](https://github.com/sqlalchemy/alembic),
+[psycopg](https://github.com/psycopg/psycopg),
+[bcrypt](https://github.com/pyca/bcrypt),
+[Pydantic](https://github.com/pydantic/pydantic),
+[Jinja](https://github.com/pallets/jinja),
+[python-multipart](https://github.com/Kludex/python-multipart), and
+[PostgreSQL](https://www.postgresql.org/); the tests on
+[pytest](https://github.com/pytest-dev/pytest),
+[Hypothesis](https://github.com/HypothesisWorks/hypothesis),
+[HTTPX](https://github.com/encode/httpx),
+[Ruff](https://github.com/astral-sh/ruff),
+[mypy](https://github.com/python/mypy), and
+[pip-audit](https://github.com/pypa/pip-audit); the gates on
+[pre-commit](https://github.com/pre-commit/pre-commit),
+[TruffleHog](https://github.com/trufflesecurity/trufflehog),
+[Vale](https://github.com/errata-ai/vale),
+[actionlint](https://github.com/rhysd/actionlint),
+[zizmor](https://github.com/zizmorcore/zizmor),
+[lychee](https://github.com/lycheeverse/lychee),
+[OpenSSF Scorecard](https://github.com/ossf/scorecard),
+[CodeQL](https://github.com/github/codeql),
+[hadolint](https://github.com/hadolint/hadolint), and
+[Trivy](https://github.com/aquasecurity/trivy); and the local platform
+on [Docker](https://github.com/moby/moby),
+[Kubernetes](https://github.com/kubernetes/kubernetes),
+[kind](https://github.com/kubernetes-sigs/kind),
+[Calico](https://github.com/projectcalico/calico),
+[kubeconform](https://github.com/yannh/kubeconform), and
+[kube-linter](https://github.com/stackrox/kube-linter). Each carries
+maintainers whose work this project consumes for free; two of these
+tools found real defects here before any human did.
+
 Nothing here claims novelty for its parts. The parts are assembled
 from the projects above, the standards named, and lessons from earlier
 builds; what this project adds is the combination, the governance loop
