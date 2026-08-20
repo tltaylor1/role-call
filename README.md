@@ -701,10 +701,10 @@ stays derived at read (D-006).
 The figures below are the repository's own, each checkable by the
 command or test named beside it.
 
-**128 tests in 20 files**, each named for the property it defends. The
+**138 tests in 21 files**, each named for the property it defends. The
 load-bearing ones:
 
-- `test_matrix.py`: every one of the **29 routes** is either in the
+- `test_matrix.py`: every one of the **30 routes** is either in the
   role matrix or explicitly public, the documented route enumeration
   in the route surface section above matches the live route table in
   both directions,
@@ -1116,7 +1116,7 @@ blocks the merge; `workflows` lints and security-audits the workflow
 files themselves, because a mistake in the files that gate everything
 else is the most expensive kind; `links` walks every cross-reference
 offline, fragments included; `application` runs the linter, strict
-typing, the 128 tests under the coverage floor, the mutation check,
+typing, every test under the coverage floor, the mutation check,
 the migrations against a real PostgreSQL with drift detection, the
 dependency audits, and generates the software bill of materials as
 the run's artifact; and `container` lints the Dockerfile and scans

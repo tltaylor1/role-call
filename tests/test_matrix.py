@@ -204,6 +204,40 @@ def test_routes_match_the_documented_enumeration() -> None:
     )
 
 
+def test_the_stated_figures_are_the_counted_figures() -> None:
+    """The README's bold figures drifted twice in one day, once past a
+    new route and once past a new test file, because the enumeration
+    was gated and the prose numbers were not. Now a stated figure is a
+    counted figure: each lives in exactly one sentence, and this test
+    recounts it from the thing itself."""
+    import re
+    from pathlib import Path
+
+    root = Path(__file__).parent.parent
+    text = root.joinpath("README.md").read_text()
+
+    stated = re.search(r"\*\*(\d+) tests in (\d+) files\*\*", text)
+    assert stated, "README.md no longer states the test figure"
+    test_files = sorted(root.glob("tests/test_*.py"))
+    functions = sum(
+        len(re.findall(r"^def test_", f.read_text(), re.MULTILINE))
+        for f in test_files
+    )
+    assert (int(stated.group(1)), int(stated.group(2))) == (
+        functions, len(test_files)
+    ), (
+        f"README states {stated.group(0)}; counted {functions} tests "
+        f"in {len(test_files)} files"
+    )
+
+    routes_stated = re.findall(r"\*\*(\d+) routes\*\*", text)
+    assert len(routes_stated) == 1, "the route figure must live once"
+    assert int(routes_stated[0]) == len(route_keys()), (
+        f"README states {routes_stated[0]} routes; "
+        f"the application serves {len(route_keys())}"
+    )
+
+
 def test_every_matrix_row_has_a_call_plan() -> None:
     assert set(CALL_PLANS) == set(ROUTE_ROLES)
 
