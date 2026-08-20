@@ -24,6 +24,11 @@ ROUTE_ROLES: dict[str, frozenset[Role]] = {
     "POST /auth/logout": ALL_ROLES,
     "GET /admin/users": frozenset({Role.administrator}),
     "POST /admin/users": frozenset({Role.administrator}),
+    # Ending a compromised user's sessions is the administrator's act,
+    # and the threat model's stolen-token answer.
+    "POST /admin/users/{username}/sessions/revoke": frozenset(
+        {Role.administrator}
+    ),
     # Reviewers read; importing changes the record, so it is the
     # operator's and administrator's act.
     "POST /imports/credential-report": frozenset({Role.operator, Role.administrator}),

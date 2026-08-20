@@ -75,6 +75,11 @@ CALL_PLANS: dict[str, tuple[str, str, dict[str, object]]] = {
             "data": {"captured_at": "2026-08-01T00:00:00+00:00"},
         },
     ),
+    "POST /admin/users/{username}/sessions/revoke": (
+        "post",
+        "/admin/users/nobody.here/sessions/revoke",
+        {},
+    ),
     "GET /imports": ("get", "/imports", {}),
     "GET /identities": ("get", "/identities", {}),
     "GET /identities/{identity_id}": ("get", "/identities/999999", {}),

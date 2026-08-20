@@ -117,9 +117,12 @@ Three deliberate behaviors sit behind that block. The compose file
 refuses to start while a key is missing, because the tempting
 alternative, a hardcoded default, becomes the production secret the
 day someone forgets to set the real one; failing at startup is loud
-where a default is silent. The application migrates its schema before
-it serves, and a failed migration stops the container rather than
-letting it answer against a schema it does not understand. And the
+where a default is silent. A separate migration step runs first, as
+the database's owner role, and a failed migration stops the start
+rather than letting anything serve against a schema it does not
+understand; the application's own role holds data rights only
+(D-013), so the serving container could not change the schema even
+through an injection flaw the ORM has no path for. And the
 image build installs the dependency tree by cryptographic hash, so a
 package that differs from the reviewed one, from any source, for any
 reason, fails to install instead of running.
@@ -180,9 +183,9 @@ docker compose exec -T db pg_restore -U rolecall --clean --if-exists -d rolecall
 docker compose start app
 ```
 
-The application migrates on start, so a dump taken by an older schema
-is brought forward automatically, and a failed migration stops the
-container rather than serving the wrong schema.
+The migration step brings a dump taken by an older schema forward on
+the next start, and a failed migration stops the start rather than
+serving the wrong schema.
 
 **Verify the backup.** A backup that was never restored is a hope.
 Restore into a throwaway database and count:
@@ -650,6 +653,7 @@ GET /auth/me
 POST /auth/logout
 GET /admin/users
 POST /admin/users
+POST /admin/users/{username}/sessions/revoke
 POST /imports/credential-report
 POST /imports/authorization-details
 GET /imports
@@ -835,33 +839,34 @@ Recorded so each is a decision with a reason, not a surprise.
   acts there. That is the enrichment-over-automation design, stated as a
   risk because a reader could mistake governance records for applied
   controls.
-- **The audit trail is not yet tamper-evident.** The trail is atomic and
-  attributed from the first commit, but an actor with database write
-  access could still alter history. The exit is concrete: hash chaining
-  arrives with the campaign work, anchored by the evidence exports,
-  because a chain nobody anchors outside the database only detects
-  casual tampering and would be a control in name. Until then this is
-  the accepted gap, stated rather than implied.
+- **The audit trail is not yet tamper-evident.** The trail is atomic
+  and attributed from the first commit, and the application's own
+  database role cannot delete rows at all (D-013); but an actor with
+  owner access could still alter history. An earlier version of this
+  row promised hash chaining with the campaign work, and the campaign
+  work shipped without it, a stated exit that passed unmet and is
+  recorded as such; the chaining, anchored by the evidence exports, is
+  now application roadmap work with no promised date. Until it lands
+  this is the accepted gap, stated rather than implied.
 - **Snapshot files are only as authentic as their handling.** The
   intended procedure is exporting reports directly from the provider
   to the machine that imports them. A file that traveled through other
   hands in between is a risk the parser's bounds cannot remove,
   accepted and named.
 - **Roles are global, not account-scoped.** Any operator sees every
-  imported account. Right-sized for one team governing its own accounts;
-  account-scoped authorization is the named prerequisite for any
-  multi-tenant future, decided before that future starts. The sharpest
-  consequence, a stolen token reading every account for its whole
-  lifetime, gets its mitigation with user management's completion: an
-  administrator surface that revokes any user's sessions on demand.
-- **Single author, no second review of changes.** Every change lands
-  through a pull request that must pass the required checks before
-  merging, and main refuses direct pushes, force pushes, and deletion
-  (D-028). What remains accepted is the absence of a second human:
-  approvals are not required because there is nobody to give one, and
-  pretending otherwise would be theater. The exit condition is the
-  first collaborator, when required approvals join the required
-  checks.
+  imported account. Right-sized for one team governing its own
+  accounts; account-scoped authorization is the named prerequisite
+  for any multi-tenant future, decided before that future starts. The
+  sharpest consequence, a stolen token reading every account, has its
+  mitigation built: an administrator ends every session a user holds
+  in one audited act, and the ended tokens meet 401 on their next
+  request.
+- **One human's eyes.** Every change lands through a pull request
+  proposed by the agent's own identity, must pass the required checks,
+  and requires an approving human review before merging; main refuses
+  direct pushes, force pushes, and deletion (D-028, D-045). What
+  remains accepted is that the approving human is one person, with
+  nobody reading behind him. The exit is the first collaborator.
 - **The tool depends on the provider's own reporting.** If the account's
   telemetry is wrong or delayed, the inventory inherits that. Verifying
   the provider against itself is out of scope.

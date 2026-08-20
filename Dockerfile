@@ -18,12 +18,13 @@ RUN pip install --no-cache-dir --require-hashes -r requirements.txt
 COPY frontend ./frontend
 COPY rolecall ./rolecall
 COPY migrations ./migrations
+COPY scripts ./scripts
 COPY alembic.ini ./
 
 USER rolecall
 
-# Migrate, then serve. A failed migration stops the container rather
-# than serving against a schema it does not understand. The keep-alive
-# timeout is part of the stated request budget (D-041): idle
-# connections do not hold workers.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn rolecall.main:app --host 0.0.0.0 --port 8000 --timeout-keep-alive 5"]
+# The application serves and nothing else: migrations run in a
+# separate step as the owner role, because the application's own role
+# holds data rights only (D-013, honored at D-051). The keep-alive
+# timeout is part of the stated request budget (D-041).
+CMD ["uvicorn", "rolecall.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "5"]

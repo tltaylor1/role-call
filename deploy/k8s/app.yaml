@@ -45,6 +45,45 @@ spec:
         runAsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
+      # The migration step runs first, as the owner role, in its own
+      # container; the serving container never holds the owner
+      # credential (D-013, honored at D-051).
+      initContainers:
+        - name: migrate
+          image: rolecall:local
+          imagePullPolicy: Never
+          command: ["sh", "-c", "alembic upgrade head && python scripts/setup_db_roles.py"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 256Mi
+              cpu: 500m
+          env:
+            - name: ROLECALL_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rolecall-db
+                  key: ROLECALL_OWNER_DATABASE_URL
+            - name: ROLECALL_OWNER_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rolecall-db
+                  key: ROLECALL_OWNER_DATABASE_URL
+            - name: ROLECALL_APP_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rolecall-db
+                  key: ROLECALL_APP_DB_PASSWORD
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
       containers:
         - name: app
           image: rolecall:local

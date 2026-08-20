@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from rolecall.models import AuditEvent
 from rolecall.roles import Role
-from tests.conftest import auth_header, login, make_user
+from tests.conftest import ROLE_USERS, auth_header, login, make_user
 
 NEW_USER_PASSWORD = "pw-" + __import__("secrets").token_urlsafe(16)
 
@@ -99,3 +99,47 @@ def test_invalid_role_is_rejected_generically(client: TestClient, db: Session) -
     )
     assert r.status_code == 422
     assert "supreme-leader" not in r.text
+
+
+def test_revoking_a_users_sessions_ends_them_all(
+    client: TestClient, db: Session
+) -> None:
+    """The stolen-token answer: an administrator ends every session a
+    user holds; the user's next request meets 401, other users feel
+    nothing, and the act is attributed in the audit table."""
+    from sqlalchemy import select
+
+    from rolecall.models import AuditEvent
+
+    make_user(db, Role.administrator)
+    admin_token = login(client, ROLE_USERS[Role.administrator])
+    make_user(db, Role.operator)
+    victim_one = login(client, ROLE_USERS[Role.operator])
+    victim_two = login(client, ROLE_USERS[Role.operator])
+
+    r = client.post(
+        f"/admin/users/{ROLE_USERS[Role.operator]}/sessions/revoke",
+        headers=auth_header(admin_token),
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["sessions_revoked"] == 2
+
+    for token in (victim_one, victim_two):
+        assert client.get(
+            "/auth/me", headers=auth_header(token)
+        ).status_code == 401
+    assert client.get(
+        "/auth/me", headers=auth_header(admin_token)
+    ).status_code == 200
+
+    event = db.execute(
+        select(AuditEvent).where(AuditEvent.action == "sessions_revoked")
+    ).scalar_one()
+    assert event.target == ROLE_USERS[Role.operator]
+    assert "2 session(s)" in event.detail
+
+    r = client.post(
+        "/admin/users/ghost.user/sessions/revoke",
+        headers=auth_header(admin_token),
+    )
+    assert r.status_code == 404

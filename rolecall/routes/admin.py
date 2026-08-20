@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from rolecall import audit, security
 from rolecall.db import get_session
 from rolecall.deps import AuthContext, require_roles
-from rolecall.models import User
+from rolecall.models import AuthSession, User, utcnow
 from rolecall.roles import Role
 
 router = APIRouter(prefix="/admin")
@@ -74,3 +74,44 @@ def create_user(
     return UserView(
         username=user.username, role=user.role, created_at=user.created_at.isoformat()
     )
+
+
+class RevocationView(BaseModel):
+    username: str
+    sessions_revoked: int
+
+
+@router.post("/users/{username}/sessions/revoke")
+def revoke_user_sessions(
+    username: str,
+    db: Annotated[Session, Depends(get_session)],
+    auth: Annotated[AuthContext, require_roles("POST /admin/users/{username}/sessions/revoke")],
+) -> RevocationView:
+    """End every live session a user holds, in one act. This is the
+    stolen-token answer the threat model promised: a compromised
+    account stops working everywhere the moment an administrator says
+    so, without rotating anything or ending anyone else's day."""
+    user = db.execute(
+        select(User).where(User.username == username)
+    ).scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=404, detail="no such user")
+    now = utcnow()
+    live = db.execute(
+        select(AuthSession).where(
+            AuthSession.user_id == user.id,
+            AuthSession.revoked_at.is_(None),
+        )
+    ).scalars().all()
+    for session in live:
+        session.revoked_at = now
+    audit.record(
+        db,
+        actor_user_id=auth.user.id,
+        actor_username=auth.user.username,
+        action="sessions_revoked",
+        target=username,
+        detail=f"{len(live)} session(s) ended",
+    )
+    db.commit()
+    return RevocationView(username=username, sessions_revoked=len(live))

@@ -89,6 +89,8 @@ refer to the ranked threats in [README.md](README.md).
 | The evidence export states population, coverage, and every decision with actor and time | 8 | tests/test_reports.py |
 | A per-user write budget on imports and campaign creation; keep-alive bounded in the serve command (D-041) | 9 | tests/test_ratelimit.py |
 | The documented route surface asserted against the live route table, in both directions | 2 | tests/test_matrix.py |
+| The runtime database role holds data rights only, no schema and no deletes; migrations run separately as the owner (D-013, D-051) | 3 | the pipeline probe: schema change attempted as the runtime role must be refused |
+| An administrator ends all of a user's sessions in one audited act | 6 | tests/test_admin_users.py |
 | Read-only root filesystems, dropped capabilities, no privilege escalation, bounded resources, and no host-published database port (D-042) | 1, 9 | verifiable by the commands in the README, run against the live stack at adoption |
 
 ## Controls still planned
