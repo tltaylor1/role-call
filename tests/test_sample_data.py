@@ -128,3 +128,74 @@ def test_ordinary_things_stay_quiet(client: TestClient, db: Session) -> None:
     readers = [g for g in groups if g["name"] == "readers"][0]
     assert readers["findings"] == []
     assert readers["privileged"] is False
+
+
+def test_the_scaled_set_holds_every_small_set_invariant() -> None:
+    """Issue 36's contract: scale changes the size, nothing else.
+    Deterministic, free of credential shapes, and a strict superset of
+    the curated set, so every archetype the small account teaches is
+    still present in the large one."""
+    scaled = file_set(scale=300)
+    assert scaled == file_set(scale=300)
+    curated = file_set()
+    for name, content in scaled.items():
+        for shape in CREDENTIAL_SHAPES:
+            assert not shape.search(content), f"{name} matched {shape.pattern}"
+        if name.endswith(".csv"):
+            small_rows = set(curated[name].splitlines())
+            large_rows = content.splitlines()
+            assert small_rows <= set(large_rows)
+            # header + curated rows + one row per scaled identity
+            assert len(large_rows) == len(small_rows) + 300
+
+
+def test_scale_zero_is_the_committed_set() -> None:
+    assert file_set(scale=0) == file_set()
+
+
+def test_the_scaled_population_mixes_people_and_services() -> None:
+    """The bulk must be distinguishable in the application the same way
+    the curated set is: people carry passwords, services carry keys,
+    and the names say which is which."""
+    report = file_set(scale=90)[
+        f"{GENERATIONS[2].strftime('%Y-%m-%d')}-credential-report.csv"
+    ]
+    people_rows = [r for r in report.splitlines() if r.startswith("person-")]
+    service_rows = [r for r in report.splitlines() if r.startswith("svc-")]
+    assert len(people_rows) == 30
+    assert len(service_rows) == 60
+    for row in people_rows:
+        fields = row.split(",")
+        assert fields[3] == "TRUE"   # password_enabled
+        assert fields[8] == "FALSE"  # no access key
+    for row in service_rows:
+        fields = row.split(",")
+        assert fields[3] == "FALSE"
+        assert fields[8] == "TRUE"
+
+
+def test_a_scaled_import_works_end_to_end(
+    client: TestClient, db: Session
+) -> None:
+    """A few hundred identities import and list; the invariant is that
+    scale is a data property, not a new code path."""
+    operator = make_user(db, Role.operator)
+    token = login(client, operator)
+    files = file_set(scale=120)
+    day = GENERATIONS[0].strftime("%Y-%m-%d")
+    for route, name in (
+        ("credential-report", f"{day}-credential-report.csv"),
+        ("authorization-details", f"{day}-authorization-details.json"),
+    ):
+        response = client.post(
+            f"/imports/{route}",
+            files={"file": (name, files[name].encode(), "text/plain")},
+            data={"captured_at": GENERATIONS[0].isoformat()},
+            headers=auth_header(token),
+        )
+        assert response.status_code == 201, response.text
+    listing = client.get("/identities", headers=auth_header(token))
+    assert listing.status_code == 200
+    names = {row["display_name"] for row in listing.json()}
+    assert "person-00000" in names and "svc-00001" in names
+    assert len(names) > 120

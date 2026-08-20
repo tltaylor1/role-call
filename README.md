@@ -147,6 +147,14 @@ than typed because hand-typed demo data was wrong three times in three
 subphases before this became a rule; a test regenerates it and fails
 if the shipped files and the generator disagree.
 
+The committed account stays small on purpose: one identity per
+archetype, so every finding is readable. For load work the same
+generator scales: `python -m rolecall.sample_data out --scale 1000`
+adds a thousand bulk identities to each generation, one third people
+with passwords and two thirds services with keys, every variation
+derived from the identity's index so the output is byte-identical on
+every run. Scaled sets ship as release artifacts, never as commits.
+
 To stop, `docker compose down`; add `-v` to also delete the database
 and start clean. The care of a running instance is in
 [Backup, restore, and retention](#backup-restore-and-retention),
@@ -1199,7 +1207,9 @@ built from the same pinned file.
 Releases carry the same discipline outward (D-050). The version
 scheme reads from the roadmap: v0.N means the work through phase N is
 complete. Each release starts from a signed tag, carries a source
-archive, the sample account, the bill of materials, and checksums,
+archive, the sample account at both sizes (the curated set as
+committed, and a scaled set of a thousand bulk identities per
+generation for load work), the bill of materials, and checksums,
 and every artifact has a build provenance attestation verifiable
 against the platform's transparency log rather than this repository's
 word:

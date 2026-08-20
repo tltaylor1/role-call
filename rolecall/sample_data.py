@@ -15,13 +15,19 @@ identifier is a provider-shaped identifier, never a secret. The secret
 scanner runs over the committed output at commit time and in the
 pipeline, which is the mechanism; the invariant test is the belt.
 
-Run it: python -m rolecall.sample_data [directory]
+Run it: python -m rolecall.sample_data [directory] [--scale N]
+
+The scale mode adds N synthetic identities to the same three
+generations, two thirds services and one third people, with archetypal
+variation derived from each identity's index, so a thousand-identity
+account is as deterministic as the eighteen-identity one. The
+committed sample stays the curated small set; scaled sets are for
+load work and ship as release artifacts, never commits.
 """
 
 import json
-import sys
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from urllib.parse import quote
 
@@ -327,9 +333,57 @@ def membership(generation: int) -> dict[str, list[str]]:
     return {"automation": automation, "break-glass": [], "readers": ["report-reader"]}
 
 
-def credential_report(generation: int) -> str:
+BULK_EPOCH = datetime(2025, 1, 1, tzinfo=UTC)
+
+
+def bulk_people(generation: int, scale: int) -> list[Person]:
+    """The scaled population: index-derived, never random. Every
+    variation is a modulus of the index, so the same index is the same
+    identity forever, and the archetypes the curated set demonstrates
+    reappear at scale in fixed proportions: unowned every 11th,
+    long-idle every 13th, keyless people and passworded services never,
+    because the person-or-service split is the point of the bulk."""
+    captured = GENERATIONS[generation]
+    out: list[Person] = []
+    for i in range(scale):
+        human = i % 3 == 0
+        created = BULK_EPOCH + timedelta(days=(i * 7) % 400)
+        idle = i % 13 == 0
+        last_used = created if idle else captured - timedelta(days=(i % 9) + 1)
+        tags = {} if i % 11 == 0 else {"owner": f"team-{i % 12:02d}"}
+        member_of = ["automation"] if i % 29 == 0 else (
+            ["readers"] if i % 5 == 0 else []
+        )
+        if human:
+            out.append(Person(
+                name=f"person-{i:05d}",
+                uid=f"AIDAB{i:016d}",
+                created=created,
+                why="bulk person: password and a second factor",
+                password=True,
+                password_used=last_used,
+                mfa=i % 7 != 0,
+                tags=tags,
+                groups=member_of,
+            ))
+        else:
+            out.append(Person(
+                name=f"svc-{i:05d}",
+                uid=f"AIDAS{i:016d}",
+                created=created,
+                why="bulk service: keys only, nobody to offboard it",
+                key1=True,
+                key1_rotated=created,
+                key1_used=last_used,
+                tags=tags,
+                groups=member_of,
+            ))
+    return out
+
+
+def credential_report(generation: int, scale: int = 0) -> str:
     rows = [CREDENTIAL_HEADER]
-    for person in people(generation):
+    for person in people(generation) + bulk_people(generation, scale):
         arn = (
             f"arn:aws:iam::{ACCOUNT}:root" if person.root
             else f"arn:aws:iam::{ACCOUNT}:user/{person.name}"
@@ -356,11 +410,15 @@ def credential_report(generation: int) -> str:
     return "\n".join(rows) + "\n"
 
 
-def authorization_details(generation: int) -> str:
+def authorization_details(generation: int, scale: int = 0) -> str:
+    roster = people(generation) + bulk_people(generation, scale)
     members = membership(generation)
+    for person in bulk_people(generation, scale):
+        for group in person.groups:
+            members.setdefault(group, []).append(person.name)
     in_groups = {
         person.name: [g for g, names in members.items() if person.name in names]
-        for person in people(generation)
+        for person in roster
     }
     payload: dict[str, object] = {
         "UserDetailList": [
@@ -379,7 +437,7 @@ def authorization_details(generation: int) -> str:
                 ],
                 "Tags": [{"Key": k, "Value": v} for k, v in p.tags.items()],
             }
-            for p in people(generation)
+            for p in roster
             if not p.root  # the root account has no authorization detail entry
         ],
         "RoleDetailList": [
@@ -434,20 +492,24 @@ def authorization_details(generation: int) -> str:
     return json.dumps(payload, indent=2) + "\n"
 
 
-def file_set() -> dict[str, str]:
-    """Every sample file, by name, deterministic and complete."""
+def file_set(scale: int = 0) -> dict[str, str]:
+    """Every sample file, by name, deterministic and complete. A zero
+    scale is the committed curated set, byte for byte; any other scale
+    adds that many bulk identities to every generation."""
     out: dict[str, str] = {}
     for generation, captured in enumerate(GENERATIONS):
         day = captured.strftime("%Y-%m-%d")
-        out[f"{day}-credential-report.csv"] = credential_report(generation)
-        out[f"{day}-authorization-details.json"] = authorization_details(generation)
+        out[f"{day}-credential-report.csv"] = credential_report(generation, scale)
+        out[f"{day}-authorization-details.json"] = authorization_details(
+            generation, scale
+        )
     return out
 
 
-def write(directory: Path) -> list[Path]:
+def write(directory: Path, scale: int = 0) -> list[Path]:
     directory.mkdir(parents=True, exist_ok=True)
     written = []
-    for name, content in file_set().items():
+    for name, content in file_set(scale).items():
         path = directory / name
         path.write_text(content)
         written.append(path)
@@ -459,6 +521,17 @@ def capture_times() -> list[str]:
 
 
 if __name__ == "__main__":
-    target = Path(sys.argv[1] if len(sys.argv) > 1 else "sample-data")
-    for path in write(target):
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "directory", nargs="?", default="sample-data",
+        help="where to write the files",
+    )
+    parser.add_argument(
+        "--scale", type=int, default=0,
+        help="bulk identities to add per generation (0 keeps the curated set)",
+    )
+    arguments = parser.parse_args()
+    for path in write(Path(arguments.directory), arguments.scale):
         print(path)
