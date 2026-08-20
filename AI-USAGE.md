@@ -177,6 +177,22 @@ manufactured entry would defeat the reason this file exists.
   local git configuration, so anything credential-shaped landing
   there is a build failure, not a discovery.
 
+- **A decision said one thing and the build did the opposite, for
+  eighteen subphases.** D-013 decided the application's database role
+  holds data rights only and migrations run separately as a
+  privileged role, explicitly rejecting schema changes at startup;
+  the build ran migrations in the serving container's start command
+  as the owner role from the first subphase onward, and the threat
+  model cited the unimplemented decision as a control. Nothing caught
+  it, not the agent that wrote both the decision and the code, not
+  eighteen subphase reviews, until a direct question was answered by
+  reading the code instead of the record. The repair is D-051, and
+  the lasting mechanism is the pipeline probe that attempts a schema
+  change as the runtime role and fails the build unless refused: the
+  class of decision-versus-build drift now has at least one gate, and
+  the honest note is that only this instance is gated, because such
+  drift is found by asking questions, not by grep.
+
 Each entry changed a rule, a checklist, or a design, which is the point:
 the catches compound, the mistakes do not. This last one changed the
 attribution itself, and its lesson is the whole file's thesis turned on

@@ -158,6 +158,25 @@ jobs:
         run: |
           alembic upgrade head
           alembic check
+      - name: the runtime role cannot touch schema (D-013)
+        env:
+          ROLECALL_OWNER_DATABASE_URL: postgresql+psycopg://rolecall:ci-run-${{ github.run_id }}@postgres:5432/rolecall
+        run: |
+          export ROLECALL_APP_DB_PASSWORD="probe-${{ github.run_id }}"
+          python scripts/setup_db_roles.py
+          python - << 'PROBE'
+          import os, psycopg
+          url = f"postgresql://rolecall_app:{os.environ['ROLECALL_APP_DB_PASSWORD']}@postgres:5432/rolecall"
+          with psycopg.connect(url) as conn:
+              with conn.cursor() as cur:
+                  cur.execute("select count(*) from identities")
+                  print("data read: allowed")
+                  try:
+                      cur.execute("create table probe_should_fail (id int)")
+                      raise SystemExit("REFUSAL MISSING: runtime role created a table")
+                  except psycopg.errors.InsufficientPrivilege:
+                      print("schema change: refused, as decided")
+          PROBE
       - name: audit the pinned trees against known vulnerabilities
         run: |
           pip-audit --require-hashes -r requirements.txt

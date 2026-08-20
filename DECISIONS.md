@@ -1044,3 +1044,37 @@ offer is a registry-published package or container image; publishing
 the image is a new public surface with its own maintenance duty, and
 it stays deliberately behind its own decision for the day a consumer
 exists who wants to pull rather than build.
+
+## D-051: D-013 is honored, and the finding is part of the record
+
+A direct question, how is the database protected, was answered by
+reading the code instead of the decision record, and the two
+disagreed: D-013 decided that migrations run as a privileged role and
+the application's role holds data rights only, rejecting schema
+changes at application startup in so many words, and the build did
+the rejected thing from the first subphase, one owner role running
+migrations inside the serving container's start command. The threat
+model cited database least privilege on the strength of a decision
+the code never implemented. Eighteen subphases passed without anyone,
+human or agent, checking the claim against the running system, which
+is this project's own first rule applied nowhere.
+
+The implementation now matches the decision. A separate migration
+step, a one-shot service on Compose and an init container on the
+cluster, is the only holder of the owner credential; it applies
+migrations and maintains the runtime role's grants. The application
+connects as a role that can read and write rows and touch sequences,
+and nothing else: no schema rights, and no delete, because the
+application never deletes a row by design, so the append-only tables
+are now append-only even against the application's own credential.
+Future tables inherit the same grants through default privileges, so
+no one has to remember. The pipeline holds it: a probe connects as
+the runtime role, reads data to prove the grant, attempts a schema
+change, and fails the build unless the database refuses.
+
+Two smaller repairs ride with this entry, from the same audit: the
+administrator can now end every session a user holds in one audited
+act, turning the threat model's promised stolen-token answer into a
+control with a test; and three accepted-risk rows were reworded to
+current truth, including the one whose promised exit, hash chaining
+with the campaign work, passed unmet and now says so.
