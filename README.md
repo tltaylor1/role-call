@@ -1101,7 +1101,7 @@ home; what follows is this repository's own.
 
 ### The pipeline, explained
 
-Three workflows run the gates, and the diagram shows where each result
+Four workflows run the gates, and the diagram shows where each result
 lands:
 
 ![The pipeline: triggers, the three workflows, the merge gate, and the delivered artifacts](diagrams/pipeline-gates-sketch.svg)
@@ -1128,14 +1128,23 @@ pipeline's own supply chain meets the same bar as the application's.
 files, on every pull request, on main, and weekly; its findings land
 in the repository's code scanning view.
 
+**release** runs when a version tag is pushed: it rebuilds the
+artifacts from the tag (the source archive, the sample account at
+both sizes, the software bill of materials, checksums), attests build
+provenance for every artifact into the public transparency log, and
+publishes the release only if the tag's signature verifies.
+
 **scorecard** runs on main and weekly, rating this repository's own
 security posture from outside, and publishes the score to the public
 scorecard service where it can be read without trusting this
 repository's word; the badge at the top of this document is served
 live from that service, so the displayed score cannot drift from the
-published one. The checks scoring zero are recorded choices or
-structural facts: no second person reviewing changes (D-028),
-repository age, and fuzzing not yet adopted. Its findings deliberately stay out of code
+published one. The checks scoring zero are structural
+facts or measurement lag: a single contributor, a repository younger
+than the window the rater reads, fuzzing not yet adopted, a review
+requirement newer than most of the history it evaluates, and release
+signatures the rater looks for as uploaded files rather than in the
+platform's attestation log where this repository puts them. Its findings deliberately stay out of code
 scanning: several are recorded accepted risks no pull request can
 fix, and an alarm that is always red teaches the eye to skip the
 alarm (D-037).
@@ -1150,6 +1159,31 @@ no path to main around them; the ruleset also requires pull requests
 and plain merge commits and blocks force pushes and deletion. Each
 tool was vetted at adoption and recorded as a decision, and two of
 them found real defects here before they were merged.
+
+### The actions the workflows stand on
+
+The workflows themselves run third-party code: six published actions,
+each pinned to a full commit hash, with the version tag kept as a
+comment for the reader. The hash is what runs; a tag can be moved to
+different code, a hash cannot. Dependabot proposes pin moves and a
+human merges them through review like any change, and a gate
+(`scripts/check_actions_inventory.py`) asserts this table against
+every workflow file in both directions, so an action added, removed,
+or re-pinned without the table moving fails the build.
+
+| Action | Where it runs | What it does |
+|---|---|---|
+| `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1` (v7.0.1) | every job, all four workflows | Fetches the repository; credentials are not persisted, so no token outlives the step |
+| `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1) | checks, the application job | Carries the software bill of materials out of the run |
+| `github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd` (v4.37.7) | codeql | Sets up the analysis engine for the Python and the workflow files |
+| `github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd` (v4.37.7) | codeql | Runs the queries; findings land in code scanning |
+| `ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc` (v2.4.4) | scorecard | Rates the repository's posture and publishes the score off-repository |
+| `actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8` (v4.2.2) | release | Attests each artifact's build provenance into the transparency log |
+
+Everything else the pipeline runs is downloaded by hand in the
+workflow steps, fetched from its canonical release and
+checksum-verified before it executes; those pins and their watchers
+are listed with the digest-parity check.
 
 Dependencies are the part of the codebase nobody here wrote, so each
 one was checked against its canonical source before adoption, and
