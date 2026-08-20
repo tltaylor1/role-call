@@ -86,7 +86,7 @@ def test_the_sample_account_produces_every_finding(
     _import_everything(client, token)
 
     seen: set[str] = set()
-    identities = client.get("/identities", headers=auth_header(token)).json()
+    identities = client.get("/identities", headers=auth_header(token)).json()["rows"]
     for row in identities:
         detail = client.get(
             f"/identities/{row['id']}", headers=auth_header(token)
@@ -105,7 +105,7 @@ def test_the_sample_account_shows_a_resurrection(
     make_user(db, Role.operator)
     token = login(client, ROLE_USERS[Role.operator])
     _import_everything(client, token)
-    identities = client.get("/identities", headers=auth_header(token)).json()
+    identities = client.get("/identities", headers=auth_header(token)).json()["rows"]
     phoenix = [row for row in identities if row["display_name"] == "phoenix"]
     assert len(phoenix) == 2, "the recreated name should be two identities"
     assert all(row["name_reused"] for row in phoenix)
@@ -116,7 +116,7 @@ def test_ordinary_things_stay_quiet(client: TestClient, db: Session) -> None:
     make_user(db, Role.operator)
     token = login(client, ROLE_USERS[Role.operator])
     _import_everything(client, token)
-    identities = client.get("/identities", headers=auth_header(token)).json()
+    identities = client.get("/identities", headers=auth_header(token)).json()["rows"]
     quiet = {
         row["display_name"]
         for row in identities
@@ -194,8 +194,8 @@ def test_a_scaled_import_works_end_to_end(
             headers=auth_header(token),
         )
         assert response.status_code == 201, response.text
-    listing = client.get("/identities", headers=auth_header(token))
+    listing = client.get("/identities?limit=500", headers=auth_header(token))
     assert listing.status_code == 200
-    names = {row["display_name"] for row in listing.json()}
+    names = {row["display_name"] for row in listing.json()["rows"]}
     assert "person-00000" in names and "svc-00001" in names
     assert len(names) > 120

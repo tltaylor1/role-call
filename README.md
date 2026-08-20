@@ -685,6 +685,15 @@ GET /report.html
 GET /campaigns/{campaign_id}/evidence
 ```
 
+`GET /identities` is paged, because the sample account's eighteen
+rows say nothing about an account with thousands: it takes `q` (a
+name substring), `type`, and `tier` as filters, applied on the server
+rather than in the browser, plus `limit` (default 100, at most 500)
+and `offset`. The response carries the page of rows, the count the
+filters matched, and account-wide dashboard tiles that no filter
+changes, so the payload is bounded at any inventory size while state
+stays derived at read (D-006).
+
 -------------------------------------------------------------------------------
 
 ## Verified, in numbers

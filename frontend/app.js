@@ -107,26 +107,38 @@ async function download(path, filename) {
   URL.revokeObjectURL(url);
 }
 
+// Paging state for the inventory: the server filters and slices, the
+// browser only remembers where it is (issue 38).
+const PAGE_SIZE = 100;
+let pageOffset = 0;
+
 async function loadInventory() {
   switchView("inventory");
-  const rows = await (await api("/identities")).json();
-  const counts = { critical: 0, warning: 0, notice: 0, quiet: 0 };
-  for (const r of rows) {
-    if (r.critical) counts.critical++;
-    else if (r.warning) counts.warning++;
-    else if (r.notice) counts.notice++;
-    else counts.quiet++;
-  }
+  const params = new URLSearchParams({
+    limit: String(PAGE_SIZE),
+    offset: String(pageOffset),
+  });
+  const text = $("filter-text").value.trim();
+  const type = $("filter-type").value;
+  const tier = $("filter-tier").value;
+  if (text) params.set("q", text);
+  if (type) params.set("type", type);
+  if (tier) params.set("tier", tier);
+  const page = await (await api("/identities?" + params)).json();
   const dash = $("dashboard");
   dash.replaceChildren(
-    tile("identities", rows.length),
-    tile("critical", counts.critical, "critical"),
-    tile("warning", counts.warning, "warning"),
-    tile("notice", counts.notice, "notice"),
-    tile("quiet", counts.quiet, "quiet"),
+    tile("identities", page.tiles.identities),
+    tile("critical", page.tiles.critical, "critical"),
+    tile("warning", page.tiles.warning, "warning"),
+    tile("notice", page.tiles.notice, "notice"),
+    tile("quiet", page.tiles.quiet, "quiet"),
   );
-  renderIdentities(rows);
-  window._identities = rows;
+  renderIdentities(page.rows);
+  const from = page.matched === 0 ? 0 : page.offset + 1;
+  const to = page.offset + page.rows.length;
+  $("page-status").textContent = from + " to " + to + " of " + page.matched;
+  $("page-prev").disabled = page.offset === 0;
+  $("page-next").disabled = to >= page.matched;
 }
 
 function identityTier(r) {
@@ -137,15 +149,9 @@ function identityTier(r) {
 }
 
 function renderIdentities(rows) {
-  const text = $("filter-text").value.toLowerCase();
-  const type = $("filter-type").value;
-  const tier = $("filter-tier").value;
   const tbody = $("identity-rows");
   tbody.replaceChildren();
   for (const r of rows) {
-    if (text && !r.display_name.toLowerCase().includes(text)) continue;
-    if (type && r.identity_type !== type) continue;
-    if (tier && identityTier(r) !== tier) continue;
     const flags = [
       r.name_reused ? "name reused" : "",
       r.flagged ? "flagged" : "",
@@ -590,9 +596,26 @@ $("nav").addEventListener("click", (e) => {
 });
 $("signout").addEventListener("click", signOut);
 $("back").addEventListener("click", loadInventory);
-for (const id of ["filter-text", "filter-type", "filter-tier"]) {
-  $(id).addEventListener("input", () => renderIdentities(window._identities || []));
+// A filter change is a new question, so it starts at the first page;
+// the text input waits a beat so a keystroke run is one request.
+let filterTimer = null;
+function filtersChanged(delayed) {
+  pageOffset = 0;
+  clearTimeout(filterTimer);
+  if (delayed) filterTimer = setTimeout(loadInventory, 250);
+  else loadInventory();
 }
+$("filter-text").addEventListener("input", () => filtersChanged(true));
+$("filter-type").addEventListener("input", () => filtersChanged(false));
+$("filter-tier").addEventListener("input", () => filtersChanged(false));
+$("page-prev").addEventListener("click", () => {
+  pageOffset = Math.max(0, pageOffset - PAGE_SIZE);
+  loadInventory();
+});
+$("page-next").addEventListener("click", () => {
+  pageOffset += PAGE_SIZE;
+  loadInventory();
+});
 
 // The owner type only means something on an owner record; the routes
 // refuse it elsewhere, and the form does not offer it elsewhere.

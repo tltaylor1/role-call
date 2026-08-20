@@ -80,7 +80,7 @@ def test_report_figures_are_the_engines_figures(
         ],
         "Policies": [admin_policy()],
     })
-    inventory = client.get("/identities", headers=auth_header(token)).json()
+    inventory = client.get("/identities", headers=auth_header(token)).json()["rows"]
     export = client.get("/export.json", headers=auth_header(token)).json()
     by_name = {row["name"]: row for row in export["identities"]}
     for identity in inventory:

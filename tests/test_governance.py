@@ -198,7 +198,7 @@ def test_assigning_an_owner_answers_the_unowned_finding(
     assert "unowned_privileged" not in codes
 
     # The list view applies the same adjustment, so its counts agree.
-    rows = client.get("/identities", headers=auth_header(token)).json()
+    rows = client.get("/identities", headers=auth_header(token)).json()["rows"]
     mine = next(r for r in rows if r["id"] == ident)
     assert mine["owner"] == "identity-platform"
 
@@ -284,7 +284,7 @@ def test_flags_accumulate_and_clear_one_by_one(
               if r["kind"] == "flag" and r["cleared_at"] is None]
     assert [r["value"] for r in active] == ["candidate for federation"]
 
-    rows = client.get("/identities", headers=auth_header(token)).json()
+    rows = client.get("/identities", headers=auth_header(token)).json()["rows"]
     assert next(r for r in rows if r["id"] == ident)["flagged"] is True
 
 

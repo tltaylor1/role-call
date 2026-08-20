@@ -39,7 +39,7 @@ def test_import_creates_identities_and_observations(
     assert body["account"] == ACCOUNT
     assert body["identities_new"] == 3
     assert body["observations"] == 3
-    listing = client.get("/identities", headers=auth_header(token)).json()
+    listing = client.get("/identities", headers=auth_header(token)).json()["rows"]
     names = {i["display_name"]: i["identity_type"] for i in listing}
     assert names["<root_account>"] == "root"
     assert names["alice"] == "user"
