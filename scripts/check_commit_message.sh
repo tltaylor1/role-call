@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# The writing rules apply to commit messages, which Vale never reads:
-# messages are public prose the moment they are pushed, and one
-# carried a banned frame past every file gate before this existed.
+# The writing rules apply to commit messages, which the file gates
+# never read: a message is public prose the moment it is pushed.
 # Checks the message file given as the first argument. If a local
 # pattern file exists at ~/.config/claude-guards/private-frames.txt
 # (one extended regex per line), those patterns are enforced too; the
