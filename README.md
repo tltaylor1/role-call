@@ -1224,11 +1224,14 @@ here: mechanisms, not intentions.
   act. Phase and subphase transitions are likewise human declarations,
   never the agent's.
 - **The work is attributed, and the attribution states its own
-  limits.** Every co-authored commit carries a trailer naming the
-  assisting system, and the trailer says the model varies per turn
-  because the exact model is not knowable per commit; commits are
-  signed (D-044), so authorship of the record itself is cryptographic
-  even where generation provenance is coarse.
+  limits.** Every co-authored commit carries the standard
+  Co-authored-by trailer, naming the assisting system through its
+  shared attribution account. The exact model behind any single
+  commit is not knowable from inside the session, so no trailer
+  claims one; [AI-USAGE.md](AI-USAGE.md) records the incident that
+  taught this. Commits are signed (D-044), so authorship of the
+  record itself is cryptographic even where generation provenance is
+  coarse.
 - **The failures are the record.** [AI-USAGE.md](AI-USAGE.md) keeps
   what the agent got wrong, what caught it, and what each catch
   changed, because the interesting output of an AI-assisted build is
