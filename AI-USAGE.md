@@ -71,7 +71,12 @@ manufactured entry would defeat the reason this file exists.
   that adds this entry forward it reads "Claude (Anthropic), model varies
   per turn," which is the true statement. History is not rewritten,
   because rewriting a provenance record to look cleaner is exactly the
-  failure this entry documents.
+  failure this entry documents. Updated August 20, 2026: the trailer
+  shortened to the standard form, "Co-authored-by: Claude" with the
+  attribution address, because the standard form is what external
+  tooling parses. The limits stay stated, here and in the README,
+  rather than in the trailer's name field; no trailer claims a model,
+  which remains the true statement.
 - **An edit silently did not happen, and a commit message lied about
   it.** Two scripted text replacements targeted wording that was not in
   the file, and the replacement primitive reports nothing on a miss: a
