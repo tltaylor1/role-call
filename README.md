@@ -701,7 +701,7 @@ stays derived at read (D-006).
 The figures below are the repository's own, each checkable by the
 command or test named beside it.
 
-**138 tests in 21 files**, each named for the property it defends. The
+**139 tests in 21 files**, each named for the property it defends. The
 load-bearing ones:
 
 - `test_matrix.py`: every one of the **30 routes** is either in the
@@ -753,7 +753,7 @@ real token or none, so a constant hash matched any fabricated token
 and nothing noticed. The missing test exists now, which is the check
 doing exactly what it is for.
 
-**42 recorded decisions, 6 migrations, 8 required checks.** Every
+**52 recorded decisions, 6 migrations, 8 required checks.** Every
 merge to main passes secret scanning, writing rules and status-truth
 gates, workflow lint and audit, link checks, the application job with
 the coverage floor and mutation check, two static analysis passes, and
@@ -1119,8 +1119,11 @@ offline, fragments included; `application` runs the linter, strict
 typing, every test under the coverage floor, the mutation check,
 the migrations against a real PostgreSQL with drift detection, the
 dependency audits, and generates the software bill of materials as
-the run's artifact; and `container` lints the Dockerfile and scans
-the base image. Every tool the pipeline downloads is fetched from its
+the run's artifact; and `container` lints the Dockerfile, scans
+the base image, and runs GuardDog over both pinned dependency trees
+from its digest-pinned official image, asking the question the
+vulnerability audit cannot: whether a package behaves like malware
+before any advisory exists (D-052). Every tool the pipeline downloads is fetched from its
 canonical release and checksum-verified before it runs, so the
 pipeline's own supply chain meets the same bar as the application's.
 
