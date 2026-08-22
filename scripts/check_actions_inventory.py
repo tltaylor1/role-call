@@ -23,12 +23,29 @@ def pins_in(text: str) -> set[tuple[str, str]]:
     return set(PATTERN.findall(text))
 
 
+IMAGE_PATTERN = re.compile(
+    r"docker run[^\n]*?([a-z0-9.-]+(?:/[a-z0-9._-]+)+)@(sha256:[0-9a-f]{64})"
+)
+
+
 def main() -> int:
     workflow_pins: set[tuple[str, str]] = set()
+    workflow_images: set[tuple[str, str]] = set()
     for workflow in sorted(ROOT.glob(".github/workflows/*.yml")):
-        workflow_pins |= pins_in(workflow.read_text())
+        text = workflow.read_text()
+        workflow_pins |= pins_in(text)
+        workflow_images |= set(IMAGE_PATTERN.findall(text))
 
-    readme_pins = pins_in(ROOT.joinpath("README.md").read_text())
+    readme = ROOT.joinpath("README.md").read_text()
+    readme_pins = pins_in(readme)
+    # Images the README claims the workflows run: any registry-path
+    # digest reference outside the action table's uses form.
+    readme_images = {
+        (image, sha)
+        for image, sha in re.findall(
+            r"`([a-z0-9.-]+(?:/[a-z0-9._-]+)+)@(sha256:[0-9a-f]{64})`", readme
+        )
+    }
 
     missing = workflow_pins - readme_pins
     stale = readme_pins - workflow_pins
@@ -36,9 +53,20 @@ def main() -> int:
         print(f"in a workflow but not the README table: {action}@{sha}")
     for action, sha in sorted(stale):
         print(f"in the README table but no workflow: {action}@{sha}")
-    if missing or stale:
+
+    image_missing = workflow_images - readme_images
+    image_stale = readme_images - workflow_images
+    for image, sha in sorted(image_missing):
+        print(f"run by a workflow but not in the README image table: {image}@{sha}")
+    for image, sha in sorted(image_stale):
+        print(f"in the README image table but run by no workflow: {image}@{sha}")
+
+    if missing or stale or image_missing or image_stale:
         return 1
-    print(f"actions inventory matches: {len(workflow_pins)} pinned uses")
+    print(
+        f"actions inventory matches: {len(workflow_pins)} pinned uses, "
+        f"{len(workflow_images)} workflow-run images"
+    )
     return 0
 
 
