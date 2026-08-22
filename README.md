@@ -1425,8 +1425,9 @@ application stands on [FastAPI](https://github.com/fastapi/fastapi),
 [lychee](https://github.com/lycheeverse/lychee),
 [OpenSSF Scorecard](https://github.com/ossf/scorecard),
 [CodeQL](https://github.com/github/codeql),
-[hadolint](https://github.com/hadolint/hadolint), and
-[Trivy](https://github.com/aquasecurity/trivy); and the local platform
+[hadolint](https://github.com/hadolint/hadolint),
+[Trivy](https://github.com/aquasecurity/trivy), and
+[GuardDog](https://github.com/DataDog/guarddog) (DataDog); and the local platform
 on [Docker](https://github.com/moby/moby),
 [Kubernetes](https://github.com/kubernetes/kubernetes),
 [kind](https://github.com/kubernetes-sigs/kind),
