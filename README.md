@@ -1183,6 +1183,14 @@ or re-pinned without the table moving fails the build.
 | `ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc` (v2.4.4) | scorecard | Rates the repository's posture and publishes the score off-repository |
 | `actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8` (v4.2.2) | release | Attests each artifact's build provenance into the transparency log |
 
+One tool runs as a container image rather than an action, and it is
+held to the same table discipline: the inventory gate requires every
+image a workflow step runs to appear here, in both directions.
+
+| Image | Where it runs | What it does |
+|---|---|---|
+| `ghcr.io/datadog/guarddog@sha256:3dbc783f65f508b95222101cb2cd84d1d5f3e3675e42d6f1329bb9b8a99c8998` (v3.2.0) | container | Scans both pinned dependency trees for malware shapes (D-052); the digest-parity check watches the digest |
+
 Everything else the pipeline runs is downloaded by hand in the
 workflow steps, fetched from its canonical release and
 checksum-verified before it executes; those pins and their watchers
