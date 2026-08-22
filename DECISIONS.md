@@ -1078,3 +1078,40 @@ act, turning the threat model's promised stolen-token answer into a
 control with a test; and three accepted-risk rows were reworded to
 current truth, including the one whose promised exit, hash chaining
 with the campaign work, passed unmet and now says so.
+
+-------------------------------------------------------------------------------
+
+## D-052: GuardDog scans the pinned trees for malware shapes
+
+**Date:** 2026-08-22
+
+**Decision:** the pipeline runs DataDog's GuardDog over both pinned
+requirement trees, in the container job, from the official image
+pinned by digest, blocking.
+
+**Why.** The dependency audit answers one question, known published
+vulnerabilities against the pins, and nothing in the gate set
+answered the adoption-time question: does this package behave like
+malware. Typosquats, install-time execution, and exfiltration shapes
+have no advisory on day one, which is exactly when they arrive. The
+canonical-source check approximates the answer by hand at adoption;
+GuardDog mechanizes it and re-asks on every run.
+
+**Vetted before adoption, not assumed.** A benign package scanned
+clean; both of this repository's pinned trees scanned clean; and a
+planted package carrying install-time shell execution, an encoded
+exec, and a suspicious address was flagged at high risk with all
+three shapes named. The pip install of the tool was rejected in favor
+of the official container image because the tool's own dependency
+tree is heavy and does not belong in this repository's hash-pinned
+trees; the image runs digest-pinned, and the digest-parity check
+watches the digest, since update automation cannot see images
+embedded in workflow files.
+
+**Rejected: CodeFactor**, a hosted quality grader considered the same
+week. It duplicates properties already held deterministically, ruff,
+strict typing, CodeQL, and the mutation check, and costs a standing
+third-party grant of repository access, which the identity-scoping
+policy exists to minimize. A letter grade adds no property the
+published scorecard does not already state from a party already
+trusted.

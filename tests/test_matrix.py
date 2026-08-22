@@ -238,6 +238,25 @@ def test_the_stated_figures_are_the_counted_figures() -> None:
     )
 
 
+def test_the_stated_decision_count_is_the_counted_count() -> None:
+    """The decision figure drifted ten entries behind before this
+    existed; a stated figure is a counted figure, decisions included."""
+    import re
+    from pathlib import Path
+
+    root = Path(__file__).parent.parent
+    text = root.joinpath("README.md").read_text()
+    stated = re.search(r"\*\*(\d+) recorded decisions", text)
+    assert stated, "README.md no longer states the decision figure"
+    counted = len(re.findall(
+        r"^## D-", root.joinpath("DECISIONS.md").read_text(), re.MULTILINE
+    ))
+    assert int(stated.group(1)) == counted, (
+        f"README states {stated.group(1)} recorded decisions; "
+        f"DECISIONS.md holds {counted}"
+    )
+
+
 def test_every_matrix_row_has_a_call_plan() -> None:
     assert set(CALL_PLANS) == set(ROUTE_ROLES)
 
