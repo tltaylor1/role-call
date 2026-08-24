@@ -26,6 +26,7 @@ program built in public; the roadmap around this application, the
 platform phases, and the program's own documents live there.
 
 **The figures are the front door, and each is counted by a test:**
+**The measured figures, each counted by a test:**
 
 | Measured | Standing |
 |---|---|
@@ -106,6 +107,7 @@ software is provided as is under the
 code and the [threat model](#what-it-defends-against), including its
 accepted risks. Nothing here is production software until the
 documents say so.
+
 -------------------------------------------------------------------------------
 
 ## The problem
@@ -129,7 +131,7 @@ what this application exists to surface.
 You feed role-call snapshot files: a record of every identity in a
 cloud account at one moment. It keeps every snapshot and never edits
 an old one. When you open the inventory, it works out each identity's
-situation on the spot: compare the newest snapshot with the history,
+situation at that moment: compare the newest snapshot with the history,
 add what humans have recorded, and show the result. No status is ever
 stored, so no status can go stale or be quietly changed; the answer is
 recomputed from the evidence every time you ask.
@@ -528,7 +530,7 @@ one holds no cloud credential of any kind, calls no external service,
 and sends no telemetry, so there is no place a secret could leak to
 and no third party to trust. The local Kubernetes variant keeps the
 same property: the cluster is on your machine, and the admission,
-network, and identity controls it adds all face inward.
+network, and identity controls it adds apply inside it.
 
 -------------------------------------------------------------------------------
 
@@ -1304,10 +1306,17 @@ so; temporary approved re-elevation, where someone else approves and
 the clock does the offboarding; and more providers, Okta and Entra,
 behind the common identity model rather than as rewrites.
 
-The platform journey around the application, local Kubernetes, the
-cloud enclave, the managed cluster, the gated pipeline, runtime
-detection, belongs to the
-[program](https://tltaylor1.github.io), not to this document.
+role-call is one application inside a larger project:
+[control-plane](https://tltaylor1.github.io), a security engineering
+program whose platform phases build the estate around this
+application as code. That work includes an AWS organization with
+centralized human sign-on through IAM Identity Center, which is the
+AWS equivalent of an identity provider's single sign-on (SSO), and
+keyless workload federation standing where stored credentials and
+app registrations would otherwise be, plus the managed cluster, the
+gated pipeline, and runtime detection phases. Those goals belong to
+the program and its documents, not to this one; this document stays
+at the application's own scope on purpose.
 
 ### Out of scope
 
@@ -1509,7 +1518,7 @@ on [Docker](https://github.com/moby/moby),
 [Calico](https://github.com/projectcalico/calico),
 [kubeconform](https://github.com/yannh/kubeconform), and
 [kube-linter](https://github.com/stackrox/kube-linter). Each carries
-maintainers whose work this project consumes for free; two of these
+maintainers whose work this project consumes at no cost; two of these
 tools found real defects here before any human did.
 
 Nothing here claims novelty for its parts. The parts are assembled
