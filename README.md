@@ -125,7 +125,7 @@ what this application exists to surface.
 You feed role-call snapshot files: a record of every identity in a
 cloud account at one moment. It keeps every snapshot and never edits
 an old one. When you open the inventory, it works out each identity's
-situation on the spot: compare the newest snapshot with the history,
+situation at that moment: compare the newest snapshot with the history,
 add what humans have recorded, and show the result. No status is ever
 stored, so no status can go stale or be quietly changed; the answer is
 recomputed from the evidence every time you ask.
@@ -1512,7 +1512,7 @@ on [Docker](https://github.com/moby/moby),
 [Calico](https://github.com/projectcalico/calico),
 [kubeconform](https://github.com/yannh/kubeconform), and
 [kube-linter](https://github.com/stackrox/kube-linter). Each carries
-maintainers whose work this project consumes for free; two of these
+maintainers whose work this project consumes at no cost; two of these
 tools found real defects here before any human did.
 
 Nothing here claims novelty for its parts. The parts are assembled
