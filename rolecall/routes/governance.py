@@ -8,6 +8,8 @@ looked at this and it is still needed" is exactly the reviewer's act;
 changing who owns a thing is the operator's.
 """
 
+from __future__ import annotations
+
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException

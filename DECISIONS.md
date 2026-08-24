@@ -1115,3 +1115,41 @@ third-party grant of repository access, which the identity-scoping
 policy exists to minimize. A letter grade adds no property the
 published scorecard does not already state from a party already
 trusted.
+
+-------------------------------------------------------------------------------
+
+## D-053: The Python floor is 3.11, held by execution
+
+**Date:** 2026-08-24
+
+**Decision:** the application supports Python 3.11 and newer, states
+it in the README, and holds it with a pipeline job running the whole
+suite on 3.11; the shipped image stays on 3.14.
+
+**Why.** An outside review found that the repository only imported on
+Python 3.14 and crashed on 3.11 through 3.13 with an unexplained
+NameError. The cause: 3.14 made annotations lazy, so a class whose
+methods reference the class itself in their annotations works on 3.14
+alone, and this project develops, tests, and ships on a pinned 3.14
+image, so the one interpreter that forgives the pattern was the only
+one any gate ever ran. The stated floor was also simply missing:
+the sibling application states one and this repository did not.
+
+**The fix went class-wide, not instance-wide.** The review reported
+one file; a sweep importing every module on 3.11 found three
+independent roots. Each gained the future annotations import, the
+suite then passed whole on 3.11, and only after that execution was
+the floor written down. The linter's target moved to the floor
+version so it enforces the floor's idioms from now on.
+
+**Also from the same review, adopted:** the validation error body
+now names the failing fields and their rules while echoing no caller
+value, replacing a fixed body that named nothing; the reviewer's
+design and its canary-test update were taken nearly verbatim. The
+review also supplied the run-without-Docker path, which was verified
+against a live SQLite instance here before the README documented it.
+
+**Credit.** The defect and both improvements came from an
+independent review performed outside this repository's own gates,
+which is the strongest argument yet recorded here for eyes that did
+not build the thing.

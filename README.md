@@ -32,8 +32,8 @@ platform phases, and the program's own documents live there.
 | Tests | **139 tests in 21 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **30 routes**, every one in the role matrix the tests walk |
-| Record | **52 recorded decisions**, each with its rejected alternatives |
-| Gates | 8 required checks on every merge; releases carry provenance attestations |
+| Record | **53 recorded decisions**, each with its rejected alternatives |
+| Gates | 9 required checks on every merge; releases carry provenance attestations |
 
 The commands behind every figure are in
 [The numbers, proven](#the-numbers-proven); a figure that drifts from
@@ -219,8 +219,21 @@ with passwords and two thirds services with keys, every variation
 derived from the identity's index so the output is byte-identical on
 every run. Scaled sets ship as release artifacts, never as commits.
 
-To stop, `docker compose down`; add `-v` to also delete the database
-and start clean. The care of a running instance is in
+**Without Docker.** Requires Python 3.11 or newer; developed and
+tested on 3.14, and the whole suite runs against 3.11 in the
+pipeline so the floor is held by execution, not assertion. SQLite
+serves a local look; PostgreSQL is what the compose file runs.
+
+```
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+export ROLECALL_DATABASE_URL="sqlite+pysqlite:///rc.db"
+export ROLECALL_ADMIN_USERNAME=admin ROLECALL_ADMIN_PASSWORD=<yours>
+.venv/bin/alembic upgrade head
+.venv/bin/uvicorn rolecall.main:app
+```
+
+To stop the compose stack, `docker compose down`; add `-v` to also
+delete the database and start clean. The care of a running instance is in
 [Backup, restore, and retention](#operating-it),
 next.
 
@@ -929,7 +942,7 @@ lands:
 ![The pipeline: triggers, the three workflows, the merge gate, and the delivered artifacts](diagrams/pipeline-gates-sketch.svg)
 
 **checks** runs on every pull request, on the merge to main, and
-weekly on a clock. Six jobs: `secrets` sweeps the full history with
+weekly on a clock. Seven jobs: `secrets` sweeps the full history with
 TruffleHog with verification on, so a found credential is tested
 against its provider to learn whether it is live; `writing` holds
 these documents to the writing rules and runs the docs-truth and
@@ -937,7 +950,10 @@ digest-parity gates, so a stale status claim or a drifted image pin
 blocks the merge; `workflows` lints and security-audits the workflow
 files themselves, because a mistake in the files that gate everything
 else is the most expensive kind; `links` walks every cross-reference
-offline, fragments included; `application` runs the linter, strict
+offline, fragments included; `floor` runs the whole suite on the
+oldest supported interpreter, Python 3.11, because the shipped image
+runs 3.14 and 3.14 alone forgives annotation patterns older
+interpreters refuse (D-053); `application` runs the linter, strict
 typing, every test under the coverage floor, the mutation check,
 the migrations against a real PostgreSQL with drift detection, the
 dependency audits, and generates the software bill of materials as
@@ -979,7 +995,7 @@ the code does not: a fix shipping for the base image or a new
 advisory against a pinned dependency is found on schedule instead of
 waiting to fail whichever pull request comes next (D-043).
 
-Eight of these checks are required by the branch ruleset, so there is
+Nine of these checks are required by the branch ruleset, so there is
 no path to main around them; the ruleset also requires pull requests
 and plain merge commits and blocks force pushes and deletion. Each
 tool was vetted at adoption and recorded as a decision, and two of

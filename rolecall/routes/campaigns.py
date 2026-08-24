@@ -8,6 +8,8 @@ statement that is false (D-039). Recurrence is a preset the next cycle
 is created from by a person; nothing here creates work on its own.
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 from typing import Annotated, Literal
 

@@ -124,6 +124,26 @@ jobs:
       - name: check internal links
         run: git ls-files -z "*.md" | xargs -0 "$RUNNER_TEMP/lychee-x86_64-unknown-linux-gnu/lychee" --offline --no-progress --include-fragments
 
+  floor:
+    # The stated Python floor, held by execution: the whole suite on
+    # the oldest supported interpreter, because the shipped image runs
+    # 3.14 and 3.14 alone forgives what older interpreters refuse
+    # (D-053). The pin is a tag on purpose: the floor is a version
+    # claim, not an artifact claim.
+    runs-on: ubuntu-latest
+    container:
+      image: python:3.11-slim
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: install the pinned tree, hashes enforced
+        run: |
+          pip install --no-cache-dir --require-hashes -r requirements.txt
+          pip install --no-cache-dir --require-hashes -r requirements-dev.txt
+      - name: the suite on the floor interpreter
+        run: pytest -q
+
   application:
     runs-on: ubuntu-latest
     # The same digest the Dockerfile pins, so the interpreter that tests

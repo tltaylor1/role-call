@@ -10,7 +10,11 @@ def test_validation_failure_echoes_nothing(client: TestClient) -> None:
         "/auth/login", json={"username": CANARY + "x" * 100, "password": 12345}
     )
     assert r.status_code == 422
-    assert r.json() == {"detail": "invalid request"}
+    body = r.json()
+    assert body["detail"] == "invalid request"
+    # The failing fields are named with their rules; the values are not.
+    assert any(f.startswith("username:") for f in body["fields"])
+    assert any(f.startswith("password:") for f in body["fields"])
     assert CANARY not in r.text
 
 
