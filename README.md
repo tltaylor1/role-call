@@ -20,6 +20,11 @@ prepares, schedules, and verifies; it does not grant, revoke, or
 certify on its own judgment, and every action traces to the person who
 decided it.
 
+role-call is one application inside
+[control-plane](https://tltaylor1.github.io), a security engineering
+program built in public; the roadmap around this application, the
+platform phases, and the program's own documents live there.
+
 **The measured figures, each counted by a test:**
 
 | Measured | Standing |
