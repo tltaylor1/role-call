@@ -20,7 +20,7 @@ prepares, schedules, and verifies; it does not grant, revoke, or
 certify on its own judgment, and every action traces to the person who
 decided it.
 
-**The figures are the front door, and each is counted by a test:**
+**The measured figures, each counted by a test:**
 
 | Measured | Standing |
 |---|---|
@@ -101,6 +101,7 @@ software is provided as is under the
 code and the [threat model](#what-it-defends-against), including its
 accepted risks. Nothing here is production software until the
 documents say so.
+
 -------------------------------------------------------------------------------
 
 ## The problem
@@ -523,7 +524,7 @@ one holds no cloud credential of any kind, calls no external service,
 and sends no telemetry, so there is no place a secret could leak to
 and no third party to trust. The local Kubernetes variant keeps the
 same property: the cluster is on your machine, and the admission,
-network, and identity controls it adds all face inward.
+network, and identity controls it adds apply inside it.
 
 -------------------------------------------------------------------------------
 
@@ -1299,10 +1300,17 @@ so; temporary approved re-elevation, where someone else approves and
 the clock does the offboarding; and more providers, Okta and Entra,
 behind the common identity model rather than as rewrites.
 
-The platform journey around the application, local Kubernetes, the
-cloud enclave, the managed cluster, the gated pipeline, runtime
-detection, belongs to the
-[program](https://tltaylor1.github.io), not to this document.
+role-call is one application inside a larger project:
+[control-plane](https://tltaylor1.github.io), a security engineering
+program whose platform phases build the estate around this
+application as code. That work includes an AWS organization with
+centralized human sign-on through IAM Identity Center, which is the
+AWS equivalent of an identity provider's single sign-on (SSO), and
+keyless workload federation standing where stored credentials and
+app registrations would otherwise be, plus the managed cluster, the
+gated pipeline, and runtime detection phases. Those goals belong to
+the program and its documents, not to this one; this document stays
+at the application's own scope on purpose.
 
 ### Out of scope
 
