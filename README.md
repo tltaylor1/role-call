@@ -20,29 +20,52 @@ prepares, schedules, and verifies; it does not grant, revoke, or
 certify on its own judgment, and every action traces to the person who
 decided it.
 
+**The figures are the front door, and each is counted by a test:**
+
+| Measured | Standing |
+|---|---|
+| Tests | **139 tests in 21 files**, coverage 94 over a 90 percent floor |
+| Mutation | 7 controls removed by the check, 7 noticed by the suite |
+| Surface | **30 routes**, every one in the role matrix the tests walk |
+| Record | **52 recorded decisions**, each with its rejected alternatives |
+| Gates | 8 required checks on every merge; releases carry provenance attestations |
+
+The commands behind every figure are in
+[The numbers, proven](#the-numbers-proven); a figure that drifts from
+its count fails the build.
+
+![The inventory: eighteen identities, their findings counted by tier, filters and exports above the table](docs/screenshots/inventory.png)
+
+**Quick start**, with Docker as the only requirement:
+
+```bash
+git clone https://github.com/tltaylor1/role-call.git && cd role-call
+cp .env.example .env   # fill in the four values it names
+docker compose up -d
+```
+
+Then open http://127.0.0.1:8000 and import the shipped sample account;
+[Run it](#run-it) has the full path and the reasons behind each step.
+
 ## Contents
 
 - [Status](#status)
-- [The idea in plain words](#the-idea-in-plain-words)
-- [Setup and run](#setup-and-run)
-- [Backup, restore, and retention](#backup-restore-and-retention)
+- [The problem](#the-problem)
+- [What this is](#what-this-is)
+- [Run it](#run-it)
 - [Running it on Kubernetes](#running-it-on-kubernetes)
-- [The gates a request passes](#the-gates-a-request-passes)
-- [Components and data flow](#components-and-data-flow)
-- [Trust boundaries](#trust-boundaries)
-- [Using the app](#using-the-app)
-- [What version one does](#what-version-one-does)
-- [Repository map](#repository-map)
-- [The data model shape](#the-data-model-shape)
-- [The route surface](#the-route-surface)
-- [Verified, in numbers](#verified-in-numbers)
+- [Using it](#using-it)
+- [How a request is protected](#how-a-request-is-protected)
+- [What runs where](#what-runs-where)
+- [How it is put together](#how-it-is-put-together)
+- [What it defends against](#what-it-defends-against)
 - [Compliance traceability](#compliance-traceability)
-- [Threat model](#threat-model)
-- [The container is part of the attack surface](#the-container-is-part-of-the-attack-surface)
-- [Where the application goes](#where-the-application-goes)
-- [Out of scope](#out-of-scope)
-- [How it is built](#how-it-is-built)
+- [Operating it](#operating-it)
+- [How it was built and gated](#how-it-was-built-and-gated)
+- [The numbers, proven](#the-numbers-proven)
+- [What comes next, and what never will](#what-comes-next-and-what-never-will)
 - [What done means here](#what-done-means-here)
+- [Contributing](#contributing)
 - [Diagrams to draw](#diagrams-to-draw)
 - [Where to read next](#where-to-read-next)
 - [Acknowledgements](#acknowledgements)
@@ -52,36 +75,51 @@ decided it.
 
 ## Status
 
-**Phase 2 of 8, local Kubernetes: subphases 5 of 5 built.** The
-cluster runs the same digest-built image as the compose stack behind
-default-deny network policies with three named flows, the restricted
-pod security standard, an admission policy refusing unpinned images,
-and workload identities with nothing to steal; every claim has its
-probe in [Running it on Kubernetes](#running-it-on-kubernetes).
-Declaring the phase closed is a human call, recorded when made. Phase 1 is complete, all twelve subphases built and merged in
-a review-gated order fixed before any code
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tltaylor1/role-call/badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
 
-**Phase 1 of 8 is complete, subphases 12 of 12 built** and merged,
-in a review-gated order fixed before any code
-([the plan](#how-the-application-was-built-the-plan-fixed-before-code)).
-A fresh clone with Docker starts the stack, migrates the schema,
-serves sign-in with three roles behind a tested authorization matrix,
-imports identity snapshots append-only, derives the inventory with its
-credential and privilege findings, carries governance records and
+**Phases 1 and 2 of 8 are complete and tagged v0.2.0**, with build
+provenance attestations on every release artifact. Phase 1 built the
+application in twelve review-gated subphases whose order was fixed
+before any code ([the plan](#the-plan-fixed-before-code)): a fresh
+clone with Docker starts the stack, migrates the schema, serves
+sign-in with three roles behind a tested authorization matrix,
+imports identity snapshots append-only, derives the inventory with
+its credential and privilege findings, carries governance records and
 review campaigns, and produces the risk report and the escaped
-exports. A pipeline check compares this figure against the journey
-diagram (D-031), so the two cannot disagree.
+exports. Phase 2 put the same digest-built image on a hardened local
+Kubernetes cluster: default-deny network policies with three named
+flows, the restricted pod security standard, an admission policy
+refusing unpinned images, and workload identities with nothing to
+steal; every claim has its probe in
+[Running it on Kubernetes](#running-it-on-kubernetes). Phase
+transitions are human declarations, recorded when made. The platform
+journey continues in the [program](https://tltaylor1.github.io).
 
 This is a learning project, built in public, by one person. The
 software is provided as is under the
 [Apache 2.0 license](LICENSE). Before relying on any of it, read the
-code and the [threat model](#threat-model), including its accepted
-risks. Nothing here is production software until the documents say so.
+code and the [threat model](#what-it-defends-against), including its
+accepted risks. Nothing here is production software until the
+documents say so.
+-------------------------------------------------------------------------------
+
+## The problem
+
+Non-human identities outnumber the humans in most cloud accounts:
+service accounts created for one integration, roles granted broad
+policies to make something work, access keys minted for a script
+whose author has left. Human accounts get onboarding, review, and
+offboarding; these get created, granted, and forgotten. The tools
+that do track them tend to store a status column somebody set once,
+and a stored status drifts the day after it is written.
+
+The result is the identity nobody can explain: privileged, unused,
+unowned, and invisible until the day it is abused. That identity is
+what this application exists to surface.
 
 -------------------------------------------------------------------------------
 
-## The idea in plain words
+## What this is
 
 You feed role-call snapshot files: a record of every identity in a
 cloud account at one moment. It keeps every snapshot and never edits
@@ -100,9 +138,29 @@ computation the screen shows, so they cannot disagree with it. And in
 version one the tool never connects to the cloud at all: files come
 in, reports go out, and nothing else moves.
 
+### What version one does
+
+Four operations, and nothing else:
+
+- An operator authenticates, into one of three roles.
+- An identity snapshot file is imported, recorded append-only, with
+  synthetic sample data shipped so a stranger with only Docker can run
+  the demo.
+- The operator views the enriched inventory and produces the
+  self-contained risk report plus CSV and JSON exports.
+- The operator governs in role-call only: owners, purposes, flags,
+  attestations, and review campaigns. Nothing is written to the cloud
+  account.
+
+That set exercises authentication, authorization across three roles,
+input validation, derived state, audit logging, and the enrichment
+model, and it keeps the tool's own cloud credential read-only. Adding
+more operations would not add a property that is not already
+demonstrated.
+
 -------------------------------------------------------------------------------
 
-## Setup and run
+## Run it
 
 Requires Docker with the compose plugin, and nothing else.
 
@@ -157,73 +215,8 @@ every run. Scaled sets ship as release artifacts, never as commits.
 
 To stop, `docker compose down`; add `-v` to also delete the database
 and start clean. The care of a running instance is in
-[Backup, restore, and retention](#backup-restore-and-retention),
+[Backup, restore, and retention](#operating-it),
 next.
-
--------------------------------------------------------------------------------
-
-## Backup, restore, and retention
-
-The care of a running instance, as distinct from using it: each
-procedure below was run against a live stack before it was written
-down.
-
-**Backup.** The database is the only state; the containers hold
-nothing worth keeping. One command produces a dated, compressed dump:
-
-```
-docker compose exec -T db pg_dump -U rolecall -Fc rolecall > rolecall-$(date +%Y-%m-%d).dump
-```
-
-The dump contains every snapshot, observation, governance record,
-campaign, and audit row. It contains password hashes and session token
-hashes but no passwords and no tokens, because none are ever stored.
-Store it where the database's readers are the only readers: the
-observations inside it name every identity in the connected accounts,
-which is reconnaissance material in the wrong hands.
-
-**Restore.** Restore replaces the running database. Stop the
-application first so nothing writes mid-restore:
-
-```
-docker compose stop app
-docker compose exec -T db pg_restore -U rolecall --clean --if-exists -d rolecall < rolecall-2026-08-19.dump
-docker compose start app
-```
-
-The migration step brings a dump taken by an older schema forward on
-the next start, and a failed migration stops the start rather than
-serving the wrong schema.
-
-**Verify the backup.** A backup that was never restored is a hope.
-Restore into a throwaway database and count:
-
-```
-docker compose exec -T db createdb -U rolecall restore_drill
-docker compose exec -T db pg_restore -U rolecall -d restore_drill < rolecall-2026-08-19.dump
-docker compose exec -T db psql -U rolecall -d restore_drill -c "select count(*) from observations"
-docker compose exec -T db dropdb -U rolecall restore_drill
-```
-
-The count matches the live table or the backup is not a backup.
-
-**Retention.** The record model is append-only by design:
-observations, governance history, campaign decisions, and audit rows
-exist to answer questions years later, so the data itself has no
-deletion schedule inside the application. Retention is therefore a
-property of the backups: keep daily dumps for thirty days and one
-dump per month for two years, deleting older ones, which bounds disk
-while preserving the ability to answer how any decision looked at the
-time it was made. An instance holding a real organization's data
-follows that organization's records schedule where it is stricter.
-
-**The clean-slate reset**, development only, deletes every imported
-snapshot, every governance record, and the audit history:
-
-```
-docker compose down -v
-docker compose up --build
-```
 
 -------------------------------------------------------------------------------
 
@@ -290,137 +283,17 @@ every other tool.
 
 -------------------------------------------------------------------------------
 
-## The gates a request passes
+## Using it
 
-Three parts, with all security enforced in the middle one: a
-PostgreSQL database reachable only by the application container, the
-FastAPI backend where every rule lives, and one HTML page that holds
-no security logic on purpose, because a browser page is fully under
-its user's control and anything enforced there is decoration.
+The pages, from a running instance with the sample account imported
+(captured by [scripts/capture_screenshots.py](scripts/capture_screenshots.py),
+so these images are reproducible rather than asserted):
 
-Every request to the backend passes the same gates in order, and each
-gate exists because of a specific failure:
+![An identity's detail: the derived facts, one critical finding explaining itself, and the governance forms](docs/screenshots/identity-detail.png)
 
-- **Session check.** Who is calling. The session token is an opaque
-  random value, and the database stores only its SHA-256 digest, a
-  one-way fingerprint: someone who reads the table holds nothing they
-  can replay. Sessions are individually revocable and expire
-  absolutely, because expiry without revocation means one stolen
-  token can only be ended by logging everyone out, which in practice
-  means nobody does it.
-- **Two different refusals.** A missing or dead session gets 401, a
-  valid session without the needed role gets 403 naming the roles
-  that would be admitted. An authenticated caller deserves an answer
-  they can act on, and separating no identity from insufficient
-  authority costs an attacker nothing they could not learn anyway.
-- **The role matrix.** May this role call this route. One data
-  structure in [rolecall/roles.py](rolecall/roles.py) is the single
-  answer: the route dependencies read it to enforce and the tests
-  read it to verify, so the enforced matrix and the tested matrix
-  cannot drift apart. A route missing from the matrix fails the
-  build, and a typo in a matrix key crashes the process at startup
-  rather than leaving a route unguarded.
-- **Typed validation.** Is the request sane. Every body passes a
-  typed model with bounds, and a rejected value is never echoed back,
-  because an error message that repeats attacker input is a
-reflection surface.
-- **The action, through the ORM.** The object-relational mapper, the
-  library that turns Python objects into parameterized database
-  queries, is the only path to the database, which removes SQL
-  injection, attacker text becoming database commands, as a class
-  rather than defending it query by query.
-- **The audit row, in the same transaction.** Any action that changes
-  governance state commits together with its audit record, so neither
-  can exist without the other. A best-effort trail was rejected
-  because the gap between action and record is exactly where an
-  investigation dies.
-- **The response, through a declared model.** What a client may see
-  is defined by schema, not by what the row happens to contain, so an
-  internal field added next year does not leak by default.
+![A review campaign open over the whole inventory, twenty one items awaiting decisions](docs/screenshots/campaigns.png)
 
-In classic terms the gates implement authentication, authorization,
-and accounting; the design principle is that each is a mechanism that
-runs, not a rule that hopes.
-
-Sign-in itself gets four defenses of its own. Passwords hash with
-bcrypt, which salts automatically and is deliberately slow by an
-adjustable work factor, turning a bulk password-cracking run from
-hours into years. An unknown username pays the same bcrypt cost and
-receives the identical response body as a wrong password, so neither
-timing nor wording reveals which accounts exist. Failed attempts are
-rate limited per username and per address, counting failures only,
-with no account lockout, because a lockout hands any attacker who can
-spell a username a denial of service against its owner. And the
-attempted password never reaches a log; the log line records that a
-failure happened, not what was typed.
-
--------------------------------------------------------------------------------
-
-## Components and data flow
-
-| Component | Job |
-|---|---|
-| Frontend | A single page served by the application; renders every value as text through the document interface with no markup sink, holds the session token in memory rather than browser storage, and runs under a content policy that forbids inline script and style (D-036) |
-| Routes | The trust boundary; authentication checked on every request, every response shaped by a declared model |
-| Snapshot ingestion | Parses an imported identity snapshot file, bounded on every axis, in memory, append-only |
-| Derivation engine | Computes each identity's state and enrichment from the observation history at read time |
-| Governance records | The human layer: owners, flags, attestations, written with attribution and an audit row in one transaction |
-| Report builder | Produces the self-contained risk report and the escaped CSV and JSON exports |
-| Audit trail | Records every governance action, written with the action in one transaction |
-| PostgreSQL | Holds observations, governance records, and the audit trail; access controlled, with encryption at rest supplied by the deployment layer (D-020) |
-| The tool's own cloud credential | A read-only role in the target AWS account, arriving with the live pull phases; the identity that must be governed best |
-
-```mermaid
-flowchart LR
-    O[Operator browser] -- session token --> R[Routes]
-    R --> I[Snapshot ingestion]
-    I -- observations, append only --> P[(PostgreSQL)]
-    R --> D[Derivation engine]
-    P -- history --> D
-    D -- derived inventory --> R
-    R --> G[Governance records]
-    G -- action plus audit, one transaction --> P
-    R --> X[Report builder]
-    D --> X
-```
-
-An import records observations and touches nothing else. A view
-derives the inventory from the history and stores nothing. A
-governance action is the only ordinary write besides ingestion, and it
-commits with its audit row as one unit. The report builder consumes
-the same derived inventory the view does, so a report can never
-disagree with the screen.
-
--------------------------------------------------------------------------------
-
-## Trust boundaries
-
-Three boundaries, in order of hostility:
-
-1. **The imported snapshot file.** The only input the application
-   accepts from outside, treated as hostile in every particular even
-   though it nominally comes from a cloud provider's own reporting:
-   bounded, parsed in memory, verified against its own claims, never
-   echoed.
-2. **The browser session.** Authenticated on every request; nothing
-   about a session is trusted from one request to the next. Identity
-   names, tags, and paths inside snapshot data are
-   attacker-influenceable and are rendered as text, never markup,
-   because the person most exposed to this data is the operator
-   reading it.
-3. **The exports.** Everything leaving the system passes an allowlist:
-   the response models for the API, formula escaping for the
-   spreadsheet forms, and deliberate field selection for the report,
-   because the inventory is a map of the account's weakest identities
-   and an export is that map on the move.
-
-Version one has no outbound connection to any provider. The cloud
-credential and its boundary arrive with the cloud phases and get their
-own threat model revision first.
-
--------------------------------------------------------------------------------
-
-## Using the app
+![The risk report: identities ranked by the engine, every finding naming its reason](docs/screenshots/report.png)
 
 Four people, and the design answers their questions in their order.
 
@@ -550,63 +423,146 @@ style, and the page needs neither.
 
 -------------------------------------------------------------------------------
 
-## What version one does
+## How a request is protected
 
-Four operations, and nothing else:
+Three parts, with all security enforced in the middle one: a
+PostgreSQL database reachable only by the application container, the
+FastAPI backend where every rule lives, and one HTML page that holds
+no security logic on purpose, because a browser page is fully under
+its user's control and anything enforced there is decoration.
 
-- An operator authenticates, into one of three roles.
-- An identity snapshot file is imported, recorded append-only, with
-  synthetic sample data shipped so a stranger with only Docker can run
-  the demo.
-- The operator views the enriched inventory and produces the
-  self-contained risk report plus CSV and JSON exports.
-- The operator governs in role-call only: owners, purposes, flags,
-  attestations, and review campaigns. Nothing is written to the cloud
-  account.
+Every request to the backend passes the same gates in order, and each
+gate exists because of a specific failure:
 
-That set exercises authentication, authorization across three roles,
-input validation, derived state, audit logging, and the enrichment
-model, and it keeps the tool's own cloud credential read-only. Adding
-more operations would not add a property that is not already
-demonstrated.
+- **Session check.** Who is calling. The session token is an opaque
+  random value, and the database stores only its SHA-256 digest, a
+  one-way fingerprint: someone who reads the table holds nothing they
+  can replay. Sessions are individually revocable and expire
+  absolutely, because expiry without revocation means one stolen
+  token can only be ended by logging everyone out, which in practice
+  means nobody does it.
+- **Two different refusals.** A missing or dead session gets 401, a
+  valid session without the needed role gets 403 naming the roles
+  that would be admitted. An authenticated caller deserves an answer
+  they can act on, and separating no identity from insufficient
+  authority costs an attacker nothing they could not learn anyway.
+- **The role matrix.** May this role call this route. One data
+  structure in [rolecall/roles.py](rolecall/roles.py) is the single
+  answer: the route dependencies read it to enforce and the tests
+  read it to verify, so the enforced matrix and the tested matrix
+  cannot drift apart. A route missing from the matrix fails the
+  build, and a typo in a matrix key crashes the process at startup
+  rather than leaving a route unguarded.
+- **Typed validation.** Is the request sane. Every body passes a
+  typed model with bounds, and a rejected value is never echoed back,
+  because an error message that repeats attacker input is a
+reflection surface.
+- **The action, through the ORM.** The object-relational mapper, the
+  library that turns Python objects into parameterized database
+  queries, is the only path to the database, which removes SQL
+  injection, attacker text becoming database commands, as a class
+  rather than defending it query by query.
+- **The audit row, in the same transaction.** Any action that changes
+  governance state commits together with its audit record, so neither
+  can exist without the other. A best-effort trail was rejected
+  because the gap between action and record is exactly where an
+  investigation dies.
+- **The response, through a declared model.** What a client may see
+  is defined by schema, not by what the row happens to contain, so an
+  internal field added next year does not leak by default.
+
+In classic terms the gates implement authentication, authorization,
+and accounting; the design principle is that each is a mechanism that
+runs, not a rule that hopes.
+
+Sign-in itself gets four defenses of its own. Passwords hash with
+bcrypt, which salts automatically and is deliberately slow by an
+adjustable work factor, turning a bulk password-cracking run from
+hours into years. An unknown username pays the same bcrypt cost and
+receives the identical response body as a wrong password, so neither
+timing nor wording reveals which accounts exist. Failed attempts are
+rate limited per username and per address, counting failures only,
+with no account lockout, because a lockout hands any attacker who can
+spell a username a denial of service against its owner. And the
+attempted password never reaches a log; the log line records that a
+failure happened, not what was typed.
+
+### Trust boundaries
+
+Three boundaries, in order of hostility:
+
+1. **The imported snapshot file.** The only input the application
+   accepts from outside, treated as hostile in every particular even
+   though it nominally comes from a cloud provider's own reporting:
+   bounded, parsed in memory, verified against its own claims, never
+   echoed.
+2. **The browser session.** Authenticated on every request; nothing
+   about a session is trusted from one request to the next. Identity
+   names, tags, and paths inside snapshot data are
+   attacker-influenceable and are rendered as text, never markup,
+   because the person most exposed to this data is the operator
+   reading it.
+3. **The exports.** Everything leaving the system passes an allowlist:
+   the response models for the API, formula escaping for the
+   spreadsheet forms, and deliberate field selection for the report,
+   because the inventory is a map of the account's weakest identities
+   and an export is that map on the move.
+
+Version one has no outbound connection to any provider. The cloud
+credential and its boundary arrive with the cloud phases and get their
+own threat model revision first.
 
 -------------------------------------------------------------------------------
 
-## Repository map
+## What runs where
 
-| Path | Role |
+Everything runs on your machine, and nothing leaves it. The inputs
+are files you exported yourself from your own account; the outputs
+are a page on loopback and the files you choose to download. Version
+one holds no cloud credential of any kind, calls no external service,
+and sends no telemetry, so there is no place a secret could leak to
+and no third party to trust. The local Kubernetes variant keeps the
+same property: the cluster is on your machine, and the admission,
+network, and identity controls it adds all face inward.
+
+-------------------------------------------------------------------------------
+
+## How it is put together
+
+| Component | Job |
 |---|---|
-| `rolecall/main.py` | Application assembly: routes, security headers, the static shell |
-| `rolecall/roles.py` | The role matrix, single source: who may call what |
-| `rolecall/deps.py` | Authentication, authorization, and the write budget, as dependencies |
-| `rolecall/ingest/` | The two snapshot parsers: bounded, in memory, distrusting their own preconditions |
-| `rolecall/models.py` | The tables; append-only observation history as structure |
-| `rolecall/derive.py` | State from history at read time; the freshest value per field |
-| `rolecall/findings.py` | Credential findings, each explaining itself with its OWASP anchor |
-| `rolecall/policy_analysis.py` | What a policy document grants, read by capability |
-| `rolecall/privilege.py` | The privilege picture with source attribution; shadow admin detection |
-| `rolecall/governance.py` | The human layer: typed owners, purposes, flags, attestations |
-| `rolecall/campaigns.py` | Recommendations with reasons, and the delta since last certification |
-| `rolecall/assessment.py` | The one computation the page, the campaigns, and the exports all read |
-| `rolecall/reports.py` | The ranked report and the escaped exports |
-| `rolecall/routes/` | The route handlers, every one in the matrix or named public |
-| `rolecall/audit.py` | The audit spine: the record commits with the action |
-| `rolecall/sample_data.py` | The deterministic sample account generator |
-| `frontend/` | One page, no build step; every value rendered as text |
-| `migrations/` | The schema from the first table |
-| `sample-data/` | The generated demo account, committed and checked |
-| `tests/` | The attack checklist; the matrix walked row by row |
-| `scripts/` | The gates: docs-truth, digest parity, the mutation check |
-| `diagrams/` | Working sketches under the drawing doctrine |
-| `requirements*.in` / `*.txt` | Chosen packages, and the hash-pinned trees that install |
-| `Dockerfile` / `docker-compose.yml` | Digest-pinned base, non-root user, the composed stack |
-| `.github/workflows/` | The pipeline: tests, types, scanners, the container jobs, and the software bill of materials each run delivers |
-| `.pre-commit-config.yaml` | Secret scan, writing rules, and the truth gates at commit time |
-| `.env.example` | Documents required configuration without containing it |
+| Frontend | A single page served by the application; renders every value as text through the document interface with no markup sink, holds the session token in memory rather than browser storage, and runs under a content policy that forbids inline script and style (D-036) |
+| Routes | The trust boundary; authentication checked on every request, every response shaped by a declared model |
+| Snapshot ingestion | Parses an imported identity snapshot file, bounded on every axis, in memory, append-only |
+| Derivation engine | Computes each identity's state and enrichment from the observation history at read time |
+| Governance records | The human layer: owners, flags, attestations, written with attribution and an audit row in one transaction |
+| Report builder | Produces the self-contained risk report and the escaped CSV and JSON exports |
+| Audit trail | Records every governance action, written with the action in one transaction |
+| PostgreSQL | Holds observations, governance records, and the audit trail; access controlled, with encryption at rest supplied by the deployment layer (D-020) |
+| The tool's own cloud credential | A read-only role in the target AWS account, arriving with the live pull phases; the identity that must be governed best |
 
--------------------------------------------------------------------------------
+```mermaid
+flowchart LR
+    O[Operator browser] -- session token --> R[Routes]
+    R --> I[Snapshot ingestion]
+    I -- observations, append only --> P[(PostgreSQL)]
+    R --> D[Derivation engine]
+    P -- history --> D
+    D -- derived inventory --> R
+    R --> G[Governance records]
+    G -- action plus audit, one transaction --> P
+    R --> X[Report builder]
+    D --> X
+```
 
-## The data model shape
+An import records observations and touches nothing else. A view
+derives the inventory from the history and stores nothing. A
+governance action is the only ordinary write besides ingestion, and it
+commits with its audit row as one unit. The report builder consumes
+the same derived inventory the view does, so a report can never
+disagree with the screen.
+
+### The data model shape
 
 ```
 accounts --< snapshots --< observations >-- identities
@@ -643,9 +599,7 @@ users, audit_events
   plus governance records at read time. No status column exists
   anywhere.
 
--------------------------------------------------------------------------------
-
-## The route surface
+### The route surface
 
 The complete surface, stated so it can be counted. A test asserts this
 block against the application's actual route table, so this list and
@@ -694,107 +648,41 @@ filters matched, and account-wide dashboard tiles that no filter
 changes, so the payload is bounded at any inventory size while state
 stays derived at read (D-006).
 
--------------------------------------------------------------------------------
+### Repository map
 
-## Verified, in numbers
-
-The figures below are the repository's own, each checkable by the
-command or test named beside it.
-
-**139 tests in 21 files**, each named for the property it defends. The
-load-bearing ones:
-
-- `test_matrix.py`: every one of the **30 routes** is either in the
-  role matrix or explicitly public, the documented route enumeration
-  in the route surface section above matches the live route table in
-  both directions,
-  and every matrix row is exercised with a real session per role,
-  allow and refuse both asserted.
-- `test_ingest.py`, `test_ingest_authz.py`, and two Hypothesis
-  property suites: hostile, truncated, and mixed-account files are
-  rejected whole; nothing the caller sent is echoed back.
-- `test_findings.py` and `test_privilege.py`: the **19 finding
-  codes**, each carrying its OWASP Non-Human Identities anchor;
-  admin equivalence judged by capability, not name.
-- `test_governance.py`: set, supersede, clear, and attest, attributed
-  and audited; an assigned owner answers the unowned finding; a
-  disagreement with the tag is surfaced.
-- `test_campaigns.py`: the population freezes, a decision is final
-  within its campaign, notes are required where meaning needs them,
-  close refuses gaps, the delta reads what changed.
-- `test_reports.py`: formula cells arrive neutralized, hostile markup
-  arrives escaped, report figures equal engine figures.
-- `test_frontend.py`: the page has no markup sink, no inline script,
-  and a hostile name survives as data end to end.
-- `test_auth.py` and `test_ratelimit.py`: indistinguishable login
-  failures, revocation, expiry, a forged token refused beside a live
-  session, and the write budget holding.
-
-**Coverage is 94 percent, floored at 90 in the pipeline.** The floor
-sits under the measured figure to catch erosion without inviting tests
-written to move a number.
-
-**Seven mutations, seven kills.** The mutation check breaks one
-control at a time and requires the tests that claim that control to
-fail:
-
-| Mutation | Result |
+| Path | Role |
 |---|---|
-| Authorization check removed | killed by the matrix tests |
-| Audit rows silently dropped | killed by the governance tests |
-| Token hashing broken to a constant | killed, by a test this check forced into existence |
-| Rate limiter always allows | killed by the limiter tests |
-| Formula escaping removed from the CSV exit | killed by the report tests |
-| Assigned owners no longer answer the unowned finding | killed by the governance tests |
-| Campaigns close with undecided items | killed by the campaign tests |
-
-On its first run the third mutation survived: every test presented a
-real token or none, so a constant hash matched any fabricated token
-and nothing noticed. The missing test exists now, which is the check
-doing exactly what it is for.
-
-**52 recorded decisions, 6 migrations, 8 required checks.** Every
-merge to main passes secret scanning, writing rules and status-truth
-gates, workflow lint and audit, link checks, the application job with
-the coverage floor and mutation check, two static analysis passes, and
-the container job. Every run also delivers the software bill of
-materials as a downloadable artifact; the reasoning for delivering it
-fresh rather than committing it is in
-[How it is built](#how-it-is-built).
+| `rolecall/main.py` | Application assembly: routes, security headers, the static shell |
+| `rolecall/roles.py` | The role matrix, single source: who may call what |
+| `rolecall/deps.py` | Authentication, authorization, and the write budget, as dependencies |
+| `rolecall/ingest/` | The two snapshot parsers: bounded, in memory, distrusting their own preconditions |
+| `rolecall/models.py` | The tables; append-only observation history as structure |
+| `rolecall/derive.py` | State from history at read time; the freshest value per field |
+| `rolecall/findings.py` | Credential findings, each explaining itself with its OWASP anchor |
+| `rolecall/policy_analysis.py` | What a policy document grants, read by capability |
+| `rolecall/privilege.py` | The privilege picture with source attribution; shadow admin detection |
+| `rolecall/governance.py` | The human layer: typed owners, purposes, flags, attestations |
+| `rolecall/campaigns.py` | Recommendations with reasons, and the delta since last certification |
+| `rolecall/assessment.py` | The one computation the page, the campaigns, and the exports all read |
+| `rolecall/reports.py` | The ranked report and the escaped exports |
+| `rolecall/routes/` | The route handlers, every one in the matrix or named public |
+| `rolecall/audit.py` | The audit spine: the record commits with the action |
+| `rolecall/sample_data.py` | The deterministic sample account generator |
+| `frontend/` | One page, no build step; every value rendered as text |
+| `migrations/` | The schema from the first table |
+| `sample-data/` | The generated demo account, committed and checked |
+| `tests/` | The attack checklist; the matrix walked row by row |
+| `scripts/` | The gates: docs-truth, digest parity, the mutation check |
+| `diagrams/` | Working sketches under the drawing doctrine |
+| `requirements*.in` / `*.txt` | Chosen packages, and the hash-pinned trees that install |
+| `Dockerfile` / `docker-compose.yml` | Digest-pinned base, non-root user, the composed stack |
+| `.github/workflows/` | The pipeline: tests, types, scanners, the container jobs, and the software bill of materials each run delivers |
+| `.pre-commit-config.yaml` | Secret scan, writing rules, and the truth gates at commit time |
+| `.env.example` | Documents required configuration without containing it |
 
 -------------------------------------------------------------------------------
 
-## Compliance traceability
-
-The published frameworks that codify what this tool does, mapped in
-both directions: from each requirement to what answers it, and from
-each design decision to the requirements that informed it. Wordings
-are paraphrased; exact clause text is verified against the current
-edition before anything claims conformance.
-
-| Requirement | What it asks | What answers it here |
-|---|---|---|
-| PCI DSS 4.0, 7.2.4 | Review all user accounts and privileges at least every six months | Review campaigns with due dates and recurrence presets, and the per-campaign evidence export with population and coverage (D-021, D-039); tests/test_campaigns.py and tests/test_reports.py hold them |
-| PCI DSS 4.0, 7.2.5 and 7.2.5.1 | Application and system accounts get least privilege and periodic review at a risk-based frequency | The non-human inventory with privilege findings attributed to their source, and campaign recurrence, all present |
-| OWASP Non-Human Identities Top 10 (2025) | The named risk classes for non-human identities | Every finding carries its NHI identifier as the anchor field, from improper offboarding through human use of a non-human identity |
-| NIST SP 800-53, AC-2 | Accounts managed, reviewed on a schedule, disabled when inactive | The inventory, staleness findings on a minimum observation age, and scheduled campaigns; disabling waits for the action phases by design (D-005) |
-| NIST SP 800-53, AC-6(7) | Periodic review of privileges, with removal when no longer fit | Privilege findings with source attribution, and the revoke-recommended disposition carrying its reasons into the evidence export |
-| ISO/IEC 27002:2022, 5.16 | Identity lifecycle management, explicitly including non-human | The whole product |
-| ISO/IEC 27002:2022, 5.18 | Access rights reviewed at planned intervals and on change | Campaigns with the delta-since-last-certification view, so the review reads what changed rather than re-reading everything |
-| CIS Controls v8, 5.1 and 5.5 | An inventory of accounts, and a dedicated, validated service account inventory | The inventory, derived from snapshots, with the as-of statement on every view |
-| CIS Controls v8, 5.3 | Dormant accounts disabled after a defined period | Staleness findings with the minimum observation age; action itself deferred (D-005) |
-| SOX ITGC and SOC 2 CC6 practice | Complete population, independent reviewer, evidence per decision, timely remediation | The frozen population statement, attribution on every decision, the evidence export, and a close that refuses gaps, all present |
-
-| Decision | Framework grounding |
-|---|---|
-| D-005 enrichment over automation | AC-2 and CIS 5.3 name disabling as the goal; this design routes it through a human until the trust ladder earns the action phases |
-| D-006 append-only derived state | The SOX completeness and evidence expectations: a population and history that cannot silently change |
-| D-016 immutable identifier keying | OWASP NHI reuse risk: a recreated principal must not inherit standing |
-| D-019 identities act, sources grant, both governed | ISO 5.18 and universal access review practice certify group memberships, so the group must hold owners and attestations |
-| D-021 the review campaign scope | PCI 7.2.4 and 7.2.5, ISO 5.18, AC-2, and audit practice all define the periodic, evidenced review as the unit of governance |
--------------------------------------------------------------------------------
-
-## Threat model
+## What it defends against
 
 The method: STRIDE per component (Spoofing, Tampering, Repudiation,
 Information disclosure, Denial of service, Elevation of privilege),
@@ -890,7 +778,101 @@ Recorded so each is a decision with a reason, not a surprise.
 
 -------------------------------------------------------------------------------
 
-## The container is part of the attack surface
+## Compliance traceability
+
+The published frameworks that codify what this tool does, mapped in
+both directions: from each requirement to what answers it, and from
+each design decision to the requirements that informed it. Wordings
+are paraphrased; exact clause text is verified against the current
+edition before anything claims conformance.
+
+| Requirement | What it asks | What answers it here |
+|---|---|---|
+| PCI DSS 4.0, 7.2.4 | Review all user accounts and privileges at least every six months | Review campaigns with due dates and recurrence presets, and the per-campaign evidence export with population and coverage (D-021, D-039); tests/test_campaigns.py and tests/test_reports.py hold them |
+| PCI DSS 4.0, 7.2.5 and 7.2.5.1 | Application and system accounts get least privilege and periodic review at a risk-based frequency | The non-human inventory with privilege findings attributed to their source, and campaign recurrence, all present |
+| OWASP Non-Human Identities Top 10 (2025) | The named risk classes for non-human identities | Every finding carries its NHI identifier as the anchor field, from improper offboarding through human use of a non-human identity |
+| NIST SP 800-53, AC-2 | Accounts managed, reviewed on a schedule, disabled when inactive | The inventory, staleness findings on a minimum observation age, and scheduled campaigns; disabling waits for the action phases by design (D-005) |
+| NIST SP 800-53, AC-6(7) | Periodic review of privileges, with removal when no longer fit | Privilege findings with source attribution, and the revoke-recommended disposition carrying its reasons into the evidence export |
+| ISO/IEC 27002:2022, 5.16 | Identity lifecycle management, explicitly including non-human | The whole product |
+| ISO/IEC 27002:2022, 5.18 | Access rights reviewed at planned intervals and on change | Campaigns with the delta-since-last-certification view, so the review reads what changed rather than re-reading everything |
+| CIS Controls v8, 5.1 and 5.5 | An inventory of accounts, and a dedicated, validated service account inventory | The inventory, derived from snapshots, with the as-of statement on every view |
+| CIS Controls v8, 5.3 | Dormant accounts disabled after a defined period | Staleness findings with the minimum observation age; action itself deferred (D-005) |
+| SOX ITGC and SOC 2 CC6 practice | Complete population, independent reviewer, evidence per decision, timely remediation | The frozen population statement, attribution on every decision, the evidence export, and a close that refuses gaps, all present |
+
+| Decision | Framework grounding |
+|---|---|
+| D-005 enrichment over automation | AC-2 and CIS 5.3 name disabling as the goal; this design routes it through a human until the trust ladder earns the action phases |
+| D-006 append-only derived state | The SOX completeness and evidence expectations: a population and history that cannot silently change |
+| D-016 immutable identifier keying | OWASP NHI reuse risk: a recreated principal must not inherit standing |
+| D-019 identities act, sources grant, both governed | ISO 5.18 and universal access review practice certify group memberships, so the group must hold owners and attestations |
+| D-021 the review campaign scope | PCI 7.2.4 and 7.2.5, ISO 5.18, AC-2, and audit practice all define the periodic, evidenced review as the unit of governance |
+
+-------------------------------------------------------------------------------
+
+## Operating it
+
+The care of a running instance, as distinct from using it: each
+procedure below was run against a live stack before it was written
+down.
+
+**Backup.** The database is the only state; the containers hold
+nothing worth keeping. One command produces a dated, compressed dump:
+
+```
+docker compose exec -T db pg_dump -U rolecall -Fc rolecall > rolecall-$(date +%Y-%m-%d).dump
+```
+
+The dump contains every snapshot, observation, governance record,
+campaign, and audit row. It contains password hashes and session token
+hashes but no passwords and no tokens, because none are ever stored.
+Store it where the database's readers are the only readers: the
+observations inside it name every identity in the connected accounts,
+which is reconnaissance material in the wrong hands.
+
+**Restore.** Restore replaces the running database. Stop the
+application first so nothing writes mid-restore:
+
+```
+docker compose stop app
+docker compose exec -T db pg_restore -U rolecall --clean --if-exists -d rolecall < rolecall-2026-08-19.dump
+docker compose start app
+```
+
+The migration step brings a dump taken by an older schema forward on
+the next start, and a failed migration stops the start rather than
+serving the wrong schema.
+
+**Verify the backup.** A backup that was never restored is a hope.
+Restore into a throwaway database and count:
+
+```
+docker compose exec -T db createdb -U rolecall restore_drill
+docker compose exec -T db pg_restore -U rolecall -d restore_drill < rolecall-2026-08-19.dump
+docker compose exec -T db psql -U rolecall -d restore_drill -c "select count(*) from observations"
+docker compose exec -T db dropdb -U rolecall restore_drill
+```
+
+The count matches the live table or the backup is not a backup.
+
+**Retention.** The record model is append-only by design:
+observations, governance history, campaign decisions, and audit rows
+exist to answer questions years later, so the data itself has no
+deletion schedule inside the application. Retention is therefore a
+property of the backups: keep daily dumps for thirty days and one
+dump per month for two years, deleting older ones, which bounds disk
+while preserving the ability to answer how any decision looked at the
+time it was made. An instance holding a real organization's data
+follows that organization's records schedule where it is stricter.
+
+**The clean-slate reset**, development only, deletes every imported
+snapshot, every governance record, and the audit history:
+
+```
+docker compose down -v
+docker compose up --build
+```
+
+### The container is part of the attack surface
 
 Least privilege applies to the container boundary, not only to code
 (D-042). Both services run with a read-only root filesystem, no
@@ -919,176 +901,10 @@ do.
 
 -------------------------------------------------------------------------------
 
-## Where the application goes
-
-The destination is a tool where every non-human identity is governed
-the way human accounts already are: a named owner, a stated purpose, a
-privilege picture beside its actual usage, a next review date, and
-evidence behind every one of those claims, so the identity nobody can
-explain becomes visible the day it appears rather than the day it is
-abused.
-
-The application's own roadmap, in order: expected-profile checks,
-where a known vendor integration holding exactly its documented
-permissions is furniture and the same integration holding more is a
-finding; creator attribution, arriving when the organization trail
-exists to feed it; the live provider connection as an adapter behind
-the same append-only ingestion; report-only quarantine with review
-windows; human-triggered, machine-verified remediation behind step-up
-authentication, because clicked is not revoked until the provider says
-so; temporary approved re-elevation, where someone else approves and
-the clock does the offboarding; and more providers, Okta and Entra,
-behind the common identity model rather than as rewrites.
-
-The platform journey around the application, local Kubernetes, the
-cloud enclave, the managed cluster, the gated pipeline, runtime
-detection, belongs to the
-[program](https://tltaylor1.github.io), not to this document.
-
-### How the application was built: the plan, fixed before code
-
-The build was divided into twelve ordered subphases, planned in full
-in advance and built one at a time. A subphase is built in small commits
-on its own branch and then stops: a human reads the diff, runs the
-demo, and reads the tests, and only after that review is the pull
-request merged with the required checks green, so the merge itself is
-the public record of the review. No approval is required on the pull
-request, because there is no second person to give one and a
-self-approval would be theater; the gates are the checks and the
-deliberate merge. There is no testing phase at the end, because every
-subphase ships its own tests, and no hardening phase in substance,
-because each control arrives with the thing it protects; the final
-subphase is proof, not retrofit.
-
-![The cycle every subphase travels: plan, build, demo and tests, human review, pull request merged](diagrams/subphase-cycle-sketch.svg)
-
-1. **Foundation.** Hash-pinned dependencies checked against canonical
-   sources, the software bill of materials, automated update review, a
-   digest-pinned container image, fail-fast configuration, migrations
-   from the first table, allowlist logging, health.
-2. **Operators.** Sign-in with a timing-equal path for unknown names,
-   revocable sessions, the three roles checked per route, the audit
-   spine writing in the same transaction as every action.
-3. **Ingestion one.** The credential report parser: bounded, in
-   memory, verified against its own claims, append-only, identities
-   keyed by the provider's immutable identifier, with its
-   property-based fuzz suite.
-4. **Ingestion two.** The authorization details parser: roles, trust
-   policies, groups as privilege sources, memberships, policy
-   documents, tags, and recreated-name detection.
-5. **Derivation and credential findings.** State from history at read
-   time, and the credential-hygiene findings with their tiers and the
-   minimum observation age.
-6. **Privilege findings.** Admin equivalence by capability, escalation
-   paths, external trust exposure, ownership and group findings,
-   membership drift, privilege attributed to its source.
-7. **Sample data.** The synthetic generator producing both file
-   formats across three snapshot generations and every archetype the
-   rules need; moved up from eleventh with the reason recorded in
-   D-034, because every subphase since the first parser had needed
-   demo input made by hand, and hand-made input was wrong three times.
-8. **Inventory and frontend.** The lists, the detail view with its
-   observation timeline, the dashboard, the as-of banner, and the
-   single page that renders every value as text.
-9. **Governance records.** Owner, purpose, flag, and attestation on
-   identities and groups, attributed, audited, clearable.
-10. **Review campaigns.** Scoped, deadlined review cycles with
-    per-item dispositions including insufficient evidence,
-    recommendations with their reasons, the change-since-last-
-    certification view, and no bulk certification by design.
-11. **Reports and exports.** Escaped CSV and JSON, the self-contained
-    risk report, and the per-campaign evidence export with its
-    population statement.
-12. **Proof, and the stranger drill.** Container hardening verified by
-    command, the mutation check with coverage measured to inform it,
-    the external checklist audits, figures verified against the
-    running system, the fresh-clone run on a machine with nothing but
-    Docker, and the documents re-read and shortened.
-
-The order had reasons. Identity before data, because every later route
-needs the role checks. Parsers before the engine, because reading the
-data before designing against it is the deepest lesson this project
-inherits. Credential findings before privilege findings, because the
-second carries the judgment and gets the hardest review. The frontend
-in the middle, so every later subphase demonstrates with clicks.
-Governance before campaigns, because the noun precedes the workflow.
-Sample data before the frontend, so demonstrations run against
-realistic data instead of input typed by hand. The plan bound the
-order, not the learning: a discovery mid-build became a decision, an
-amendment, or a backlog entry, visibly, so the difference between the
-plan as written and the build as it happened stays readable in
-[DECISIONS.md](DECISIONS.md).
-
-**Phase 2, local Kubernetes.** The image orchestrated on kind with
-Calico, so network policies are enforced rather than silently ignored;
-role-based access control, pod security standards, admission control.
-
-**Phase 3, cloud enclave as code.** The AWS environment as code, split
-into persistent foundation and ephemeral workload. The organization
-trail lands here, which is also when enrichment deepens: creator
-attribution and usage beyond the provider's 90 day window become
-possible only with logs to hold them.
-
-**Phase 4, managed Kubernetes.** The image promoted by digest into the
-enclave; the orchestration questions were already answered locally.
-
-**Phase 5, security-gated pipeline.** The running gates consolidated,
-the gaps closed, and the set proven by introducing a flaw deliberately
-and confirming the pipeline stops it.
-
-**Phase 6, runtime security and alerting.** Detection on the audit
-events the threat model names, alerts on new high-risk identities, and
-the first-hour response procedure written and exercised once.
-
-**Phase 7, human-triggered remediation.** The trust step change:
-a tightly scoped action credential, deactivate and restore behind
-step-up authentication, each action shown as a policy diff before it
-happens and verified against the provider afterward, because clicked
-is not revoked until the provider says so. Report-only quarantine and
-review windows arrive here, and this phase requires its own threat
-model revision before any code, because write access changes what the
-tool is.
-
-Beyond the phases, in order: expected-profile checks, where a known
-vendor integration holding exactly its documented permissions is
-furniture and the same integration holding more is a finding;
-temporary approved re-elevation, where someone else approves and the
-clock does the offboarding; and more providers, Okta and Entra, as
-adapters behind the same append-only ingestion rather than rewrites.
-
-Each phase ends in a state that runs and demonstrates on its own, with
-the diagrams updated, the decisions recorded, and the documents
-re-read and shortened.
-
--------------------------------------------------------------------------------
-
-## Out of scope
-
-Recorded so each absence is a decision rather than an oversight.
-
-- **No writes to the cloud account until Phase 7.** Enrichment over
-  automation: the tool never holds a credential more powerful than its
-  current phase needs.
-- **One provider.** AWS first; building two providers before one is
-  governed well would add breadth without adding a property.
-- **Effective privilege through role chaining is not computed.**
-  Version one scores what a policy grants, not what assume-role chains
-  can reach, and says so on the page. Reachability is real graph work
-  that earns its own phase.
-- **No automated remediation, ever, by design.** A tool that revokes
-  on its own gets disabled the first time it breaks something.
-- **No live provider connection in version one.** Files first, because
-  the fresh-clone demo must run with Docker alone; the read-only pull
-  joins in the cloud phases behind the same ingestion.
-- **No real-time event stream in version one.** Snapshots are
-  imported; event-driven refresh arrives with the cloud phases.
-
--------------------------------------------------------------------------------
-
-## How it is built
+## How it was built and gated
 
 The build is review-gated on purpose: the
-[plan above](#how-the-application-was-built-the-plan-fixed-before-code) fixed
+[plan at this section's end](#the-plan-fixed-before-code) fixed
 the subphases and their order before any code, every change lands
 through a pull request whose checks include the writing rules and the
 status-truth gates, and [AI-USAGE.md](AI-USAGE.md) keeps the record of
@@ -1275,6 +1091,240 @@ word:
 gh attestation verify sbom-v0.2.0.json -R tltaylor1/role-call
 ```
 
+### The plan, fixed before code
+
+The build was divided into twelve ordered subphases, planned in full
+in advance and built one at a time. A subphase is built in small commits
+on its own branch and then stops: a human reads the diff, runs the
+demo, and reads the tests, and only after that review is the pull
+request merged with the required checks green, so the merge itself is
+the public record of the review. While author and reviewer were the
+same account, no approval was required on the pull request, because a
+self-approval would have been theater; since the agent gained its own
+identity, one approving human review is required and is real (D-045),
+because the author of record and the approver are different actors. There is no testing phase at the end, because every
+subphase ships its own tests, and no hardening phase in substance,
+because each control arrives with the thing it protects; the final
+subphase is proof, not retrofit.
+
+![The cycle every subphase travels: plan, build, demo and tests, human review, pull request merged](diagrams/subphase-cycle-sketch.svg)
+
+1. **Foundation.** Hash-pinned dependencies checked against canonical
+   sources, the software bill of materials, automated update review, a
+   digest-pinned container image, fail-fast configuration, migrations
+   from the first table, allowlist logging, health.
+2. **Operators.** Sign-in with a timing-equal path for unknown names,
+   revocable sessions, the three roles checked per route, the audit
+   spine writing in the same transaction as every action.
+3. **Ingestion one.** The credential report parser: bounded, in
+   memory, verified against its own claims, append-only, identities
+   keyed by the provider's immutable identifier, with its
+   property-based fuzz suite.
+4. **Ingestion two.** The authorization details parser: roles, trust
+   policies, groups as privilege sources, memberships, policy
+   documents, tags, and recreated-name detection.
+5. **Derivation and credential findings.** State from history at read
+   time, and the credential-hygiene findings with their tiers and the
+   minimum observation age.
+6. **Privilege findings.** Admin equivalence by capability, escalation
+   paths, external trust exposure, ownership and group findings,
+   membership drift, privilege attributed to its source.
+7. **Sample data.** The synthetic generator producing both file
+   formats across three snapshot generations and every archetype the
+   rules need; moved up from eleventh with the reason recorded in
+   D-034, because every subphase since the first parser had needed
+   demo input made by hand, and hand-made input was wrong three times.
+8. **Inventory and frontend.** The lists, the detail view with its
+   observation timeline, the dashboard, the as-of banner, and the
+   single page that renders every value as text.
+9. **Governance records.** Owner, purpose, flag, and attestation on
+   identities and groups, attributed, audited, clearable.
+10. **Review campaigns.** Scoped, deadlined review cycles with
+    per-item dispositions including insufficient evidence,
+    recommendations with their reasons, the change-since-last-
+    certification view, and no bulk certification by design.
+11. **Reports and exports.** Escaped CSV and JSON, the self-contained
+    risk report, and the per-campaign evidence export with its
+    population statement.
+12. **Proof, and the stranger drill.** Container hardening verified by
+    command, the mutation check with coverage measured to inform it,
+    the external checklist audits, figures verified against the
+    running system, the fresh-clone run on a machine with nothing but
+    Docker, and the documents re-read and shortened.
+
+The order had reasons. Identity before data, because every later route
+needs the role checks. Parsers before the engine, because reading the
+data before designing against it is the deepest lesson this project
+inherits. Credential findings before privilege findings, because the
+second carries the judgment and gets the hardest review. The frontend
+in the middle, so every later subphase demonstrates with clicks.
+Governance before campaigns, because the noun precedes the workflow.
+Sample data before the frontend, so demonstrations run against
+realistic data instead of input typed by hand. The plan bound the
+order, not the learning: a discovery mid-build became a decision, an
+amendment, or a backlog entry, visibly, so the difference between the
+plan as written and the build as it happened stays readable in
+[DECISIONS.md](DECISIONS.md).
+
+**Phase 2, local Kubernetes.** The image orchestrated on kind with
+Calico, so network policies are enforced rather than silently ignored;
+role-based access control, pod security standards, admission control.
+
+**Phase 3, cloud enclave as code.** The AWS environment as code, split
+into persistent foundation and ephemeral workload. The organization
+trail lands here, which is also when enrichment deepens: creator
+attribution and usage beyond the provider's 90 day window become
+possible only with logs to hold them.
+
+**Phase 4, managed Kubernetes.** The image promoted by digest into the
+enclave; the orchestration questions were already answered locally.
+
+**Phase 5, security-gated pipeline.** The running gates consolidated,
+the gaps closed, and the set proven by introducing a flaw deliberately
+and confirming the pipeline stops it.
+
+**Phase 6, runtime security and alerting.** Detection on the audit
+events the threat model names, alerts on new high-risk identities, and
+the first-hour response procedure written and exercised once.
+
+**Phase 7, human-triggered remediation.** The trust step change:
+a tightly scoped action credential, deactivate and restore behind
+step-up authentication, each action shown as a policy diff before it
+happens and verified against the provider afterward, because clicked
+is not revoked until the provider says so. Report-only quarantine and
+review windows arrive here, and this phase requires its own threat
+model revision before any code, because write access changes what the
+tool is.
+
+Beyond the phases, in order: expected-profile checks, where a known
+vendor integration holding exactly its documented permissions is
+furniture and the same integration holding more is a finding;
+temporary approved re-elevation, where someone else approves and the
+clock does the offboarding; and more providers, Okta and Entra, as
+adapters behind the same append-only ingestion rather than rewrites.
+
+Each phase ends in a state that runs and demonstrates on its own, with
+the diagrams updated, the decisions recorded, and the documents
+re-read and shortened.
+
+-------------------------------------------------------------------------------
+
+## The numbers, proven
+
+The headline figures live in the table at the top of this document;
+this section holds the commands and tests behind them, so every
+figure is checkable rather than asserted.
+
+The tests, each named for the property it defends. The
+load-bearing ones:
+
+- `test_matrix.py`: every route is either in the
+  role matrix or explicitly public, the documented route enumeration
+  in the route surface section above matches the live route table in
+  both directions,
+  and every matrix row is exercised with a real session per role,
+  allow and refuse both asserted.
+- `test_ingest.py`, `test_ingest_authz.py`, and two Hypothesis
+  property suites: hostile, truncated, and mixed-account files are
+  rejected whole; nothing the caller sent is echoed back.
+- `test_findings.py` and `test_privilege.py`: the **19 finding
+  codes**, each carrying its OWASP Non-Human Identities anchor;
+  admin equivalence judged by capability, not name.
+- `test_governance.py`: set, supersede, clear, and attest, attributed
+  and audited; an assigned owner answers the unowned finding; a
+  disagreement with the tag is surfaced.
+- `test_campaigns.py`: the population freezes, a decision is final
+  within its campaign, notes are required where meaning needs them,
+  close refuses gaps, the delta reads what changed.
+- `test_reports.py`: formula cells arrive neutralized, hostile markup
+  arrives escaped, report figures equal engine figures.
+- `test_frontend.py`: the page has no markup sink, no inline script,
+  and a hostile name survives as data end to end.
+- `test_auth.py` and `test_ratelimit.py`: indistinguishable login
+  failures, revocation, expiry, a forged token refused beside a live
+  session, and the write budget holding.
+
+**Coverage is 94 percent, floored at 90 in the pipeline.** The floor
+sits under the measured figure to catch erosion without inviting tests
+written to move a number.
+
+**Seven mutations, seven kills.** The mutation check breaks one
+control at a time and requires the tests that claim that control to
+fail:
+
+| Mutation | Result |
+|---|---|
+| Authorization check removed | killed by the matrix tests |
+| Audit rows silently dropped | killed by the governance tests |
+| Token hashing broken to a constant | killed, by a test this check forced into existence |
+| Rate limiter always allows | killed by the limiter tests |
+| Formula escaping removed from the CSV exit | killed by the report tests |
+| Assigned owners no longer answer the unowned finding | killed by the governance tests |
+| Campaigns close with undecided items | killed by the campaign tests |
+
+On its first run the third mutation survived: every test presented a
+real token or none, so a constant hash matched any fabricated token
+and nothing noticed. The missing test exists now, which is the check
+doing exactly what it is for.
+
+The decisions, migrations, and required checks the opening table counts. Every
+merge to main passes secret scanning, writing rules and status-truth
+gates, workflow lint and audit, link checks, the application job with
+the coverage floor and mutation check, two static analysis passes, and
+the container job. Every run also delivers the software bill of
+materials as a downloadable artifact; the reasoning for delivering it
+fresh rather than committing it is in
+[How it was built and gated](#how-it-was-built-and-gated).
+
+-------------------------------------------------------------------------------
+
+## What comes next, and what never will
+
+The destination is a tool where every non-human identity is governed
+the way human accounts already are: a named owner, a stated purpose, a
+privilege picture beside its actual usage, a next review date, and
+evidence behind every one of those claims, so the identity nobody can
+explain becomes visible the day it appears rather than the day it is
+abused.
+
+The application's own roadmap, in order: expected-profile checks,
+where a known vendor integration holding exactly its documented
+permissions is furniture and the same integration holding more is a
+finding; creator attribution, arriving when the organization trail
+exists to feed it; the live provider connection as an adapter behind
+the same append-only ingestion; report-only quarantine with review
+windows; human-triggered, machine-verified remediation behind step-up
+authentication, because clicked is not revoked until the provider says
+so; temporary approved re-elevation, where someone else approves and
+the clock does the offboarding; and more providers, Okta and Entra,
+behind the common identity model rather than as rewrites.
+
+The platform journey around the application, local Kubernetes, the
+cloud enclave, the managed cluster, the gated pipeline, runtime
+detection, belongs to the
+[program](https://tltaylor1.github.io), not to this document.
+
+### Out of scope
+
+Recorded so each absence is a decision rather than an oversight.
+
+- **No writes to the cloud account until Phase 7.** Enrichment over
+  automation: the tool never holds a credential more powerful than its
+  current phase needs.
+- **One provider.** AWS first; building two providers before one is
+  governed well would add breadth without adding a property.
+- **Effective privilege through role chaining is not computed.**
+  Version one scores what a policy grants, not what assume-role chains
+  can reach, and says so on the page. Reachability is real graph work
+  that earns its own phase.
+- **No automated remediation, ever, by design.** A tool that revokes
+  on its own gets disabled the first time it breaks something.
+- **No live provider connection in version one.** Files first, because
+  the fresh-clone demo must run with Docker alone; the read-only pull
+  joins in the cloud phases behind the same ingestion.
+- **No real-time event stream in version one.** Snapshots are
+  imported; event-driven refresh arrives with the cloud phases.
+
 -------------------------------------------------------------------------------
 
 ## What done means here
@@ -1303,6 +1353,17 @@ Done does not mean finished: the roadmap above and the out-of-scope
 list are the record of what is deliberately absent, each with its
 reason, because an undocumented gap and a considered exclusion look
 identical in code.
+
+-------------------------------------------------------------------------------
+
+## Contributing
+
+Four issues are labeled good first issue and left open on purpose,
+each self-contained with its files and its done-criteria stated:
+[the open set](https://github.com/tltaylor1/role-call/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+Changes land through pull requests and the checks described in
+[How it was built and gated](#how-it-was-built-and-gated); the
+standards themselves are the AGENTS.md file in this repository.
 
 -------------------------------------------------------------------------------
 
@@ -1345,7 +1406,8 @@ replace the sketches as they complete.
 ## Where to read next
 
 - [DECISIONS.md](DECISIONS.md) records what was chosen, what was
-  rejected, and why, D-001 through D-042.
+  rejected, and why; every entry names the incident or question that
+  produced it.
 - [SECURITY.md](SECURITY.md) is the reporting path and the controls
   tables, each control with the test that proves it.
 - [AGENTS.md](AGENTS.md) is the standards this project is built to.
@@ -1410,7 +1472,7 @@ gap remains, the documents say so.
 The tools deserve the same naming as the ideas. This repository is
 built, tested, and gated by open source it did not write: the
 application stands on [FastAPI](https://github.com/fastapi/fastapi),
-[Uvicorn](https://github.com/encode/uvicorn),
+[Uvicorn](https://github.com/Kludex/uvicorn),
 [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy),
 [Alembic](https://github.com/sqlalchemy/alembic),
 [psycopg](https://github.com/psycopg/psycopg),
@@ -1455,4 +1517,4 @@ as open source, and the record of how it was built.
 ## License
 
 [Apache 2.0](LICENSE). The software is provided as is; read the code
-and the [threat model](#threat-model) before relying on it.
+and the [threat model](#what-it-defends-against) before relying on it.
