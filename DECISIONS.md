@@ -446,7 +446,7 @@ identity, which is the property D-016 exists to keep.
 A session review found the public documents materially stale: the
 roadmap still said the design phase was in progress and no application
 code existed, the security document said the application did not exist
-while listing five built controls as planned, and the front door
+while listing five built controls as planned, and the README
 undercounted the merged subphases. The failure was structural: the
 subphase-close ritual covered the diagrams and the repository
 description but never the document set, and a figure that lives in
