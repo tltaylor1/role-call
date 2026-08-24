@@ -99,3 +99,21 @@ def test_the_tiles_ignore_filters_and_partition_the_account(
         tiles["critical"] + tiles["warning"] + tiles["notice"] + tiles["quiet"]
         == tiles["identities"]
     )
+
+
+def test_rows_carry_their_top_finding(client: TestClient, db: Session) -> None:
+    """The list teaches before a click (issue 57): a found identity's
+    row carries its worst finding's own explanation, and a quiet
+    identity carries none."""
+    token = _seed(client, db)
+    page = client.get(
+        "/identities?tier=critical&limit=1", headers=auth_header(token)
+    ).json()
+    assert page["rows"], "the sample account has critical identities"
+    top = page["rows"][0]["top_finding"]
+    assert isinstance(top, str) and len(top) > 10
+    quiet = client.get(
+        "/identities?tier=quiet&limit=1", headers=auth_header(token)
+    ).json()
+    assert quiet["rows"], "the sample account has a quiet identity"
+    assert quiet["rows"][0]["top_finding"] is None
