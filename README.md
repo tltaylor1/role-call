@@ -1091,7 +1091,8 @@ committed, and a scaled set of a thousand bulk identities per
 generation for load work), the bill of materials, and checksums,
 and every artifact has a build provenance attestation verifiable
 against the platform's transparency log rather than this repository's
-word:
+word; the attestation bundle also ships as a release asset, so the
+same proof reads offline and by raters that only look at assets:
 
 ```bash
 gh attestation verify sbom-v0.2.0.json -R tltaylor1/role-call

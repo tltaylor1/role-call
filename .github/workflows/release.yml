@@ -47,9 +47,18 @@ jobs:
           "$RUNNER_TEMP/venv/bin/pip-audit" --require-hashes -r requirements.txt --format cyclonedx-json --output "dist/sbom-$GITHUB_REF_NAME.json"
           (cd dist && sha256sum ./* > SHA256SUMS)
       - name: attest build provenance for every artifact
+        id: attest
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: dist/*
+      - name: attach the attestation bundle as a release asset
+        # The provenance lives in the platform's attestation log, but
+        # external raters and offline verifiers look for a signature
+        # file among the release assets; the bundle is the same
+        # attestations in a file, so both audiences read one truth.
+        env:
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: cp "$BUNDLE" "dist/attestations-$GITHUB_REF_NAME.intoto.jsonl"
       - name: publish the release
         env:
           GH_TOKEN: ${{ github.token }}
