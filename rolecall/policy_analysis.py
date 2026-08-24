@@ -17,6 +17,8 @@ The escalation combinations are the published taxonomy credited in
 ACKNOWLEDGEMENTS.md.
 """
 
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass, field
 

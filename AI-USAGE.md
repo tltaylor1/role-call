@@ -77,6 +77,19 @@ manufactured entry would defeat the reason this file exists.
   tooling parses. The limits stay stated, here and in the README,
   rather than in the trailer's name field; no trailer claims a model,
   which remains the true statement.
+- **The code only ran on the interpreter it was built on, and no
+  gate could see it.** Every self-referencing annotation the agent
+  wrote worked on Python 3.14, where annotations are lazy, and
+  crashed 3.11 through 3.13 at import with a bare NameError. The
+  pipeline tested on the same pinned 3.14 image the Dockerfile
+  ships, so the whole gate set shared the blind spot, and the README
+  stated no floor. An outside review caught it by doing what the
+  README invites: cloning and running on a normal interpreter. The
+  sweep that followed found three independent instances where the
+  review reported one. The fix is recorded in D-053, and the
+  standing mechanism is a pipeline job that runs the whole suite on
+  the floor interpreter, so the class is now visible to the gates
+  that missed it (August 2026).
 - **An edit silently did not happen, and a commit message lied about
   it.** Two scripted text replacements targeted wording that was not in
   the file, and the replacement primitive reports nothing on a miss: a

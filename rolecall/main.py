@@ -85,9 +85,22 @@ def create_app() -> FastAPI:
     async def validation_handler(
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
-        # The fixed body: what the caller sent is never repeated back.
+        # Field names and rules only: what the caller sent is never
+        # repeated back, but which rule refused is named, because a
+        # caller who cannot learn the rule reads the source instead.
         log_event("validation_rejected", path=request.url.path)
-        return JSONResponse(status_code=422, content={"detail": "invalid request"})
+        fields = sorted(
+            {
+                ".".join(str(part) for part in err["loc"] if part != "body")
+                + ": "
+                + err["msg"]
+                for err in exc.errors()
+            }
+        )
+        return JSONResponse(
+            status_code=422,
+            content={"detail": "invalid request", "fields": fields},
+        )
 
     @app.exception_handler(Exception)
     async def unhandled_handler(request: Request, exc: Exception) -> JSONResponse:
