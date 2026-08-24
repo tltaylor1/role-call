@@ -16,7 +16,12 @@ from rolecall.db import Base
 
 config = context.config
 
-if config.config_file_name is not None:
+# In-process callers (the demo command, tests) set this attribute so
+# a migration does not reconfigure the host's logging; the alembic
+# command line keeps its usual behavior.
+if config.config_file_name is not None and config.attributes.get(
+    "configure_logger", True
+):
     fileConfig(config.config_file_name)
 
 # Autogenerate compares the models' declared metadata to the live schema.

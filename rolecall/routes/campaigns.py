@@ -207,25 +207,30 @@ def _campaign_view(campaign: Campaign, items: list[CampaignItem]) -> CampaignVie
     )
 
 
-@router.post("/campaigns", status_code=201)
-def create_campaign(
-    body: CreateCampaignRequest,
-    db: Annotated[Session, Depends(get_session)],
-    auth: Annotated[AuthContext, require_roles("POST /campaigns")],
-    _budget: ThrottledWrite,
-) -> CampaignView:
+def build_campaign(
+    db: Session,
+    *,
+    name: str,
+    scope: str,
+    due_at: datetime,
+    recurrence: str,
+    created_by: str,
+) -> tuple[Campaign, list[CampaignItem]]:
+    """The campaign and its frozen population, one builder for every
+    caller: the route and the demo command both create campaigns
+    through this, so a scope means the same population everywhere."""
     campaign = Campaign(
-        name=body.name,
-        scope=body.scope,
-        due_at=body.due_at,
-        recurrence=body.recurrence,
-        created_by=auth.user.username,
+        name=name,
+        scope=scope,
+        due_at=due_at,
+        recurrence=recurrence,
+        created_by=created_by,
     )
     db.add(campaign)
     db.flush()
     items: list[CampaignItem] = []
     for a in assess_identities(db):
-        if not _in_scope_identity(a, body.scope):
+        if not _in_scope_identity(a, scope):
             continue
         rec: Recommendation = recommend(
             a.findings, a.state.observed_days if a.state else 0
@@ -240,7 +245,7 @@ def create_campaign(
             evidence=_identity_evidence(a),
         ))
     for g in assess_groups(db):
-        if g.group_id is None or not _in_scope_group(g, body.scope):
+        if g.group_id is None or not _in_scope_group(g, scope):
             continue
         rec = recommend(g.findings, MIN_OBSERVATION_DAYS)
         items.append(CampaignItem(
@@ -252,6 +257,24 @@ def create_campaign(
             recommendation_reasons=rec.reasons,
             evidence=_group_evidence(g),
         ))
+    return campaign, items
+
+
+@router.post("/campaigns", status_code=201)
+def create_campaign(
+    body: CreateCampaignRequest,
+    db: Annotated[Session, Depends(get_session)],
+    auth: Annotated[AuthContext, require_roles("POST /campaigns")],
+    _budget: ThrottledWrite,
+) -> CampaignView:
+    campaign, items = build_campaign(
+        db,
+        name=body.name,
+        scope=body.scope,
+        due_at=body.due_at,
+        recurrence=body.recurrence,
+        created_by=auth.user.username,
+    )
     if not items:
         raise HTTPException(
             status_code=422,
