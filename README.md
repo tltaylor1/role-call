@@ -25,7 +25,6 @@ role-call is one application inside
 program built in public; the roadmap around this application, the
 platform phases, and the program's own documents live there.
 
-**The figures are the front door, and each is counted by a test:**
 **The measured figures, each counted by a test:**
 
 | Measured | Standing |
