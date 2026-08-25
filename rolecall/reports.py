@@ -133,6 +133,56 @@ def to_csv(rows: list[dict[str, object]]) -> str:
     return out.getvalue()
 
 
+EVIDENCE_SUMMARY_FIELDS = (
+    "campaign", "scope", "population_statement", "created_by",
+    "created_at", "due_at", "closed_at", "closed_by", "total",
+    "decided", "coverage", "exported_at",
+)
+
+EVIDENCE_CSV_COLUMNS = (
+    "display_name", "target_type", "recommendation",
+    "recommendation_reasons", "evidence", "disposition",
+    "disposition_note", "disposed_by", "disposed_at",
+)
+
+
+def evidence_to_csv(export: dict[str, object]) -> str:
+    """The evidence file as one spreadsheet: summary rows first, as
+    field and value pairs, then a blank row, then one row per decision,
+    so the population statement travels in the same artifact as the
+    decisions it frames. Every cell that carries imported or typed text
+    passes through csv_safe, the same gate as the inventory CSV."""
+    out = io.StringIO()
+    writer = csv.writer(out, lineterminator="\n")
+    writer.writerow(("field", "value"))
+    for field in EVIDENCE_SUMMARY_FIELDS:
+        writer.writerow((field, csv_safe(export[field])))
+    writer.writerow(())
+    writer.writerow(EVIDENCE_CSV_COLUMNS)
+    for decision in cast(list[dict[str, object]], export["decisions"]):
+        reasons = "; ".join(
+            cast(list[str], decision["recommendation_reasons"])
+        )
+        evidence = "; ".join(
+            f"{key}={value}"
+            for key, value in sorted(
+                cast(dict[str, object], decision["evidence"]).items()
+            )
+        )
+        writer.writerow([
+            csv_safe(decision["display_name"]),
+            csv_safe(decision["target_type"]),
+            csv_safe(decision["recommendation"]),
+            csv_safe(reasons),
+            csv_safe(evidence),
+            csv_safe(decision["disposition"]),
+            csv_safe(decision["disposition_note"]),
+            csv_safe(decision["disposed_by"]),
+            csv_safe(decision["disposed_at"]),
+        ])
+    return out.getvalue()
+
+
 _environment = Environment(
     loader=FileSystemLoader(Path(__file__).parent / "templates"),
     autoescape=select_autoescape(default=True, default_for_string=True),

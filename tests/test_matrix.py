@@ -141,6 +141,11 @@ CALL_PLANS: dict[str, tuple[str, str, dict[str, object]]] = {
         "/campaigns/999999/evidence",
         {},
     ),
+    "GET /campaigns/{campaign_id}/evidence.csv": (
+        "get",
+        "/campaigns/999999/evidence.csv",
+        {},
+    ),
 }
 
 

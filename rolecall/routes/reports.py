@@ -18,6 +18,7 @@ from rolecall.db import get_session
 from rolecall.deps import require_roles
 from rolecall.models import Campaign, CampaignItem, Snapshot, utcnow
 from rolecall.reports import (
+    evidence_to_csv,
     group_row,
     identity_row,
     rank,
@@ -168,4 +169,27 @@ def campaign_evidence(
             )
             for i in items
         ],
+    )
+
+
+@router.get(
+    "/campaigns/{campaign_id}/evidence.csv",
+    dependencies=[require_roles("GET /campaigns/{campaign_id}/evidence.csv")],
+)
+def campaign_evidence_csv(
+    campaign_id: int, db: Annotated[Session, Depends(get_session)]
+) -> Response:
+    """The same evidence file for people who live in spreadsheets
+    (issue 58): built from the JSON export, never a second read, so
+    the two artifacts cannot disagree about the population or a
+    decision."""
+    export = campaign_evidence(campaign_id, db)
+    return Response(
+        content=evidence_to_csv(export.model_dump()),
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="evidence-{campaign_id}.csv"'
+            )
+        },
     )

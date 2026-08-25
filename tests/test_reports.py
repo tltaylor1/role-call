@@ -11,7 +11,7 @@ import io
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from rolecall.reports import csv_safe
+from rolecall.reports import EVIDENCE_CSV_COLUMNS, csv_safe
 from rolecall.roles import Role
 from tests.conftest import ROLE_USERS, auth_header, login, make_user
 from tests.test_campaigns import create_campaign, detail, dispose
@@ -123,3 +123,47 @@ def test_evidence_export_carries_population_and_every_decision(
     for decision in evidence["decisions"]:
         assert decision["recommendation_reasons"]
         assert decision["evidence"]
+
+
+def test_evidence_csv_matches_the_json_and_stays_escaped(
+    client: TestClient, db: Session
+) -> None:
+    token = operator_token(client, db)
+    import_details(client, token, {
+        "UserDetailList": [
+            user_entry(FORMULA, "AIDAREP0000000000007"),
+            user_entry("plain", "AIDAREP0000000000008"),
+        ],
+    })
+    cid = int(create_campaign(client, token)["id"])  # type: ignore[arg-type]
+    items = list(detail(client, token, cid)["items"])  # type: ignore[arg-type]
+    for item in items:
+        dispose(client, token, cid, item["id"], "certify")
+
+    json_export = client.get(
+        f"/campaigns/{cid}/evidence", headers=auth_header(token)
+    ).json()
+    r = client.get(
+        f"/campaigns/{cid}/evidence.csv", headers=auth_header(token)
+    )
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/csv")
+    rows = list(csv.reader(io.StringIO(r.text)))
+
+    # The summary rows carry the same population statement and coverage
+    # the JSON export states, because the CSV is built from it.
+    summary = {row[0]: row[1] for row in rows if len(row) == 2}
+    assert (
+        summary["population_statement"]
+        == json_export["population_statement"]
+    )
+    assert summary["coverage"] == json_export["coverage"] == "2 of 2"
+
+    # One decision row per item, and the hostile name arrives prefixed,
+    # never bare at cell start, exactly as in the inventory CSV.
+    header_at = rows.index(list(EVIDENCE_CSV_COLUMNS))
+    decisions = [row for row in rows[header_at + 1:] if row]
+    assert len(decisions) == len(json_export["decisions"]) == 2
+    names = [row[0] for row in decisions]
+    assert "'" + FORMULA in names
+    assert FORMULA not in names
