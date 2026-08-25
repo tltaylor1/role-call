@@ -29,7 +29,7 @@ platform phases, and the program's own documents live there.
 
 | Measured | Standing |
 |---|---|
-| Tests | **139 tests in 21 files**, coverage 94 over a 90 percent floor |
+| Tests | **141 tests in 22 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **30 routes**, every one in the role matrix the tests walk |
 | Record | **53 recorded decisions**, each with its rejected alternatives |
@@ -49,8 +49,16 @@ cp .env.example .env   # fill in the four values it names
 docker compose up -d
 ```
 
-Then open http://127.0.0.1:8000 and import the shipped sample account;
-[Run it](#run-it) has the full path and the reasons behind each step.
+Then one command populates it end to end, the sample account
+imported and a review campaign open, safe to run twice:
+
+```bash
+docker compose exec app python -m rolecall.demo
+```
+
+Open http://127.0.0.1:8000, sign in with your administrator, and the
+inventory is live; [Run it](#run-it) has the full path and the
+reasons behind each step.
 
 ## Contents
 
@@ -228,9 +236,15 @@ serves a local look; PostgreSQL is what the compose file runs.
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 export ROLECALL_DATABASE_URL="sqlite+pysqlite:///rc.db"
 export ROLECALL_ADMIN_USERNAME=admin ROLECALL_ADMIN_PASSWORD=<yours>
-.venv/bin/alembic upgrade head
+.venv/bin/python -m rolecall.demo
 .venv/bin/uvicorn rolecall.main:app
 ```
+
+The demo command migrates, creates the administrator from the
+environment, imports the shipped sample months oldest first, and
+opens one review campaign; it converges when run again, so it is
+safe to repeat. To prepare an empty instance instead, replace it
+with `.venv/bin/alembic upgrade head`.
 
 To stop the compose stack, `docker compose down`; add `-v` to also
 delete the database and start clean. The care of a running instance is in
