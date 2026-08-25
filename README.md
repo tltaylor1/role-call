@@ -29,9 +29,9 @@ platform phases, and the program's own documents live there.
 
 | Measured | Standing |
 |---|---|
-| Tests | **142 tests in 22 files**, coverage 94 over a 90 percent floor |
+| Tests | **143 tests in 22 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
-| Surface | **30 routes**, every one in the role matrix the tests walk |
+| Surface | **31 routes**, every one in the role matrix the tests walk |
 | Record | **53 recorded decisions**, each with its rejected alternatives |
 | Gates | 9 required checks on every merge; releases carry provenance attestations |
 
@@ -434,7 +434,8 @@ final within its campaign, a changed mind being the next campaign's
 decision, and close refuses while any item is unanswered, because an
 access review with gaps is a false population statement. The evidence
 export carries the population statement, coverage, and every decision
-with actor and time.
+with actor and time, as JSON and as a CSV built from the same export,
+because the people who consume evidence live in spreadsheets.
 
 **Reports.** The risk report is one self-contained file ranked by the
 engine, safe to open from disk years later. Because it opens from
@@ -672,6 +673,7 @@ GET /export.csv
 GET /export.json
 GET /report.html
 GET /campaigns/{campaign_id}/evidence
+GET /campaigns/{campaign_id}/evidence.csv
 ```
 
 `GET /identities` is paged, because the sample account's eighteen
