@@ -14,6 +14,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from rolecall.assessment import (
+    AssessedIdentity,
     assess_groups,
     assess_identities,
     observation_pairs,
@@ -49,6 +50,10 @@ class IdentityView(BaseModel):
     critical: int
     warning: int
     notice: int
+    # The highest-tier finding's own explanation, one line, so the
+    # list page teaches before a click; None when the identity is
+    # quiet (issue 57).
+    top_finding: str | None
 
 
 class FindingView(BaseModel):
@@ -109,6 +114,16 @@ def _worst_tier(tiers: dict[str, int]) -> str:
     return "quiet"
 
 
+def _top_finding(assessed: AssessedIdentity) -> str | None:
+    # The first finding at the worst tier, in the engine's own order;
+    # one line by contract, so the list payload stays bounded.
+    for tier in ("critical", "warning", "notice"):
+        for finding in assessed.findings:
+            if finding.tier == tier:
+                return finding.explanation
+    return None
+
+
 @router.get("/identities", dependencies=[require_roles("GET /identities")])
 def list_identities(
     db: Annotated[Session, Depends(get_session)],
@@ -160,6 +175,7 @@ def list_identities(
             critical=tiers["critical"],
             warning=tiers["warning"],
             notice=tiers["notice"],
+            top_finding=_top_finding(a),
         ))
     return InventoryPage(
         tiles=tiles, matched=len(matched), offset=offset, limit=limit, rows=rows

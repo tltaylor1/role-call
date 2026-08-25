@@ -29,7 +29,7 @@ platform phases, and the program's own documents live there.
 
 | Measured | Standing |
 |---|---|
-| Tests | **141 tests in 22 files**, coverage 94 over a 90 percent floor |
+| Tests | **142 tests in 22 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **30 routes**, every one in the role matrix the tests walk |
 | Record | **53 recorded decisions**, each with its rejected alternatives |
@@ -360,7 +360,9 @@ duplicates are rejected, so a re-import is harmless and out-of-order
 syncs self-correct.
 
 **Inventory.** The dashboard counts identities by their worst finding
-tier; the table filters by name, type, and tier. Nothing here is a
+tier; the table filters by name, type, and tier, and each row shows
+its worst finding explaining itself, so the list teaches before a
+single click. Nothing here is a
 stored status: every figure is computed at read time from the
 observation history, because a stored security status that drifts
 from reality is worse than none, people trust it. The computation

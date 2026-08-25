@@ -158,7 +158,7 @@ function renderIdentities(rows) {
     ].filter(Boolean).join(", ");
     const tr = row(
       [r.display_name, r.identity_type, r.account,
-       r.critical, r.warning, r.notice, flags],
+       r.critical, r.warning, r.notice, r.top_finding || "", flags],
       () => loadDetail(r.id),
     );
     tr.classList.add("tier-" + identityTier(r));
