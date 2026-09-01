@@ -3,13 +3,15 @@
    so everything visual lives here. */
 :root { --ink: #24292e; --quiet: #57606a; --line: #d8dee4; --paper: #f6f5f2;
         --card: #ffffff; --hover: #fbfaf8;
-        --critical: #b04f2e; --warning: #9a6b1f; --notice: #4a6b8a; }
+        --critical: #b04f2e; --warning: #9a6b1f; --notice: #4a6b8a;
+        color-scheme: light; }
 /* Night mode redefines the same tokens, so every rule below serves
    both themes; the toggle sets data-theme and the choice persists as
    a browser preference, never on the server. */
 :root[data-theme="dark"] { --ink: #d6dde3; --quiet: #8f9aa5; --line: #343b43;
         --paper: #12161a; --card: #1a2026; --hover: #222931;
-        --critical: #e07a54; --warning: #cfa24a; --notice: #85aacd; }
+        --critical: #e07a54; --warning: #cfa24a; --notice: #85aacd;
+        color-scheme: dark; }
 * { box-sizing: border-box; }
 /* The hidden attribute must always win, because any display rule on an
    element quietly overrides its built-in hiding: the nav's flex rule
@@ -25,12 +27,16 @@ nav { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
 nav .spacer { flex: 1; }
 #whoami { color: var(--quiet); font-size: 0.85rem; }
 main { padding: 1.5rem; }
-button { font: inherit; padding: 0.35rem 0.75rem; border: 1px solid var(--line);
+/* Form controls do not inherit text color; the browser paints them
+   black unless told otherwise, which dark mode made visible. */
+button { font: inherit; color: var(--ink); padding: 0.35rem 0.75rem;
+         border: 1px solid var(--line);
          background: var(--card); border-radius: 4px; cursor: pointer; }
 button:hover { border-color: var(--quiet); }
 label { display: inline-flex; flex-direction: column; gap: 0.2rem; margin-right: 1rem;
         font-size: 0.85rem; color: var(--quiet); }
-input, select { font: inherit; padding: 0.3rem 0.4rem; border: 1px solid var(--line);
+input, select { font: inherit; color: var(--ink); padding: 0.3rem 0.4rem;
+                border: 1px solid var(--line);
                 border-radius: 4px; background: var(--card); }
 form { margin-bottom: 1rem; }
 table { width: 100%; border-collapse: collapse; background: var(--card);
