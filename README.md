@@ -29,7 +29,7 @@ platform phases, and the program's own documents live there.
 
 | Measured | Standing |
 |---|---|
-| Tests | **144 tests in 22 files**, coverage 94 over a 90 percent floor |
+| Tests | **146 tests in 22 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **31 routes**, every one in the role matrix the tests walk |
 | Record | **53 recorded decisions**, each with its rejected alternatives |
@@ -679,7 +679,9 @@ GET /campaigns/{campaign_id}/evidence.csv
 `GET /identities` is paged, because the sample account's eighteen
 rows say nothing about an account with thousands: it takes `q` (a
 name substring), `type`, and `tier` as filters, applied on the server
-rather than in the browser, plus `limit` (default 100, at most 500)
+rather than in the browser, plus `sort` and `direction` over a named
+set of columns, applied to the whole matched set before the page is
+cut, plus `limit` (default 100, at most 500)
 and `offset`. The response carries the page of rows, the count the
 filters matched, and account-wide dashboard tiles that no filter
 changes, so the payload is bounded at any inventory size while state

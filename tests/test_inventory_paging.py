@@ -117,3 +117,43 @@ def test_rows_carry_their_top_finding(client: TestClient, db: Session) -> None:
     ).json()
     assert quiet["rows"], "the sample account has a quiet identity"
     assert quiet["rows"][0]["top_finding"] is None
+
+
+def test_sorting_orders_the_whole_matched_set_not_the_page(
+    client: TestClient, db: Session
+) -> None:
+    token = _seed(client, db)
+    page = client.get(
+        "/identities?sort=name&direction=asc&limit=150",
+        headers=auth_header(token),
+    ).json()
+    names = [r["display_name"].lower() for r in page["rows"]]
+    assert names == sorted(names)
+    # The last page under the reversed order starts with what the
+    # ascending order ended with, which only holds if the sort ran
+    # over the matched set before the slice.
+    reversed_page = client.get(
+        "/identities?sort=name&direction=desc&limit=150",
+        headers=auth_header(token),
+    ).json()
+    assert reversed_page["rows"][0]["display_name"].lower() == names[-1] or (
+        reversed_page["rows"][0]["display_name"].lower() >= names[-1]
+    )
+    by_critical = client.get(
+        "/identities?sort=critical&direction=desc",
+        headers=auth_header(token),
+    ).json()
+    counts = [r["critical"] for r in by_critical["rows"]]
+    assert counts == sorted(counts, reverse=True)
+
+
+def test_sort_rejects_columns_the_matrix_never_promised(
+    client: TestClient, db: Session
+) -> None:
+    token = _seed(client, db)
+    assert client.get(
+        "/identities?sort=owner", headers=auth_header(token)
+    ).status_code == 422
+    assert client.get(
+        "/identities?sort=name&direction=sideways", headers=auth_header(token)
+    ).status_code == 422

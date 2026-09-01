@@ -13,6 +13,7 @@
        tags, and policy text, and this page treats all of it as text. -->
   <header>
     <h1>role-call</h1>
+    <button id="theme-toggle" class="theme-toggle" type="button">night mode</button>
     <p id="asof" class="asof" hidden></p>
     <nav id="nav" hidden>
       <button data-view="inventory">Inventory</button>
@@ -60,9 +61,9 @@
         </select>
       </div>
       <table>
-        <thead><tr>
-          <th>identity</th><th>type</th><th>account</th>
-          <th>critical</th><th>warning</th><th>notice</th>
+        <thead id="inventory-head"><tr>
+          <th data-sort="name">identity</th><th data-sort="type">type</th><th data-sort="account">account</th>
+          <th data-sort="critical">critical</th><th data-sort="warning">warning</th><th data-sort="notice">notice</th>
           <th>top finding</th><th>flags</th>
         </tr></thead>
         <tbody id="identity-rows"></tbody>
@@ -202,6 +203,7 @@
     </section>
 
     <section id="campaign-detail" hidden>
+      <button id="campaign-x" class="close-x" type="button" aria-label="Close campaign details">&#215;</button>
       <button id="campaign-back">Back to campaigns</button>
       <h2 id="campaign-name"></h2>
       <p id="campaign-facts"></p>

@@ -17,6 +17,22 @@ const $ = (id) => document.getElementById(id);
 const show = (id) => $(id).hidden = false;
 const hide = (id) => $(id).hidden = true;
 
+// The theme is a browser preference, stored locally and never sent
+// anywhere: the server has no idea which mode anyone reads in.
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  $("theme-toggle").textContent = theme === "dark" ? "day mode" : "night mode";
+  try { localStorage.setItem("rolecall-theme", theme); } catch { /* private mode */ }
+}
+$("theme-toggle").addEventListener("click", () => {
+  const current = document.documentElement.dataset.theme === "dark";
+  applyTheme(current ? "light" : "dark");
+});
+try {
+  const saved = localStorage.getItem("rolecall-theme");
+  if (saved === "dark") applyTheme("dark");
+} catch { /* private mode keeps the default */ }
+
 // Build one table row from a spec of plain-text cells. Numbers and
 // strings only; nothing here parses HTML.
 function row(cells, onClick) {
@@ -112,6 +128,22 @@ async function download(path, filename) {
 const PAGE_SIZE = 100;
 let pageOffset = 0;
 
+// Sorting is the server's job over the whole matched set; the header
+// only remembers which column and direction were asked for.
+let sortKey = null;
+let sortDir = "asc";
+
+function paintSortMarkers() {
+  for (const th of document.querySelectorAll("#inventory-head th[data-sort]")) {
+    if (!th.dataset.label) th.dataset.label = th.textContent;
+    const active = th.dataset.sort === sortKey;
+    th.textContent = th.dataset.label
+      + (active ? (sortDir === "asc" ? " ▴" : " ▾") : "");
+    if (active) th.setAttribute("aria-sort", sortDir === "asc" ? "ascending" : "descending");
+    else th.removeAttribute("aria-sort");
+  }
+}
+
 async function loadInventory() {
   switchView("inventory");
   const params = new URLSearchParams({
@@ -124,6 +156,8 @@ async function loadInventory() {
   if (text) params.set("q", text);
   if (type) params.set("type", type);
   if (tier) params.set("tier", tier);
+  if (sortKey) { params.set("sort", sortKey); params.set("direction", sortDir); }
+  paintSortMarkers();
   const page = await (await api("/identities?" + params)).json();
   const dash = $("dashboard");
   dash.replaceChildren(
@@ -580,6 +614,7 @@ $("campaign-form").addEventListener("submit", async (e) => {
 });
 
 $("campaign-back").addEventListener("click", loadCampaigns);
+$("campaign-x").addEventListener("click", loadCampaigns);
 $("download-report").addEventListener("click",
   () => download("/report.html", "role-call-report.html"));
 $("download-csv").addEventListener("click",
@@ -605,6 +640,15 @@ function filtersChanged(delayed) {
   if (delayed) filterTimer = setTimeout(loadInventory, 250);
   else loadInventory();
 }
+$("inventory-head").addEventListener("click", (e) => {
+  const th = e.target.closest("th[data-sort]");
+  if (!th) return;
+  const key = th.dataset.sort;
+  if (sortKey === key) sortDir = sortDir === "asc" ? "desc" : "asc";
+  else { sortKey = key; sortDir = "asc"; }
+  pageOffset = 0;  // a new order is a new question, so page one
+  loadInventory();
+});
 $("filter-text").addEventListener("input", () => filtersChanged(true));
 $("filter-type").addEventListener("input", () => filtersChanged(false));
 $("filter-tier").addEventListener("input", () => filtersChanged(false));
