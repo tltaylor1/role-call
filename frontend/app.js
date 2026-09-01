@@ -17,6 +17,22 @@ const $ = (id) => document.getElementById(id);
 const show = (id) => $(id).hidden = false;
 const hide = (id) => $(id).hidden = true;
 
+// The theme is a browser preference, stored locally and never sent
+// anywhere: the server has no idea which mode anyone reads in.
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  $("theme-toggle").textContent = theme === "dark" ? "day mode" : "night mode";
+  try { localStorage.setItem("rolecall-theme", theme); } catch { /* private mode */ }
+}
+$("theme-toggle").addEventListener("click", () => {
+  const current = document.documentElement.dataset.theme === "dark";
+  applyTheme(current ? "light" : "dark");
+});
+try {
+  const saved = localStorage.getItem("rolecall-theme");
+  if (saved === "dark") applyTheme("dark");
+} catch { /* private mode keeps the default */ }
+
 // Build one table row from a spec of plain-text cells. Numbers and
 // strings only; nothing here parses HTML.
 function row(cells, onClick) {

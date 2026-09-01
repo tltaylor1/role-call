@@ -2,7 +2,14 @@
    external fetch. The content security policy forbids inline styles,
    so everything visual lives here. */
 :root { --ink: #24292e; --quiet: #57606a; --line: #d8dee4; --paper: #f6f5f2;
+        --card: #ffffff; --hover: #fbfaf8;
         --critical: #b04f2e; --warning: #9a6b1f; --notice: #4a6b8a; }
+/* Night mode redefines the same tokens, so every rule below serves
+   both themes; the toggle sets data-theme and the choice persists as
+   a browser preference, never on the server. */
+:root[data-theme="dark"] { --ink: #d6dde3; --quiet: #8f9aa5; --line: #343b43;
+        --paper: #12161a; --card: #1a2026; --hover: #222931;
+        --critical: #e07a54; --warning: #cfa24a; --notice: #85aacd; }
 * { box-sizing: border-box; }
 /* The hidden attribute must always win, because any display rule on an
    element quietly overrides its built-in hiding: the nav's flex rule
@@ -10,7 +17,8 @@
 [hidden] { display: none !important; }
 body { margin: 0; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
        color: var(--ink); background: var(--paper); }
-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); }
+header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); position: relative; }
+.theme-toggle { position: absolute; top: 1rem; right: 1.5rem; font-size: 0.8rem; }
 h1 { margin: 0; font-size: 1.1rem; letter-spacing: 0.08em; text-transform: lowercase; }
 .asof { margin: 0.25rem 0 0; color: var(--quiet); font-size: 0.85rem; }
 nav { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
@@ -18,26 +26,26 @@ nav .spacer { flex: 1; }
 #whoami { color: var(--quiet); font-size: 0.85rem; }
 main { padding: 1.5rem; }
 button { font: inherit; padding: 0.35rem 0.75rem; border: 1px solid var(--line);
-         background: #fff; border-radius: 4px; cursor: pointer; }
+         background: var(--card); border-radius: 4px; cursor: pointer; }
 button:hover { border-color: var(--quiet); }
 label { display: inline-flex; flex-direction: column; gap: 0.2rem; margin-right: 1rem;
         font-size: 0.85rem; color: var(--quiet); }
 input, select { font: inherit; padding: 0.3rem 0.4rem; border: 1px solid var(--line);
-                border-radius: 4px; background: #fff; }
+                border-radius: 4px; background: var(--card); }
 form { margin-bottom: 1rem; }
-table { width: 100%; border-collapse: collapse; background: #fff;
+table { width: 100%; border-collapse: collapse; background: var(--card);
         border: 1px solid var(--line); }
 th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line);
          font-size: 0.9rem; }
 th { color: var(--quiet); font-weight: 600; font-size: 0.75rem;
      text-transform: uppercase; letter-spacing: 0.05em; }
 tr.clickable { cursor: pointer; }
-tr.clickable:hover { background: #fbfaf8; }
+tr.clickable:hover { background: var(--hover); }
 tr.tier-critical td:first-child { border-left: 3px solid var(--critical); }
 tr.tier-warning td:first-child { border-left: 3px solid var(--warning); }
 tr.tier-notice td:first-child { border-left: 3px solid var(--notice); }
 .tiles { display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; }
-.tile { background: #fff; border: 1px solid var(--line); border-radius: 6px;
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 6px;
         padding: 0.6rem 1rem; min-width: 6rem; display: flex; flex-direction: column; }
 .tile-value { font-size: 1.4rem; font-weight: 600; }
 .tile-label { font-size: 0.75rem; color: var(--quiet); text-transform: uppercase;
@@ -47,11 +55,11 @@ tr.tier-notice td:first-child { border-left: 3px solid var(--notice); }
 .tile.notice .tile-value { color: var(--notice); }
 .filters { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
 dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 1rem;
-     background: #fff; border: 1px solid var(--line); padding: 0.75rem; }
+     background: var(--card); border: 1px solid var(--line); padding: 0.75rem; }
 dt { color: var(--quiet); font-size: 0.8rem; }
 dd { margin: 0; font-size: 0.9rem; }
 ul { list-style: none; padding: 0; }
-.finding { background: #fff; border: 1px solid var(--line); border-left-width: 3px;
+.finding { background: var(--card); border: 1px solid var(--line); border-left-width: 3px;
            padding: 0.5rem 0.75rem; margin-bottom: 0.4rem; border-radius: 3px; }
 .finding.tier-critical { border-left-color: var(--critical); }
 .finding.tier-warning { border-left-color: var(--warning); }
