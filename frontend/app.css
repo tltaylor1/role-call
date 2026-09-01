@@ -4,6 +4,10 @@
 :root { --ink: #24292e; --quiet: #57606a; --line: #d8dee4; --paper: #f6f5f2;
         --critical: #b04f2e; --warning: #9a6b1f; --notice: #4a6b8a; }
 * { box-sizing: border-box; }
+/* The hidden attribute must always win, because any display rule on an
+   element quietly overrides its built-in hiding: the nav's flex rule
+   put the app tabs on the sign-in page until this existed. */
+[hidden] { display: none !important; }
 body { margin: 0; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
        color: var(--ink); background: var(--paper); }
 header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); }
