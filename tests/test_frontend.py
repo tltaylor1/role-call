@@ -200,3 +200,17 @@ def test_hostile_names_survive_as_data_and_never_as_markup(
     shell = client.get("/")
     assert PAYLOAD not in shell.text
     assert "hostile" not in shell.text
+
+
+def test_the_hidden_attribute_always_wins_in_the_stylesheet() -> None:
+    """The nav's flex rule silently overrode the hidden attribute and
+    put the app tabs on the sign-in page. The stylesheet must carry
+    the guard that makes hidden final, ahead of every display rule."""
+    css = Path(__file__).parent.parent.joinpath(
+        "frontend", "app.css"
+    ).read_text()
+    guard = css.find("[hidden] { display: none !important; }")
+    assert guard != -1, "the [hidden] guard left the stylesheet"
+    # Ahead of the first element display rule, so ordering never
+    # becomes the next version of this bug.
+    assert guard < css.find("nav { display:")
