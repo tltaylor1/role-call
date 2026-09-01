@@ -580,6 +580,7 @@ $("campaign-form").addEventListener("submit", async (e) => {
 });
 
 $("campaign-back").addEventListener("click", loadCampaigns);
+$("campaign-x").addEventListener("click", loadCampaigns);
 $("download-report").addEventListener("click",
   () => download("/report.html", "role-call-report.html"));
 $("download-csv").addEventListener("click",
