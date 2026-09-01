@@ -8,7 +8,7 @@
 # claim is verifiable by command, and the commands are in the README.
 services:
   db:
-    image: postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73
+    image: postgres@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
     environment:
       POSTGRES_USER: rolecall
       POSTGRES_DB: rolecall
