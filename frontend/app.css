@@ -39,6 +39,7 @@ th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(
          font-size: 0.9rem; }
 th { color: var(--quiet); font-weight: 600; font-size: 0.75rem;
      text-transform: uppercase; letter-spacing: 0.05em; }
+th[data-sort] { cursor: pointer; user-select: none; }
 tr.clickable { cursor: pointer; }
 tr.clickable:hover { background: var(--hover); }
 tr.tier-critical td:first-child { border-left: 3px solid var(--critical); }

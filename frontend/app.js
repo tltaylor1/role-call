@@ -128,6 +128,22 @@ async function download(path, filename) {
 const PAGE_SIZE = 100;
 let pageOffset = 0;
 
+// Sorting is the server's job over the whole matched set; the header
+// only remembers which column and direction were asked for.
+let sortKey = null;
+let sortDir = "asc";
+
+function paintSortMarkers() {
+  for (const th of document.querySelectorAll("#inventory-head th[data-sort]")) {
+    if (!th.dataset.label) th.dataset.label = th.textContent;
+    const active = th.dataset.sort === sortKey;
+    th.textContent = th.dataset.label
+      + (active ? (sortDir === "asc" ? " ▴" : " ▾") : "");
+    if (active) th.setAttribute("aria-sort", sortDir === "asc" ? "ascending" : "descending");
+    else th.removeAttribute("aria-sort");
+  }
+}
+
 async function loadInventory() {
   switchView("inventory");
   const params = new URLSearchParams({
@@ -140,6 +156,8 @@ async function loadInventory() {
   if (text) params.set("q", text);
   if (type) params.set("type", type);
   if (tier) params.set("tier", tier);
+  if (sortKey) { params.set("sort", sortKey); params.set("direction", sortDir); }
+  paintSortMarkers();
   const page = await (await api("/identities?" + params)).json();
   const dash = $("dashboard");
   dash.replaceChildren(
@@ -622,6 +640,15 @@ function filtersChanged(delayed) {
   if (delayed) filterTimer = setTimeout(loadInventory, 250);
   else loadInventory();
 }
+$("inventory-head").addEventListener("click", (e) => {
+  const th = e.target.closest("th[data-sort]");
+  if (!th) return;
+  const key = th.dataset.sort;
+  if (sortKey === key) sortDir = sortDir === "asc" ? "desc" : "asc";
+  else { sortKey = key; sortDir = "asc"; }
+  pageOffset = 0;  // a new order is a new question, so page one
+  loadInventory();
+});
 $("filter-text").addEventListener("input", () => filtersChanged(true));
 $("filter-type").addEventListener("input", () => filtersChanged(false));
 $("filter-tier").addEventListener("input", () => filtersChanged(false));

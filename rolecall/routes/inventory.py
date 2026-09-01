@@ -132,6 +132,10 @@ def list_identities(
         str | None, Query(alias="type", max_length=16)
     ] = None,
     tier: Literal["critical", "warning", "notice", "quiet"] | None = None,
+    sort: Literal[
+        "name", "type", "account", "critical", "warning", "notice"
+    ] | None = None,
+    direction: Literal["asc", "desc"] = "asc",
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> InventoryPage:
@@ -142,6 +146,9 @@ def list_identities(
     apply here rather than in the browser, at most one page of rows is
     built and serialized, and the tiles come from the per-identity
     tier counts the pass already holds, never from materialized rows.
+    Sorting also happens here, over the whole matched set before the
+    page is cut, because a page that sorts only itself would claim an
+    order the account does not have.
     """
     assessed = assess_identities(db)
     tier_by_id = {a.identity.id: _worst_tier(a.tier_counts()) for a in assessed}
@@ -159,6 +166,16 @@ def list_identities(
         and (identity_type is None or a.identity.identity_type == identity_type)
         and (tier is None or tier_by_id[a.identity.id] == tier)
     ]
+    if sort is not None:
+        sort_keys: dict[str, object] = {
+            "name": lambda a: a.identity.first_display_name.lower(),
+            "type": lambda a: a.identity.identity_type,
+            "account": lambda a: a.account,
+            "critical": lambda a: a.tier_counts()["critical"],
+            "warning": lambda a: a.tier_counts()["warning"],
+            "notice": lambda a: a.tier_counts()["notice"],
+        }
+        matched.sort(key=sort_keys[sort], reverse=direction == "desc")  # type: ignore[arg-type]
     rows = []
     for a in matched[offset:offset + limit]:
         tiers = a.tier_counts()
