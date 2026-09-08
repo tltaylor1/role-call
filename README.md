@@ -33,7 +33,7 @@ platform phases, and the program's own documents live there.
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **31 routes**, every one in the role matrix the tests walk |
 | Record | **53 recorded decisions**, each with its rejected alternatives |
-| Gates | 9 required checks on every merge; releases carry provenance attestations |
+| Gates | 10 required checks on every merge; releases carry provenance attestations |
 
 The commands behind every figure are in
 [The numbers, proven](#the-numbers-proven); a figure that drifts from
@@ -250,6 +250,33 @@ To stop the compose stack, `docker compose down`; add `-v` to also
 delete the database and start clean. The care of a running instance is in
 [Backup, restore, and retention](#operating-it),
 next.
+
+## Troubleshooting
+
+The ways a first run most often looks broken when it is not, each
+from a real session:
+
+- **A rebuild changed nothing on screen.** The browser is serving the
+  previous stylesheet and script from its cache. Hard-refresh the tab
+  (Ctrl+Shift+R) after any `docker compose up --build`; the served
+  files are current, the tab is not.
+- **The demo command exits with code 1 and a message about admin
+  variables.** It refuses to run without `ROLECALL_ADMIN_USERNAME` and
+  `ROLECALL_ADMIN_PASSWORD` set, on purpose, so no clone ever carries a
+  default account. Set both in `.env` and run it again.
+- **The app container starts and then exits.** The database password
+  split (D-051) means `ROLECALL_APP_DB_PASSWORD` must be present in
+  `.env` alongside `POSTGRES_PASSWORD`; a missing one fails the
+  migration step before the server starts. `docker compose logs
+  migrate` names which.
+- **Port 8000 is already taken.** Another instance, often a forgotten
+  `uvicorn`, holds it. `ss -ltnp | grep 8000` names the process; stop
+  it or change the published port in the compose file.
+- **Sign-in fails right after a fresh start.** The admin user is
+  created by the bootstrap on first start from the same two variables;
+  if they changed after the first run, the stored user did not. Reset
+  with the database-delete step above, or create the user through the
+  admin routes.
 
 -------------------------------------------------------------------------------
 
@@ -962,7 +989,7 @@ lands:
 ![The pipeline: triggers, the three workflows, the merge gate, and the delivered artifacts](diagrams/pipeline-gates-sketch.svg)
 
 **checks** runs on every pull request, on the merge to main, and
-weekly on a clock. Seven jobs: `secrets` sweeps the full history with
+weekly on a clock. Eight jobs: `secrets` sweeps the full history with
 TruffleHog with verification on, so a found credential is tested
 against its provider to learn whether it is live; `writing` holds
 these documents to the writing rules and runs the docs-truth and
@@ -1015,7 +1042,14 @@ the code does not: a fix shipping for the base image or a new
 advisory against a pinned dependency is found on schedule instead of
 waiting to fail whichever pull request comes next (D-043).
 
-Nine of these checks are required by the branch ruleset, so there is
+The eighth job, `doctrine`, scores this repository against
+[build-doctrine](https://github.com/tltaylor1/build-doctrine)'s six-level
+scale with the doctrine's own scorer, checked out at a pinned commit, and
+fails when any applicable rule is absent, so the presence baseline, the
+pins, and the counted figures are held by the same tool that publishes
+the score.
+
+Ten of these checks are required by the branch ruleset, so there is
 no path to main around them; the ruleset also requires pull requests
 and plain merge commits and blocks force pushes and deletion. Each
 tool was vetted at adoption and recorded as a decision, and two of
@@ -1088,7 +1122,7 @@ here: mechanisms, not intentions.
 - **The agent cannot land anything alone.** Main refuses direct
   pushes; every change travels a branch and a pull request opened
   under the agent's own identity (D-045), so the author of record and
-  the human who approves are different parties; eight required checks
+  the human who approves are different parties; ten required checks
   and a required approving review must pass; and the merge is a human
   act. Phase and subphase transitions are likewise human declarations,
   never the agent's.
