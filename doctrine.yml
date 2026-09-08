@@ -1,0 +1,3 @@
+# Read by build-doctrine's scorer: the repository's kind decides which rules apply.
+kind: application
+invites_contributions: true
