@@ -150,7 +150,7 @@ jobs:
     # the code is the interpreter that ships it. Automated update tools
     # only bump the Dockerfile; this pin moves by hand in the same commit.
     container:
-      image: python@sha256:ce40764625a4ff50df3548277632e7f96c4e77fe75fa848aae9885476e7df5a4
+      image: python@sha256:8edbf9e42c7fb168b9c523718ed907117e6d2e60f5889c0c499bbda3a787da53
     services:
       # A real database for the migration drift check, on the same digest
       # the compose file pins. The password derives from the run id: not
