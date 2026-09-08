@@ -288,7 +288,7 @@ What the cluster enforces that compose cannot, each verifiable:
 
 ```bash
 .tools/kubectl -n rolecall exec deploy/app -- python -c "import socket; socket.create_connection(('db', 5432), timeout=5); print('allowed')"
-.tools/kubectl -n rolecall run probe --image=postgres@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73 --restart=Never --command -- sleep 300
+.tools/kubectl -n rolecall run probe --image=postgres@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280 --restart=Never --command -- sleep 300
 .tools/kubectl -n rolecall exec probe -- timeout 4 bash -c "echo > /dev/tcp/db/5432"   # hangs and dies: denied
 ```
 
