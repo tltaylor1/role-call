@@ -144,6 +144,30 @@ jobs:
       - name: the suite on the floor interpreter
         run: pytest -q
 
+  doctrine:
+    # The repository scored against build-doctrine's six-level scale by
+    # the doctrine's own scorer, checked out at a pinned commit so the
+    # rules that judge this repository cannot change under it. Any
+    # applicable rule scoring absent fails the merge; the presence
+    # baseline, the pins, and the counted figures are held by the same
+    # tool that publishes the score.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: tltaylor1/build-doctrine
+          ref: 50eca152fa3a97b6a3e783e540bc5707c9b9947c
+          path: doctrine
+          persist-credentials: false
+      - name: score against the doctrine
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 doctrine/scripts/score.py . --repo "$GITHUB_REPOSITORY" --min-level 1
+
   application:
     runs-on: ubuntu-latest
     # The same digest the Dockerfile pins, so the interpreter that tests

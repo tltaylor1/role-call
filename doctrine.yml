@@ -1,3 +1,7 @@
 # Read by build-doctrine's scorer: the repository's kind decides which rules apply.
 kind: application
 invites_contributions: true
+# Level 5 needs proof the gate fired. Each link is a failed run where it did.
+proven:
+  # The actions inventory refused a half-bumped CodeQL action pin.
+  pinned-actions: https://github.com/tltaylor1/role-call/actions/runs/33565119678
