@@ -1036,8 +1036,8 @@ or re-pinned without the table moving fails the build.
 |---|---|---|
 | `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1` (v7.0.1) | every job, all four workflows | Fetches the repository; credentials are not persisted, so no token outlives the step |
 | `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1) | checks, the application job | Carries the software bill of materials out of the run |
-| `github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd` (v4.37.7) | codeql | Sets up the analysis engine for the Python and the workflow files |
-| `github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd` (v4.37.7) | codeql | Runs the queries; findings land in code scanning |
+| `github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938` (v4.37.9) | codeql | Sets up the analysis engine for the Python and the workflow files |
+| `github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938` (v4.37.9) | codeql | Runs the queries; findings land in code scanning |
 | `ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc` (v2.4.4) | scorecard | Rates the repository's posture and publishes the score off-repository |
 | `actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8` (v4.2.2) | release | Attests each artifact's build provenance into the transparency log |
 
