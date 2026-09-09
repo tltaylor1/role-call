@@ -1,10 +1,10 @@
 #!/bin/bash -eu
 # Build every harness under fuzz/ against the pinned dependency tree.
-# The parsers under test import only the standard library and the
-# pinned packages, so the install is the same hash-enforced step the
-# pipeline runs everywhere else.
+# The application is run from its source tree rather than installed
+# as a package, so the harnesses import it the same way: the tree goes
+# on the path for the build and is bundled into each fuzzer binary.
 pip3 install --require-hashes -r requirements.txt
-pip3 install .
+export PYTHONPATH="$SRC/role-call"
 for harness in fuzz/fuzz_*.py; do
-  compile_python_fuzzer "$harness"
+  compile_python_fuzzer "$harness" --paths="$SRC/role-call"
 done
