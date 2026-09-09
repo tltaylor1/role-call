@@ -32,7 +32,7 @@ platform phases, and the program's own documents live there.
 | Tests | **146 tests in 22 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **31 routes**, every one in the role matrix the tests walk |
-| Record | **53 recorded decisions**, each with its rejected alternatives |
+| Record | **54 recorded decisions**, each with its rejected alternatives |
 | Gates | 10 required checks on every merge; releases carry provenance attestations |
 
 The commands behind every figure are in
@@ -1601,8 +1601,10 @@ application stands on [FastAPI](https://github.com/fastapi/fastapi),
 [OpenSSF Scorecard](https://github.com/ossf/scorecard),
 [CodeQL](https://github.com/github/codeql),
 [hadolint](https://github.com/hadolint/hadolint),
-[Trivy](https://github.com/aquasecurity/trivy), and
-[GuardDog](https://github.com/DataDog/guarddog) (DataDog); and the local platform
+[Trivy](https://github.com/aquasecurity/trivy),
+[GuardDog](https://github.com/DataDog/guarddog) (DataDog), and
+[ClusterFuzzLite](https://github.com/google/clusterfuzzlite) with
+[atheris](https://github.com/google/atheris) (Google); and the local platform
 on [Docker](https://github.com/moby/moby),
 [Kubernetes](https://github.com/kubernetes/kubernetes),
 [kind](https://github.com/kubernetes-sigs/kind),

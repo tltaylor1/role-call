@@ -56,6 +56,9 @@ has landed. Each is a mechanism that runs, not a rule that hopes.
 | The checks workflow runs weekly on a clock beside its change triggers | A fix or advisory appearing during a quiet week going unseen until an unrelated pull request takes the blame (D-043) |
 | Coverage floor on the test suite | The suite quietly shrinking below what the controls tables claim it proves |
 | Mutation check: seven controls broken one at a time, the suite must notice each | A control whose proving test is a claim; the check found and closed one such gap at adoption (D-041) |
+| The two import parsers fuzzed under AddressSanitizer, on every change touching them and weekly | An input from another system that escapes the parsers' named refusals and reaches an exception nobody wrote (D-054) |
+| Release assets and the published container image attested; the image digest verifiable against the transparency log | A consumer unable to check what was released, or a registry image differing from the reviewed build (D-050, D-054) |
+| Code-owner review and up-to-date branches required by the ruleset | A change merging behind a moving mainline, or without the named owner's approval (D-054) |
 
 At the repository's visibility flip, the server layer joined: GitHub
 secret scanning and push protection, completing the three scanning
@@ -111,9 +114,9 @@ each failure recorded rather than denied (D-044):
 
 | Its own requirement | Does this repository pass? |
 |---|---|
-| A canonical, pinnable released artifact | Largely. Releases exist from D-050: signed tags, checksummed artifacts, and build provenance attestations verifiable against the platform's transparency log. Still absent by choice: a registry-published package or image, behind its own decision for the day a consumer wants to pull rather than build. |
+| A canonical, pinnable released artifact | Yes. Releases exist from D-050: signed tags, checksummed artifacts, and build provenance attestations verifiable against the platform's transparency log, and from D-054 the container image publishes to the registry under the version tag with an attested digest, so a consumer can pull and verify rather than build. |
 | Cryptographic authorship | Partially. Commits are signed with a registered SSH key from D-044 onward; history before that is unsigned and rests on account control, stated rather than hidden, because backfilling signatures would mean rewriting published history. |
-| A maintained upstream with more than one set of eyes | No. One maintainer, no independent review, recorded as the deliberate zero-approval ruleset (D-028) and visible in the published scorecard rather than claimed away. |
+| A maintained upstream with more than one set of eyes | No, one human. Since D-045 the author of record and the approving human are different parties, and code-owner review is required (D-054), but both sides of that review belong to one person's program; stated here and visible in the published scorecard rather than claimed away. |
 | Generation provenance | Coarse. The commit trailer names the assisting system but cannot name the exact model per commit, because the harness varies it; the dependency tree resolves to exact artifacts, the authorship record does not. |
 | A software bill of materials | Yes, delivered fresh by every pipeline run. |
 | Its own supply chain verified | Yes. Dependencies checked against canonical sources and hash-pinned, pipeline tools checksum-verified, actions pinned by commit, bases pinned by digest. |
