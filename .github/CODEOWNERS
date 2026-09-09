@@ -1,0 +1,5 @@
+# Every path is owned by the human who approves pull requests here, so
+# the platform's code-owner review requirement names the same person
+# the arrangement already relies on (D-045): the agent proposes under
+# its own identity, and the owner's review is what lands a change.
+* @tltaylor1

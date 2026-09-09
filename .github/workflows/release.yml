@@ -25,10 +25,33 @@ jobs:
       contents: write
       id-token: write
       attestations: write
+      # The container image publishes to this repository's package
+      # registry under the same tag, so a consumer can pull instead of
+      # build; the image digest is attested like every other artifact.
+      packages: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: build and publish the container image
+        id: image
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build --pull -t "$IMAGE:$GITHUB_REF_NAME" -t "$IMAGE:latest" .
+          docker push "$IMAGE:$GITHUB_REF_NAME"
+          docker push "$IMAGE:latest"
+          DIGEST="$(docker inspect --format '{{index .RepoDigests 0}}' "$IMAGE:$GITHUB_REF_NAME" | cut -d@ -f2)"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "name=$IMAGE" >> "$GITHUB_OUTPUT"
+      - name: attest the container image
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ${{ steps.image.outputs.name }}
+          subject-digest: ${{ steps.image.outputs.digest }}
+          push-to-registry: true
       - name: install the audit tooling, hashes enforced
         run: |
           python3 -m venv "$RUNNER_TEMP/venv"

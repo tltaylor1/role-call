@@ -983,8 +983,8 @@ home; what follows is this repository's own.
 
 ### The pipeline, explained
 
-Four workflows run the gates, and the diagram shows where each result
-lands:
+Six workflows run the gates, and the diagram shows where the four
+that gate merges and releases land their results:
 
 ![The pipeline: triggers, the three workflows, the merge gate, and the delivered artifacts](diagrams/pipeline-gates-sketch.svg)
 
@@ -1055,9 +1055,28 @@ and plain merge commits and blocks force pushes and deletion. Each
 tool was vetted at adoption and recorded as a decision, and two of
 them found real defects here before they were merged.
 
+**release** also publishes the container image to this repository's
+package registry, `ghcr.io/tltaylor1/role-call`, tagged with the
+version, so a consumer can pull instead of build, and attests the
+image digest the same way it attests every artifact. A pulled image
+verifies with `gh attestation verify oci://ghcr.io/tltaylor1/role-call:<tag> -R tltaylor1/role-call`.
+
+**attest-release** is started by hand with a tag name and attests a
+release that was cut before the release workflow gained its
+attestation step: it downloads the assets exactly as published,
+attests those bytes, and attaches the bundle beside them. The
+provenance says what it is, an attestation of the published files
+dated the day it ran, not a claim about the original build.
+
+**fuzz** runs ClusterFuzzLite against the two parsers that read files
+from other systems, on every pull request touching them and weekly.
+The harnesses under `fuzz/` swallow the named refusal each parser
+promises for bad input and let anything else escape, so a crash it
+finds is an input that reached an exception nobody wrote.
+
 ### The actions the workflows stand on
 
-The workflows themselves run third-party code: six published actions,
+The workflows themselves run third-party code: eight published actions,
 each pinned to a full commit hash, with the version tag kept as a
 comment for the reader. The hash is what runs; a tag can be moved to
 different code, a hash cannot. Dependabot proposes pin moves and a
@@ -1068,12 +1087,14 @@ or re-pinned without the table moving fails the build.
 
 | Action | Where it runs | What it does |
 |---|---|---|
-| `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1` (v7.0.1) | every job, all four workflows | Fetches the repository; credentials are not persisted, so no token outlives the step |
+| `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1` (v7.0.1) | every job of five workflows; the fuzz workflow's actions fetch for themselves | Fetches the repository; credentials are not persisted, so no token outlives the step |
 | `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1) | checks, the application job | Carries the software bill of materials out of the run |
 | `github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938` (v4.37.9) | codeql | Sets up the analysis engine for the Python and the workflow files |
 | `github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938` (v4.37.9) | codeql | Runs the queries; findings land in code scanning |
 | `ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc` (v2.4.4) | scorecard | Rates the repository's posture and publishes the score off-repository |
-| `actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8` (v4.2.2) | release | Attests each artifact's build provenance into the transparency log |
+| `actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8` (v4.2.2) | release, attest-release | Attests each artifact's build provenance, and the container image's digest, into the transparency log |
+| `google/clusterfuzzlite/actions/build_fuzzers@82652fb49e77bc29c35da1167bb286e93c6bcc05` (v1) | fuzz | Builds the harnesses under fuzz/ with AddressSanitizer from the digest-pinned fuzzing base image |
+| `google/clusterfuzzlite/actions/run_fuzzers@82652fb49e77bc29c35da1167bb286e93c6bcc05` (v1) | fuzz | Runs each harness for a bounded time against inputs derived from the change; a crash fails the check |
 
 One tool runs as a container image rather than an action, and it is
 held to the same table discipline: the inventory gate requires every

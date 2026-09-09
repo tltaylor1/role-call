@@ -1,0 +1,54 @@
+# Attest an existing release's assets after the fact. The release
+# workflow attests every release cut since it gained that step; this
+# one covers a release cut before it existed, by downloading the
+# assets exactly as published, attesting those bytes, and attaching
+# the bundle beside them. The provenance is honest about what it is:
+# an attestation of the published files made on the day it ran, not a
+# claim about the build that originally produced them. Started by hand,
+# with the tag named, and nothing else.
+name: attest-release
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The release tag to attest, for example v0.2.0"
+        required: true
+        type: string
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: download the release assets as published
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          mkdir -p dist
+          gh release download "$TAG" --dir dist --pattern '*'
+          rm -f dist/attestations-*.intoto.jsonl
+          ls -l dist
+      - name: attest the published assets
+        id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: dist/*
+      - name: attach the bundle to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          cp "$BUNDLE" "dist/attestations-$TAG.intoto.jsonl"
+          gh release upload "$TAG" "dist/attestations-$TAG.intoto.jsonl" --clobber
