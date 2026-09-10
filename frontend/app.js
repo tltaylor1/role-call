@@ -64,7 +64,7 @@ function tile(label, value, kind) {
 
 async function api(path, options) {
   const opts = options || {};
-  opts.headers = Object.assign({}, opts.headers);
+  opts.headers = { ...opts.headers };
   if (token) opts.headers["Authorization"] = "Bearer " + token;
   const response = await fetch(path, opts);
   if (response.status === 401) {
@@ -137,8 +137,9 @@ function paintSortMarkers() {
   for (const th of document.querySelectorAll("#inventory-head th[data-sort]")) {
     if (!th.dataset.label) th.dataset.label = th.textContent;
     const active = th.dataset.sort === sortKey;
-    th.textContent = th.dataset.label
-      + (active ? (sortDir === "asc" ? " ▴" : " ▾") : "");
+    let marker = "";
+    if (active) marker = sortDir === "asc" ? " ▴" : " ▾";
+    th.textContent = th.dataset.label + marker;
     if (active) th.setAttribute("aria-sort", sortDir === "asc" ? "ascending" : "descending");
     else th.removeAttribute("aria-sort");
   }
@@ -484,7 +485,7 @@ function itemCard(campaign, item) {
   const title = document.createElement("span");
   title.className = "finding-tier";
   title.textContent = item.display_name + " (" + item.target_type + ") "
-    + "recommendation: " + item.recommendation.replace(/_/g, " ");
+    + "recommendation: " + item.recommendation.replaceAll("_", " ");
   card.appendChild(title);
 
   const reasons = document.createElement("ul");
@@ -511,7 +512,7 @@ function itemCard(campaign, item) {
 
   if (item.disposition) {
     const decided = document.createElement("p");
-    decided.textContent = "decided: " + item.disposition.replace(/_/g, " ")
+    decided.textContent = "decided: " + item.disposition.replaceAll("_", " ")
       + (item.disposition_note ? " (" + item.disposition_note + ")" : "")
       + ", by " + item.disposed_by + " on " + item.disposed_at;
     card.appendChild(decided);
@@ -530,7 +531,7 @@ function itemCard(campaign, item) {
   ]) {
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = disposition.replace(/_/g, " ");
+    button.textContent = disposition.replaceAll("_", " ");
     button.addEventListener("click", async () => {
       const body = { disposition };
       if (note.value.trim()) body.note = note.value.trim();
@@ -723,7 +724,7 @@ $("import-form").addEventListener("submit", async (e) => {
   result.hidden = false;
   result.textContent = "importing...";
   try {
-    const response = await api("/imports/" + kind, { method: "POST", body });
+    const response = await api("/imports/" + encodeURIComponent(kind), { method: "POST", body });
     const data = await response.json();
     if (response.ok) {
       result.textContent = "imported " + data.observations + " observations, "

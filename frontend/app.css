@@ -74,6 +74,9 @@ ul { list-style: none; padding: 0; }
 .finding-tier { display: block; font-size: 0.7rem; text-transform: uppercase;
                 letter-spacing: 0.06em; color: var(--quiet); }
 .error { color: var(--critical); }
+/* Result messages are output elements, the native status role, and
+   lay out as the paragraphs they replaced. */
+output { display: block; margin: 1em 0; }
 .close-x { float: right; font-size: 1rem; line-height: 1; padding: 0.25rem 0.55rem; }
 .disposition-note { display: block; width: 100%; max-width: 28rem;
      margin: 0.4rem 0; }

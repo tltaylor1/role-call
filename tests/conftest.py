@@ -68,7 +68,7 @@ ROLE_USERS = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def client() -> Iterator[TestClient]:
     Base.metadata.drop_all(_engine)
     Base.metadata.create_all(_engine)
@@ -78,7 +78,7 @@ def client() -> Iterator[TestClient]:
         yield c
 
 
-@pytest.fixture()
+@pytest.fixture
 def db() -> Iterator[Session]:
     s = _maker()
     try:

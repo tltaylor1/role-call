@@ -45,14 +45,14 @@
         <button id="download-json" type="button">JSON export</button>
       </div>
       <div class="filters">
-        <input id="filter-text" placeholder="filter by name">
-        <select id="filter-type">
+        <input id="filter-text" placeholder="filter by name" aria-label="filter by name">
+        <select id="filter-type" aria-label="filter by type">
           <option value="">every type</option>
           <option value="user">users</option>
           <option value="role">roles</option>
           <option value="root">root</option>
         </select>
-        <select id="filter-tier">
+        <select id="filter-tier" aria-label="filter by tier">
           <option value="">every tier</option>
           <option value="critical">critical</option>
           <option value="warning">warning</option>
@@ -109,7 +109,7 @@
         <label>Attestation <input name="value" value="still needed" maxlength="500" required></label>
         <button type="submit">Attest</button>
       </form>
-      <p id="gov-result" role="status" hidden></p>
+      <output id="gov-result" hidden></output>
       <h4>Governance history</h4>
       <table>
         <thead><tr>
@@ -157,7 +157,7 @@
         </label>
         <button type="submit">Set</button>
       </form>
-      <p id="group-gov-result" role="status" hidden></p>
+      <output id="group-gov-result" hidden></output>
     </section>
 
     <section id="campaigns" hidden>
@@ -184,7 +184,7 @@
         </label>
         <button type="submit">Create</button>
       </form>
-      <p id="campaign-result" role="status" hidden></p>
+      <output id="campaign-result" hidden></output>
       <table>
         <thead><tr>
           <th>campaign</th><th>scope</th><th>due</th><th>progress</th>
@@ -211,7 +211,7 @@
         <button id="campaign-close" type="button" hidden>Close campaign</button>
         <button id="campaign-evidence" type="button">Evidence export</button>
       </div>
-      <p id="campaign-detail-result" role="status" hidden></p>
+      <output id="campaign-detail-result" hidden></output>
       <div id="campaign-items"></div>
     </section>
 
@@ -227,7 +227,7 @@
         </label>
         <label>Captured at <input name="captured_at" placeholder="2026-08-01T00:00:00+00:00" required></label>
         <button type="submit">Import</button>
-        <p id="import-result" role="status" hidden></p>
+        <output id="import-result" hidden></output>
       </form>
       <table>
         <thead><tr>

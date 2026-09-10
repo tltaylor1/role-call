@@ -10,7 +10,7 @@ import importlib
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def demo_env(tmp_path, monkeypatch):
     """A private on-disk database for the demo run, bypassing the
     suite's shared in-memory engine, which conftest installs by

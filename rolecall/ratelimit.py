@@ -37,6 +37,8 @@ class LoginRateLimiter:
             # Distributed probing grows the key map without bound if only
             # touched keys prune; sweep everything once the map is large.
             if len(self._failures) > 1024:
+                # The copy is required: pruning pops emptied keys, and
+                # a dict cannot change size under its own iteration.
                 for stale in list(self._failures):
                     self._prune(stale, now)
             return len(self._prune(key, now)) < self.max_failures
