@@ -6,6 +6,9 @@
 [![Coverage](https://img.shields.io/codecov/c/github/tltaylor1/role-call?label=Coverage&style=for-the-badge)](https://codecov.io/gh/tltaylor1/role-call)
 [![Quality gate](https://img.shields.io/sonar/quality_gate/tltaylor1_role-call?server=https%3A%2F%2Fsonarcloud.io&label=SonarCloud&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=tltaylor1_role-call)
 
+**Documentation site**, this document with side navigation and search:
+<https://tltaylor1.github.io/role-call/>
+
 An inventory and governance tool for non-human identities: the roles,
 service accounts, and access keys that get created, granted permissions
 once, and forgotten. They outnumber the humans in most cloud accounts,
@@ -67,9 +70,6 @@ inventory is live; [Run it](#run-it) has the full path and the
 reasons behind each step.
 
 ## Contents
-
-The same document as a site with side navigation and search:
-<https://tltaylor1.github.io/role-call/>.
 
 - [Status](#status)
 - [The problem](#the-problem)
