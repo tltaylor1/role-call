@@ -175,6 +175,10 @@ jobs:
       # The identity token lets the coverage upload prove which workflow
       # it came from, in place of a stored secret.
       id-token: write
+    env:
+      # Mapped at job level so the scan step's condition can read it;
+      # a step cannot test a variable it sets itself.
+      SONARQUBE_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
     # The same digest the Dockerfile pins, so the interpreter that tests
     # the code is the interpreter that ships it. Automated update tools
     # only bump the Dockerfile; this pin moves by hand in the same commit.
@@ -225,10 +229,10 @@ jobs:
         # Runs only when the token is present, so a fork or a fresh
         # clone without the secret still passes every other gate; the
         # quality gate itself is read on the SonarCloud side.
-        if: env.SONAR_TOKEN != ''
+        if: env.SONARQUBE_TOKEN != ''
         uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ env.SONARQUBE_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
       - name: mutation check
         # Break one control at a time; the tests that claim it must
