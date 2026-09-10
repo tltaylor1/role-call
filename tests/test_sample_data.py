@@ -41,7 +41,9 @@ EVERY_FINDING = {
 
 
 def test_generation_is_deterministic() -> None:
-    assert file_set() == file_set()
+    first = file_set()
+    again = file_set()
+    assert first == again
 
 
 def test_committed_files_match_the_generator() -> None:

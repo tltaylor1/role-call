@@ -258,13 +258,12 @@ def identity_detail(
     # Keyed by snapshot, never by capture time: the two sources import
     # at the same instant, so a time-keyed lookup silently labels half
     # the timeline with the other source's name.
-    sources: dict[int, str] = {
-        snapshot_id: source
-        for snapshot_id, source in db.execute(
+    sources: dict[int, str] = dict(
+        db.execute(
             select(Snapshot.id, Snapshot.source)
             .where(Snapshot.account_id == identity.account_id)
-        ).all()
-    }
+        ).tuples().all()
+    )
     return IdentityDetail(
         id=identity.id,
         account=account,

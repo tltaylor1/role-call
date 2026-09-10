@@ -160,13 +160,12 @@ def assess_identities(db: Session) -> list[AssessedIdentity]:
         .join(Account, Identity.account_id == Account.id)
         .order_by(Account.provider_account_id, Identity.first_display_name)
     ).all()
-    as_of_by_account: dict[int, datetime] = {
-        account_id: captured
-        for account_id, captured in db.execute(
+    as_of_by_account: dict[int, datetime] = dict(
+        db.execute(
             select(Snapshot.account_id, func.max(Snapshot.captured_at))
             .group_by(Snapshot.account_id)
-        ).all()
-    }
+        ).tuples().all()
+    )
     pairs = observation_pairs(db, [i.id for i, _ in identities])
     seen: dict[tuple[int, str], int] = {}
     for identity, _ in identities:

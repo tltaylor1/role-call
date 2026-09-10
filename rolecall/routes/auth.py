@@ -42,7 +42,7 @@ def _client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post("/login")
 def login(
     body: LoginRequest,
     request: Request,

@@ -47,5 +47,6 @@ def test_unconfigured_bootstrap_skips(client: object, db: Session) -> None:
 
 
 def test_policy_violating_password_stops_startup(client: object, db: Session) -> None:
+    settings = _settings(admin_password="short")  # noqa: S106  (deliberately invalid, tests the policy gate)
     with pytest.raises(PasswordPolicyError):
-        bootstrap_admin(db, _settings(admin_password="short"))  # noqa: S106  (deliberately invalid, tests the policy gate)
+        bootstrap_admin(db, settings)

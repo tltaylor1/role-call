@@ -263,7 +263,7 @@ def people(generation: int) -> list[Person]:
     return everyone
 
 
-def roles(generation: int) -> list[Role]:
+def roles() -> list[Role]:
     service = _document({
         "Effect": "Allow",
         "Principal": {"Service": "ec2.amazonaws.com"},
@@ -307,7 +307,7 @@ def roles(generation: int) -> list[Role]:
     ]
 
 
-def groups(generation: int) -> list[Group]:
+def groups() -> list[Group]:
     return [
         Group(name="automation", uid="AGPASAMPLEAUTOMATION",
               why="a standing administrator grant with no owner",
@@ -351,9 +351,11 @@ def bulk_people(generation: int, scale: int) -> list[Person]:
         idle = i % 13 == 0
         last_used = created if idle else captured - timedelta(days=(i % 9) + 1)
         tags = {} if i % 11 == 0 else {"owner": f"team-{i % 12:02d}"}
-        member_of = ["automation"] if i % 29 == 0 else (
-            ["readers"] if i % 5 == 0 else []
-        )
+        member_of: list[str] = []
+        if i % 29 == 0:
+            member_of = ["automation"]
+        elif i % 5 == 0:
+            member_of = ["readers"]
         if human:
             out.append(Person(
                 name=f"person-{i:05d}",
@@ -460,7 +462,7 @@ def authorization_details(generation: int, scale: int = 0) -> str:
                 ),
                 "Tags": [{"Key": k, "Value": v} for k, v in r.tags.items()],
             }
-            for r in roles(generation)
+            for r in roles()
         ],
         "GroupDetailList": [
             {
@@ -475,7 +477,7 @@ def authorization_details(generation: int, scale: int = 0) -> str:
                     for name, document in g.inline
                 ],
             }
-            for g in groups(generation)
+            for g in groups()
         ],
         "Policies": [
             {
