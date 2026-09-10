@@ -1153,3 +1153,41 @@ against a live SQLite instance here before the README documented it.
 independent review performed outside this repository's own gates,
 which is the strongest argument yet recorded here for eyes that did
 not build the thing.
+
+## D-054: Fuzzing the parsers, publishing the image, and code-owner review
+
+Three adoptions in one pull request, each with its own reason.
+
+The two import parsers read files produced by another system, which
+is the shape of code where an input nobody imagined finds a path. The
+property-based tests already exercised them with generated inputs, but
+a fuzzer runs millions of mutated inputs per minute against the
+compiled program under AddressSanitizer, and ClusterFuzzLite does that
+on every pull request touching the parsers, from a digest-pinned
+fuzzing image against the hash-pinned tree. Each harness swallows the
+ValueError-derived refusal the parser promises for bad input and lets
+anything else escape, so a finding is an exception nobody wrote. The
+first run executed eight million inputs without a crash and with low
+coverage, because the parsers refuse random bytes at their first
+check; a seed corpus from the shipped sample files is the follow-up
+that lets the fuzzer start past the front checks.
+
+Releases now publish the container image to this repository's package
+registry under the version tag and attest its digest, because a
+consumer who can pull is better served than one who must build, and an
+attested digest is verifiable without trusting this repository's word.
+A dispatch workflow attests a release cut before attestation existed,
+honest about being dated the day it ran.
+
+A CODEOWNERS file names the one human who already approves every
+change, and the ruleset now requires code-owner review and up-to-date
+branches. The first binds the platform's requirement to the person the
+arrangement (D-045) already relies on; the second is the setting that
+would have prevented both merge races recorded in the standards.
+
+Rejected: OSS-Fuzz proper, which requires acceptance into a program
+this repository has no standing for yet; property-based tests alone,
+which run in-process at test speed rather than at fuzzer speed and are
+not recognized as fuzzing by the posture rater the program tracks; and
+a two-reviewer requirement, which a one-human program cannot honestly
+satisfy.
