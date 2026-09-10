@@ -7,7 +7,8 @@
 [![Quality gate](https://img.shields.io/sonar/quality_gate/tltaylor1_role-call?server=https%3A%2F%2Fsonarcloud.io&label=SonarCloud&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=tltaylor1_role-call)
 
 **Documentation site**, this document with side navigation and search:
-<https://tltaylor1.github.io/role-call/>
+<https://tltaylor1.github.io/role-call/>. What each badge above
+measures and every item it scored: [SCORING.md](SCORING.md).
 
 An inventory and governance tool for non-human identities: the roles,
 service accounts, and access keys that get created, granted permissions
@@ -38,7 +39,7 @@ platform phases, and the program's own documents live there.
 
 | Measured | Standing |
 |---|---|
-| Tests | **147 tests in 23 files**, coverage 94 over a 90 percent floor |
+| Tests | **149 tests in 24 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **31 routes**, every one in the role matrix the tests walk |
 | Record | **54 recorded decisions**, each with its rejected alternatives |

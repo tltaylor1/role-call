@@ -18,6 +18,7 @@ on:
       - "CONTRIBUTING.md"
       - "DECISIONS.md"
       - "AI-USAGE.md"
+      - "SCORING.md"
       - "docs/**"
       - "diagrams/**"
       - "mkdocs.yml"

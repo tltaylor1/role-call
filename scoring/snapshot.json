@@ -1,0 +1,575 @@
+{
+  "taken": "2026-09-10",
+  "scorecard": {
+    "score": 8.7,
+    "date": "2026-09-10",
+    "version": "v5.5.0",
+    "commit": "4dcea54d45a2144da6b41ebe4b92d9a092224876",
+    "checks": [
+      {
+        "name": "Binary-Artifacts",
+        "score": 10,
+        "reason": "no binaries found in the repo",
+        "details": []
+      },
+      {
+        "name": "Branch-Protection",
+        "score": 8,
+        "reason": "branch protection is not maximal on development and all release branches",
+        "details": [
+          "Info: 'allow deletion' disabled on branch 'main'",
+          "Info: 'force pushes' disabled on branch 'main'",
+          "Warn: 'branch protection settings apply to administrators' is disabled on branch 'main'",
+          "Info: 'stale review dismissal' is required to merge on branch 'main'",
+          "Warn: required approving review count is 1 on branch 'main'",
+          "Info: codeowner review is required on branch 'main'",
+          "Info: 'last push approval' is required to merge on branch 'main'",
+          "Info: 'up-to-date branches' is required to merge on branch 'main'",
+          "Info: status check found to merge onto on branch 'main'",
+          "Info: PRs are required in order to make changes on branch 'main'"
+        ]
+      },
+      {
+        "name": "CI-Tests",
+        "score": 10,
+        "reason": "15 out of 15 merged PRs checked by a CI test -- score normalized to 10",
+        "details": []
+      },
+      {
+        "name": "CII-Best-Practices",
+        "score": 5,
+        "reason": "badge detected: Passing",
+        "details": []
+      },
+      {
+        "name": "Code-Review",
+        "score": -1,
+        "reason": "Found no human activity in the last 15 changesets",
+        "details": []
+      },
+      {
+        "name": "Contributors",
+        "score": 0,
+        "reason": "project has 0 contributing companies or organizations -- score normalized to 0",
+        "details": []
+      },
+      {
+        "name": "Dangerous-Workflow",
+        "score": 10,
+        "reason": "no dangerous workflow patterns detected",
+        "details": []
+      },
+      {
+        "name": "Dependency-Update-Tool",
+        "score": 10,
+        "reason": "update tool detected",
+        "details": [
+          "Info: detected update tool: Dependabot: .github/dependabot.yml:1"
+        ]
+      },
+      {
+        "name": "Fuzzing",
+        "score": 10,
+        "reason": "project is fuzzed",
+        "details": [
+          "Info: ClusterFuzzLite integration found",
+          "Info: PythonAtherisFuzzer integration found: fuzz/fuzz_authorization_details.py:12",
+          "Info: PythonAtherisFuzzer integration found: fuzz/fuzz_credential_report.py:12"
+        ]
+      },
+      {
+        "name": "License",
+        "score": 10,
+        "reason": "license file detected",
+        "details": [
+          "Info: project has a license file: LICENSE:0",
+          "Info: FSF or OSI recognized license: Apache License 2.0: LICENSE:0"
+        ]
+      },
+      {
+        "name": "Maintained",
+        "score": 0,
+        "reason": "project was created within the last 90 days. Please review its contents carefully",
+        "details": [
+          "Warn: Repository was created within the last 90 days."
+        ]
+      },
+      {
+        "name": "Packaging",
+        "score": 10,
+        "reason": "packaging workflow detected",
+        "details": [
+          "Info: Project packages its releases by way of GitHub Actions.: .github/workflows/release.yml:19"
+        ]
+      },
+      {
+        "name": "Pinned-Dependencies",
+        "score": 10,
+        "reason": "all dependencies are pinned",
+        "details": [
+          "Info:  22 out of  22 GitHub-owned GitHubAction dependencies pinned",
+          "Info:   5 out of   5 third-party GitHubAction dependencies pinned",
+          "Info:   2 out of   2 containerImage dependencies pinned",
+          "Info:   6 out of   6 pipCommand dependencies pinned"
+        ]
+      },
+      {
+        "name": "SAST",
+        "score": 10,
+        "reason": "SAST tool is run on all commits",
+        "details": [
+          "Info: SAST configuration detected: CodeQL",
+          "Info: all commits (30) are checked with a SAST tool"
+        ]
+      },
+      {
+        "name": "Security-Policy",
+        "score": 10,
+        "reason": "security policy file detected",
+        "details": [
+          "Info: security policy file detected: SECURITY.md:1",
+          "Info: Found linked content: SECURITY.md:1",
+          "Info: Found disclosure, vulnerability, and/or timelines in security policy: SECURITY.md:1",
+          "Info: Found text in security policy: SECURITY.md:1"
+        ]
+      },
+      {
+        "name": "Signed-Releases",
+        "score": 10,
+        "reason": "1 out of the last 1 releases have a total of 1 signed artifacts.",
+        "details": [
+          "Info: provenance for release artifact: attestations-v0.2.0.intoto.jsonl: https://github.com/tltaylor1/role-call/releases/tag/v0.2.0"
+        ]
+      },
+      {
+        "name": "Token-Permissions",
+        "score": 10,
+        "reason": "GitHub workflow tokens follow principle of least privilege",
+        "details": [
+          "Warn: jobLevel 'contents' permission set to 'write': .github/workflows/attest-release.yml:26",
+          "Info: jobLevel 'contents' permission set to 'read': .github/workflows/ci.yml:174",
+          "Info: jobLevel 'contents' permission set to 'read': .github/workflows/codeql.yml:21",
+          "Warn: jobLevel 'contents' permission set to 'write': .github/workflows/release.yml:25",
+          "Info: jobLevel 'contents' permission set to 'read': .github/workflows/scorecard.yml:20",
+          "Info: topLevel 'contents' permission set to 'read': .github/workflows/attest-release.yml:12",
+          "Info: topLevel 'contents' permission set to 'read': .github/workflows/cflite.yml:11",
+          "Info: topLevel 'contents' permission set to 'read': .github/workflows/ci.yml:9",
+          "Info: topLevel 'contents' permission set to 'read': .github/workflows/codeql.yml:8",
+          "Info: topLevel 'contents' permission set to 'read': .github/workflows/docs.yml:10",
+          "Info: topLevel 'contents' permission set to 'read': .github/workflows/release.yml:12",
+          "Info: topLevel 'contents' permission set to 'read': .github/workflows/scorecard.yml:8"
+        ]
+      },
+      {
+        "name": "Vulnerabilities",
+        "score": 10,
+        "reason": "0 existing vulnerabilities detected",
+        "details": []
+      }
+    ]
+  },
+  "best_practices": {
+    "level": "passing",
+    "percentage": 100,
+    "achieved": "2026-09-10",
+    "updated": "2026-09-10",
+    "criteria": {
+      "sites_https": {
+        "status": "Met",
+        "justification": "GitHub, HTTPS only."
+      },
+      "description_good": {
+        "status": "Met",
+        "justification": "The README at https://github.com/tltaylor1/role-call#readme opens by stating what the software does (inventory and governance for non-human identities in AWS accounts) and the problem it addresses."
+      },
+      "interact": {
+        "status": "Met",
+        "justification": "Issues and pull requests are open on GitHub; https://github.com/tltaylor1/role-call/blob/main/CONTRIBUTING.md states how to propose changes and report problems."
+      },
+      "contribution": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/blob/main/CONTRIBUTING.md: every change travels a branch and a pull request through the documented gates."
+      },
+      "contribution_requirements": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/blob/main/CONTRIBUTING.md names the gates, the writing rules, and the requirement that counted figures move with the change."
+      },
+      "license_location": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/blob/main/LICENSE"
+      },
+      "floss_license": {
+        "status": "Met",
+        "justification": "Apache-2.0."
+      },
+      "floss_license_osi": {
+        "status": "Met",
+        "justification": "Apache-2.0 is OSI approved."
+      },
+      "documentation_basics": {
+        "status": "Met",
+        "justification": "The README (https://github.com/tltaylor1/role-call#readme) documents installation by compose, SQLite, and Kubernetes, use under \"Using it\", and the full API surface under \"How it is put together\"."
+      },
+      "documentation_interface": {
+        "status": "Met",
+        "justification": "The routes block in the README is gated by a test against the application's actual route table, and the application serves interactive API documentation from FastAPI at /docs."
+      },
+      "repo_public": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call is public."
+      },
+      "repo_track": {
+        "status": "Met",
+        "justification": "Git tracks every change; the mainline ruleset requires pull requests."
+      },
+      "repo_interim": {
+        "status": "Met",
+        "justification": "Every interim change lands as a pull request on the public repository; nothing is batched into releases."
+      },
+      "repo_distributed": {
+        "status": "Met",
+        "justification": "Git."
+      },
+      "version_unique": {
+        "status": "Met",
+        "justification": "Tags of the form v0.x.y, one per release, see the release process recorded in DECISIONS.md (D-050)."
+      },
+      "version_semver": {
+        "status": "Met",
+        "justification": "Semantic versioning, v0.2.0 the current release."
+      },
+      "version_tags": {
+        "status": "Met",
+        "justification": "Signed tags start the release workflow; https://github.com/tltaylor1/role-call/tags"
+      },
+      "release_notes": {
+        "status": "Met",
+        "justification": "Each release at https://github.com/tltaylor1/role-call/releases carries notes generated from the annotated tag message, and the README's \"What comes next\" section states the roadmap."
+      },
+      "release_notes_vulns": {
+        "status": "Met",
+        "justification": "No vulnerabilities have needed fixing to date; SECURITY.md commits to naming any fixed vulnerability in the release notes."
+      },
+      "report_tracker": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/issues"
+      },
+      "report_process": {
+        "status": "Met",
+        "justification": "GitHub issues, described in https://github.com/tltaylor1/role-call/blob/main/CONTRIBUTING.md"
+      },
+      "report_responses": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/blob/main/SECURITY.md commits to acknowledgment within seven days and a triage answer within fourteen."
+      },
+      "enhancement_responses": {
+        "status": "Met",
+        "justification": "Enhancement requests are answered in the issue tracker on the same commitments."
+      },
+      "report_archive": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/issues?q=is%3Aissue"
+      },
+      "vulnerability_report_process": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/blob/main/SECURITY.md: private reporting through GitHub security advisories."
+      },
+      "vulnerability_report_private": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/security/advisories/new"
+      },
+      "vulnerability_report_response": {
+        "status": "Met",
+        "justification": "Within fourteen days per SECURITY.md."
+      },
+      "build": {
+        "status": "Met",
+        "justification": "Dockerfile and docker compose; pip installs with hash-verified requirements."
+      },
+      "build_common_tools": {
+        "status": "Met",
+        "justification": "Docker, pip, Python."
+      },
+      "build_floss_tools": {
+        "status": "Met",
+        "justification": "All build tooling is FLOSS."
+      },
+      "test": {
+        "status": "Met",
+        "justification": "pytest suite of 146 tests, run in continuous integration on every change and on the oldest supported interpreter."
+      },
+      "test_invocation": {
+        "status": "Met",
+        "justification": "pytest -q, documented in AGENTS.md and in the README under \"How it was built and gated\"."
+      },
+      "test_most": {
+        "status": "Met",
+        "justification": "Coverage 94 percent over a 90 percent floor enforced in CI, plus a mutation check: seven controls removed one at a time, the suite notices each."
+      },
+      "test_policy": {
+        "status": "Met",
+        "justification": "AGENTS.md and CONTRIBUTING.md require tests for new functionality; counted README figures are recounted by a test so a new test must move the figure."
+      },
+      "tests_are_added": {
+        "status": "Met",
+        "justification": "Every functional change in the history lands with its tests; the counted figures make an untested addition visible."
+      },
+      "tests_documented_added": {
+        "status": "Met",
+        "justification": "https://github.com/tltaylor1/role-call/blob/main/CONTRIBUTING.md"
+      },
+      "warnings": {
+        "status": "Met",
+        "justification": "ruff and mypy strict run in continuous integration."
+      },
+      "warnings_fixed": {
+        "status": "Met",
+        "justification": "The pipeline is clean of warnings; a new warning fails the build."
+      },
+      "warnings_strict": {
+        "status": "Met",
+        "justification": "mypy strict mode and the full ruff rule set."
+      },
+      "know_secure_design": {
+        "status": "Met",
+        "justification": "The README sections \"How a request is protected\" and \"What it defends against\", and the threat model in SECURITY.md."
+      },
+      "know_common_errors": {
+        "status": "Met",
+        "justification": "Input handling is documented and tested: escaping at every exit, formula-safe CSV, text-only rendering, parameterized queries."
+      },
+      "crypto_published": {
+        "status": "Met",
+        "justification": "Argon2id via passlib for passwords; TLS from the platform. No home-grown cryptography."
+      },
+      "crypto_call": {
+        "status": "Met",
+        "justification": "Only library calls: passlib and the standard library secrets module."
+      },
+      "crypto_floss": {
+        "status": "Met",
+        "justification": "passlib and CPython are FLOSS."
+      },
+      "crypto_keylength": {
+        "status": "Met",
+        "justification": "Argon2id parameters at library defaults; tokens from secrets.token_urlsafe(32)."
+      },
+      "crypto_working": {
+        "status": "Met",
+        "justification": "No broken algorithms in use; MD5 and SHA-1 appear nowhere."
+      },
+      "crypto_pfs": {
+        "status": "N/A",
+        "justification": "The application terminates no TLS itself; transport security is the deployment platform's."
+      },
+      "crypto_password_storage": {
+        "status": "Met",
+        "justification": "Argon2id hashing with per-password salts via passlib."
+      },
+      "crypto_random": {
+        "status": "Met",
+        "justification": "The secrets module for every token."
+      },
+      "delivery_mitm": {
+        "status": "Met",
+        "justification": "HTTPS delivery, signed tags, and provenance attestations on release assets and the container image."
+      },
+      "delivery_unsigned": {
+        "status": "Met",
+        "justification": "Build provenance attestations on every release asset, verifiable with gh attestation verify; https://github.com/tltaylor1/role-call/releases"
+      },
+      "vulnerabilities_fixed_60_days": {
+        "status": "Met",
+        "justification": "No outstanding vulnerabilities; Dependabot alerts and security updates are enabled and reviewed."
+      },
+      "vulnerabilities_critical_fixed": {
+        "status": "Met",
+        "justification": "None outstanding."
+      },
+      "static_analysis": {
+        "status": "Met",
+        "justification": "CodeQL on every commit and weekly; ruff and mypy strict."
+      },
+      "static_analysis_common_vulnerabilities": {
+        "status": "Met",
+        "justification": "CodeQL security queries for Python and for workflow files."
+      },
+      "static_analysis_fixed": {
+        "status": "Met",
+        "justification": "No open findings."
+      },
+      "static_analysis_often": {
+        "status": "Met",
+        "justification": "Every commit."
+      },
+      "dynamic_analysis": {
+        "status": "Met",
+        "justification": "ClusterFuzzLite fuzzes the two import parsers under AddressSanitizer on every pull request touching them and weekly, alongside property-based tests in the suite."
+      },
+      "dynamic_analysis_unsafe": {
+        "status": "N/A",
+        "justification": "Memory-safe language (Python)."
+      },
+      "dynamic_analysis_enable_assertions": {
+        "status": "Met",
+        "justification": "pytest assertions are active in every run."
+      },
+      "dynamic_analysis_fixed": {
+        "status": "Met",
+        "justification": "No open findings."
+      },
+      "crypto_weaknesses": {
+        "status": "Met",
+        "justification": "No weak algorithms in use."
+      },
+      "test_continuous_integration": {
+        "status": "Met",
+        "justification": "GitHub Actions on every push and pull request; ten required checks gate the mainline."
+      },
+      "discussion": {
+        "status": "Met",
+        "justification": "GitHub issues and pull requests."
+      },
+      "no_leaked_credentials": {
+        "status": "Met",
+        "justification": "TruffleHog scans the full history at every commit and in continuous integration, with verification against providers."
+      },
+      "english": {
+        "status": "Met",
+        "justification": "All documentation and discussion are in English."
+      },
+      "maintained": {
+        "status": "Met",
+        "justification": "Actively developed: release v0.2.0 in August 2026 with changes merged weekly since, and a stated roadmap in the README."
+      }
+    }
+  },
+  "doctrine": {
+    "commit": "31a509add7335bc5448306164e369d97d04e5e35",
+    "kind": "application",
+    "rules": [
+      {
+        "rule": "readme",
+        "level": 4,
+        "reason": "README.md present; this scorer runs in CI"
+      },
+      {
+        "rule": "license",
+        "level": 4,
+        "reason": "LICENSE present; this scorer runs in CI"
+      },
+      {
+        "rule": "security-policy",
+        "level": 4,
+        "reason": "SECURITY.md present; this scorer runs in CI"
+      },
+      {
+        "rule": "contributing",
+        "level": 4,
+        "reason": "CONTRIBUTING.md present; this scorer runs in CI"
+      },
+      {
+        "rule": "decisions-record",
+        "level": 4,
+        "reason": "54 numbered entries; a test recounts them"
+      },
+      {
+        "rule": "commit-subjects",
+        "level": 4,
+        "reason": "all 15 recent subjects lead with an identifier; CI walks the messages"
+      },
+      {
+        "rule": "pinned-actions",
+        "level": 5,
+        "reason": "all 27 uses pinned by commit; a workflow audit gates it; proven: https://github.com/tltaylor1/role-call/actions/runs/33565119678"
+      },
+      {
+        "rule": "ci-gate",
+        "level": 4,
+        "reason": "10 required checks on the mainline: analyze (actions), analyze (python), application, container, doctrine, floor, links, secrets, workflows, writing"
+      },
+      {
+        "rule": "dependency-updates",
+        "level": 3,
+        "reason": "update automation configured"
+      },
+      {
+        "rule": "run-instructions",
+        "level": 1,
+        "reason": "README has a run section with a command block"
+      },
+      {
+        "rule": "troubleshooting",
+        "level": 1,
+        "reason": "README names the likely failures"
+      },
+      {
+        "rule": "counted-figures",
+        "level": 4,
+        "reason": "4 bold figures; a test recounts them from the source"
+      },
+      {
+        "rule": "generated-artifact-parity",
+        "level": null,
+        "reason": "not applicable to an application repository"
+      }
+    ]
+  },
+  "codecov": {
+    "updated": "2026-09-10",
+    "coverage": 94.58,
+    "files": 31,
+    "lines": 2144,
+    "hits": 2028
+  },
+  "sonarcloud": {
+    "status": "OK",
+    "since": "2026-09-10",
+    "conditions": [
+      {
+        "metric": "new_reliability_rating",
+        "comparator": "GT",
+        "threshold": "1",
+        "actual": "1",
+        "status": "OK"
+      },
+      {
+        "metric": "new_security_rating",
+        "comparator": "GT",
+        "threshold": "1",
+        "actual": "1",
+        "status": "OK"
+      },
+      {
+        "metric": "new_maintainability_rating",
+        "comparator": "GT",
+        "threshold": "1",
+        "actual": "1",
+        "status": "OK"
+      },
+      {
+        "metric": "new_duplicated_lines_density",
+        "comparator": "GT",
+        "threshold": "3",
+        "actual": "0.0",
+        "status": "OK"
+      },
+      {
+        "metric": "new_security_hotspots_reviewed",
+        "comparator": "LT",
+        "threshold": "100",
+        "actual": "100.0",
+        "status": "OK"
+      }
+    ],
+    "measures": {
+      "coverage": "78.0",
+      "bugs": "4",
+      "code_smells": "79",
+      "duplicated_lines_density": "1.0",
+      "ncloc": "5569",
+      "vulnerabilities": "2",
+      "security_hotspots": "0"
+    }
+  }
+}
