@@ -68,6 +68,8 @@ jobs:
         run: python3 scripts/check_digest_parity.py
       - name: actions inventory check
         run: python3 scripts/check_actions_inventory.py
+      - name: scoring page matches its snapshot
+        run: python3 scripts/render_scoring.py --check
       - name: commit messages follow the writing rules
         if: github.event_name == 'pull_request'
         env:

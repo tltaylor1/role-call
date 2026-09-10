@@ -6,8 +6,8 @@ documents, so the site has no source of its own to drift.
 The README becomes the site: everything above its first section is
 the home page, and every top-level section becomes a page in README
 order, with the section's headings promoted one level so each page
-has its own title. SECURITY.md, CONTRIBUTING.md, DECISIONS.md, and
-AI-USAGE.md follow as further pages. Links are rewritten to survive
+has its own title. SECURITY.md, CONTRIBUTING.md, DECISIONS.md,
+AI-USAGE.md, and SCORING.md follow as further pages. Links are rewritten to survive
 the split: a heading anchor points at the page that now holds the
 heading, images are copied beside the pages, and links to other files
 in the repository point at them on GitHub. The output directory is
@@ -28,6 +28,7 @@ EXTRA_PAGES = [
     ("CONTRIBUTING.md", "91-contributing.md"),
     ("DECISIONS.md", "92-decisions.md"),
     ("AI-USAGE.md", "93-ai-usage.md"),
+    ("SCORING.md", "94-scoring.md"),
 ]
 ASSET_DIRS = {"docs/screenshots": "screenshots", "diagrams": "diagrams"}
 SKIPPED_SECTIONS = {"Contents"}  # the README's own table of contents
