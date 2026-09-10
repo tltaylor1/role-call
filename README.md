@@ -1,5 +1,9 @@
 # role-call
 
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/tltaylor1/role-call?label=OpenSSF%20Scorecard&style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
+[![Coverage](https://img.shields.io/codecov/c/github/tltaylor1/role-call?label=Coverage&style=for-the-badge)](https://codecov.io/gh/tltaylor1/role-call)
+[![Quality gate](https://img.shields.io/sonar/quality_gate/tltaylor1_role-call?server=https%3A%2F%2Fsonarcloud.io&label=SonarCloud&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=tltaylor1_role-call)
+
 An inventory and governance tool for non-human identities: the roles,
 service accounts, and access keys that get created, granted permissions
 once, and forgotten. They outnumber the humans in most cloud accounts,
@@ -87,8 +91,6 @@ reasons behind each step.
 -------------------------------------------------------------------------------
 
 ## Status
-
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tltaylor1/role-call/badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
 
 **Phases 1 and 2 of 8 are complete and tagged v0.2.0**, with build
 provenance attestations on every release artifact. Phase 1 built the
@@ -1095,6 +1097,8 @@ or re-pinned without the table moving fails the build.
 | `actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8` (v4.2.2) | release, attest-release | Attests each artifact's build provenance, and the container image's digest, into the transparency log |
 | `google/clusterfuzzlite/actions/build_fuzzers@82652fb49e77bc29c35da1167bb286e93c6bcc05` (v1) | fuzz | Builds the harnesses under fuzz/ with AddressSanitizer from the digest-pinned fuzzing base image |
 | `google/clusterfuzzlite/actions/run_fuzzers@82652fb49e77bc29c35da1167bb286e93c6bcc05` (v1) | fuzz | Runs each harness for a bounded time against inputs derived from the change; a crash fails the check |
+| `codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f` (v7.0.0) | checks, the application job | Publishes the coverage report through the workflow's identity token, no stored secret, so the coverage figure is measured and shown by an outside service |
+| `SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f` (v8.2.1) | checks, the application job, when the token is present | Runs SonarCloud's analysis on the same commit the other gates judged, importing the coverage report |
 
 One tool runs as a container image rather than an action, and it is
 held to the same table discipline: the inventory gate requires every
