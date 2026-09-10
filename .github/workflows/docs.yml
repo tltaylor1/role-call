@@ -1,0 +1,59 @@
+# The documentation site, published to GitHub Pages from the same
+# documents the gates check. The pages are generated at build time by
+# scripts/build_docs.py from the README and the root documents, then
+# rendered by the generator installed from the hash-pinned docs tree,
+# in strict mode, so a broken link or anchor fails here before it can
+# reach a reader. Runs when a document it renders changes on main.
+name: docs
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "README.md"
+      - "SECURITY.md"
+      - "CONTRIBUTING.md"
+      - "DECISIONS.md"
+      - "AI-USAGE.md"
+      - "docs/**"
+      - "diagrams/**"
+      - "mkdocs.yml"
+      - "scripts/build_docs.py"
+      - "requirements-docs.txt"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: install the docs tree, hashes enforced
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --no-cache-dir --require-hashes -r requirements-docs.txt
+      - name: generate the pages from the documents
+        run: python3 scripts/build_docs.py
+      - name: render the site, strictly
+        run: '"$RUNNER_TEMP/venv/bin/mkdocs" build --strict'
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
