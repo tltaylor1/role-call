@@ -35,7 +35,7 @@ platform phases, and the program's own documents live there.
 
 | Measured | Standing |
 |---|---|
-| Tests | **146 tests in 22 files**, coverage 94 over a 90 percent floor |
+| Tests | **147 tests in 23 files**, coverage 94 over a 90 percent floor |
 | Mutation | 7 controls removed by the check, 7 noticed by the suite |
 | Surface | **31 routes**, every one in the role matrix the tests walk |
 | Record | **54 recorded decisions**, each with its rejected alternatives |
@@ -67,6 +67,9 @@ inventory is live; [Run it](#run-it) has the full path and the
 reasons behind each step.
 
 ## Contents
+
+The same document as a site with side navigation and search:
+<https://tltaylor1.github.io/role-call/>.
 
 - [Status](#status)
 - [The problem](#the-problem)
@@ -987,7 +990,7 @@ home; what follows is this repository's own.
 
 ### The pipeline, explained
 
-Six workflows run the gates, and the diagram shows where the four
+Seven workflows run the gates, and the diagram shows where the four
 that gate merges and releases land their results:
 
 ![The pipeline: triggers, the three workflows, the merge gate, and the delivered artifacts](diagrams/pipeline-gates-sketch.svg)
@@ -1078,9 +1081,18 @@ The harnesses under `fuzz/` swallow the named refusal each parser
 promises for bad input and let anything else escape, so a crash it
 finds is an input that reached an exception nobody wrote.
 
+**docs** publishes this documentation as a site with side navigation
+and search at <https://tltaylor1.github.io/role-call/>, generated at
+build time from this README and the root documents by
+`scripts/build_docs.py`, so the site has no source of its own to
+drift, and rendered in strict mode so a broken link or anchor fails
+the build rather than reaching a reader. A test holds the generator
+to the README's section count and resolves every anchor across the
+split.
+
 ### The actions the workflows stand on
 
-The workflows themselves run third-party code: eight published actions,
+The workflows themselves run third-party code: twelve published actions,
 each pinned to a full commit hash, with the version tag kept as a
 comment for the reader. The hash is what runs; a tag can be moved to
 different code, a hash cannot. Dependabot proposes pin moves and a
@@ -1091,7 +1103,7 @@ or re-pinned without the table moving fails the build.
 
 | Action | Where it runs | What it does |
 |---|---|---|
-| `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1` (v7.0.1) | every job of five workflows; the fuzz workflow's actions fetch for themselves | Fetches the repository; credentials are not persisted, so no token outlives the step |
+| `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1` (v7.0.1) | every job of six workflows; the fuzz workflow's actions fetch for themselves | Fetches the repository; credentials are not persisted, so no token outlives the step |
 | `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` (v7.0.1) | checks, the application job | Carries the software bill of materials out of the run |
 | `github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938` (v4.37.9) | codeql | Sets up the analysis engine for the Python and the workflow files |
 | `github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938` (v4.37.9) | codeql | Runs the queries; findings land in code scanning |
@@ -1101,6 +1113,8 @@ or re-pinned without the table moving fails the build.
 | `google/clusterfuzzlite/actions/run_fuzzers@82652fb49e77bc29c35da1167bb286e93c6bcc05` (v1) | fuzz | Runs each harness for a bounded time against inputs derived from the change; a crash fails the check |
 | `codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f` (v7.0.0) | checks, the application job | Publishes the coverage report through the workflow's identity token, no stored secret, so the coverage figure is measured and shown by an outside service |
 | `SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f` (v8.2.1) | checks, the application job, when the token is present | Runs SonarCloud's analysis on the same commit the other gates judged, importing the coverage report |
+| `actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9` (v5.0.0) | docs | Packages the rendered site for Pages |
+| `actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346` (v5.0.1) | docs | Publishes the packaged site through the workflow's identity token |
 
 One tool runs as a container image rather than an action, and it is
 held to the same table discipline: the inventory gate requires every
