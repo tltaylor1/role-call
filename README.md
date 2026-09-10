@@ -1,5 +1,7 @@
 # role-call
 
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/tltaylor1/role-call?label=OpenSSF%20Scorecard&style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
+
 An inventory and governance tool for non-human identities: the roles,
 service accounts, and access keys that get created, granted permissions
 once, and forgotten. They outnumber the humans in most cloud accounts,
@@ -87,8 +89,6 @@ reasons behind each step.
 -------------------------------------------------------------------------------
 
 ## Status
-
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tltaylor1/role-call/badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
 
 **Phases 1 and 2 of 8 are complete and tagged v0.2.0**, with build
 provenance attestations on every release artifact. Phase 1 built the
