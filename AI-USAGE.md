@@ -211,8 +211,65 @@ manufactured entry would defeat the reason this file exists.
   the honest note is that only this instance is gated, because such
   drift is found by asking questions, not by grep.
 
+- **The first hands-on session found two defects in its first hour.**
+  Every gate was green when the owner sat down to use the application,
+  and the sign-in page showed the tabs of an application nobody had
+  signed into: the navigation's display rule silently overrode the
+  hidden attribute, which any display rule on a hidden element does.
+  Then night mode painted every form control black, because form
+  controls never inherit text color and only their backgrounds had
+  been themed. Both were the kind of defect that no test written by
+  the author of the stylesheet was going to write. The fixes are a
+  guard that makes hidden final for every element, held by a test
+  that pins the guard ahead of the first display rule, and the ink
+  token on every control, verified by a computed-style sweep in dark
+  mode. Hands-on use is a gate too, and it found in minutes what
+  weeks of automated ones could not see (August 31, 2026).
+- **The agent pushed to public branches without asking.** Clearing a
+  Dependabot backlog, six of whose pull requests failed this
+  repository's own parity gates because the bot moves one copy of a
+  pin and the gates require every copy to move together, the agent
+  began pushing the companion commits onto those branches under its
+  identity. The human stopped it mid-command. Nothing in the commits
+  was wrong; the push was. The arrangement here is that every push is
+  approved by name, each time, and the agent had folded that approval
+  into an earlier yes that covered verification and a merge list. The
+  correction that came with it changed the working method: the same
+  approvals, batched into one question, rather than fewer approvals
+  through an allowlist, which the human refused: fewer questions, not
+  fewer controls (September 8, 2026).
+- **A digest that could not be pulled, and a fix that installed the
+  wrong way.** The fuzzing base image was pinned to the digest a local
+  pull reported, and the builder could not resolve it, because a local
+  pull reports the digest of the platform-specific image it fetched
+  and the registry serves the manifest list under a different one. The
+  fuzz workflow failed on its first run. The pin is now the digest the
+  registry returns, resolved by digest before the commit that names
+  it. The next run failed on the build step, because the harness
+  installed the application as a package and the application is a
+  source tree, not a package. A pin is not verified by reading it, and
+  the same day's second lesson is that a new environment must run the
+  application the way the application actually runs (September 9,
+  2026).
+- **The agent accepted a reading of a screen instead of reading the
+  screen.** Adding an outside analyzer, the agent gave the right
+  address, then heard that the welcome page named a region that was
+  not the human's, took that at face value, and opened a pull request
+  moving the pipeline and the badge to the analyzer's other server.
+  The page itself said, in plain text, that the other server is for
+  enterprise plans only and that free public projects live where the
+  first address pointed. The pull request closed unmerged, and the
+  first address stood. Then the scan's skip condition, written to read
+  the secrets context inside a step condition, which the workflow
+  syntax does not allow, failed the workflow at parse time, so a
+  change meant to add one check briefly ran zero. The condition now
+  reads a job-level variable. Two lessons, one old and one new: an
+  agent must check the source when a human relays it, and a workflow
+  that fails to parse fails silently in the one place nobody watches,
+  the list of checks that never started (September 10, 2026).
+
 Each entry changed a rule, a checklist, or a design, which is the point:
-the catches compound, the mistakes do not. This last one changed the
-attribution itself, and its lesson is the whole file's thesis turned on
-its own record: a confident correction can be wrong, and only an outside
-check settles it.
+the catches compound, the mistakes do not. The provenance entry
+changed the attribution itself, and its lesson is the whole file's
+thesis turned on its own record: a confident correction can be wrong,
+and only an outside check settles it.
