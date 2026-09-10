@@ -3,7 +3,7 @@
 [![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/tltaylor1/role-call?label=OpenSSF%20Scorecard&style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/tltaylor1/role-call)
 [![OpenSSF Best Practices](https://img.shields.io/cii/level/14563?label=OpenSSF%20Best%20Practices&style=for-the-badge)](https://www.bestpractices.dev/projects/14563)
 [![Coverage](https://img.shields.io/codecov/c/github/tltaylor1/role-call?label=Coverage&style=for-the-badge)](https://codecov.io/gh/tltaylor1/role-call)
-[![Quality gate](https://img.shields.io/sonar/quality_gate/tltaylor1_role-call?server=https%3A%2F%2Fsonarcloud.io&label=SonarCloud&style=for-the-badge)](https://sonarcloud.io/summary/new_code?id=tltaylor1_role-call)
+[![Quality gate](https://img.shields.io/sonar/quality_gate/tltaylor1_role-call?server=https%3A%2F%2Fsonarqube.us&label=SonarCloud&style=for-the-badge)](https://sonarqube.us/summary/new_code?id=tltaylor1_role-call)
 
 An inventory and governance tool for non-human identities: the roles,
 service accounts, and access keys that get created, granted permissions
